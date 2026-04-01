@@ -162,6 +162,6 @@ public class ProductsController : BaseApiController
         var result = await _productService.DeleteAsync(id, cancellationToken);
         if (result.IsFailure)
             return HandleNotFound(result.Error ?? "Resource not found");
-        return HandleNoContent();
+        return HandleOkWithMessage("Product deleted successfully");
     }
 }

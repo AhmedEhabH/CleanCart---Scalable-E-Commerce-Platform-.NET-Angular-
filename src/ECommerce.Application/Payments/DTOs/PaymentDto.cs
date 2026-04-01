@@ -26,13 +26,11 @@ public record CreatePaymentRequest(
 );
 
 public record ProcessPaymentRequest(
-    Guid PaymentId,
     string? ProviderReference,
     string? ProviderResponse
 );
 
 public record RefundPaymentRequest(
-    Guid PaymentId,
     decimal? RefundAmount,
     string? Reason
 );

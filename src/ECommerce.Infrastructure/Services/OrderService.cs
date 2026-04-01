@@ -12,10 +12,10 @@ namespace ECommerce.Infrastructure.Services;
 
 public class OrderService : IOrderService
 {
-    private readonly ApplicationDbContext _context;
+    private readonly IApplicationDbContext _context;
     private readonly ICartService _cartService;
 
-    public OrderService(ApplicationDbContext context, ICartService cartService)
+    public OrderService(IApplicationDbContext context, ICartService cartService)
     {
         _context = context;
         _cartService = cartService;

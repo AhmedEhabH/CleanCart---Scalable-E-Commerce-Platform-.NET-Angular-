@@ -123,14 +123,14 @@ public class Order : BaseEntity
 
     public void Refund() => UpdateStatus(OrderStatus.Refunded);
 
-    public Address? GetShippingAddress() => 
+    public ValueObjects.Address? GetShippingAddress() => 
         ShippingAddressJson != null 
-            ? System.Text.Json.JsonSerializer.Deserialize<Address>(ShippingAddressJson) 
+            ? System.Text.Json.JsonSerializer.Deserialize<ValueObjects.Address>(ShippingAddressJson) 
             : null;
 
-    public Address? GetBillingAddress() => 
+    public ValueObjects.Address? GetBillingAddress() => 
         BillingAddressJson != null 
-            ? System.Text.Json.JsonSerializer.Deserialize<Address>(BillingAddressJson) 
+            ? System.Text.Json.JsonSerializer.Deserialize<ValueObjects.Address>(BillingAddressJson) 
             : null;
 
     public int TotalItems => _items.Sum(i => i.Quantity);

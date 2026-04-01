@@ -45,7 +45,7 @@ public class PaymentsControllerTests
 
         var result = await _controller.InitiatePayment(request, CancellationToken.None);
 
-        var createdResult = result.Should().BeOfType<CreatedResult>().Subject;
+        var createdResult = result.Should().BeOfType<ObjectResult>().Subject;
         createdResult.StatusCode.Should().Be(201);
         createdResult.Value.Should().NotBeNull();
         _mockPaymentService.Verify(x => x.CreatePaymentAsync(_userId, request, It.IsAny<CancellationToken>()), Times.Once);
@@ -151,7 +151,7 @@ public class PaymentsControllerTests
             .Setup(x => x.ProcessPaymentAsync(_userId, paymentId, providerReference, It.IsAny<CancellationToken>()))
             .ReturnsAsync(Result<PaymentDto>.Success(paymentDto));
 
-        var result = await _controller.ProcessPayment(paymentId, new ProcessPaymentRequest(paymentId, providerReference, null), CancellationToken.None);
+        var result = await _controller.ProcessPayment(paymentId, new ProcessPaymentRequest(providerReference, null), CancellationToken.None);
 
         var okResult = result.Should().BeOfType<OkObjectResult>().Subject;
         okResult.StatusCode.Should().Be(200);
@@ -167,7 +167,7 @@ public class PaymentsControllerTests
             .Setup(x => x.ProcessPaymentAsync(_userId, paymentId, null, It.IsAny<CancellationToken>()))
             .ReturnsAsync(Result<PaymentDto>.Failure("Payment not found"));
 
-        var result = await _controller.ProcessPayment(paymentId, new ProcessPaymentRequest(paymentId, null, null), CancellationToken.None);
+        var result = await _controller.ProcessPayment(paymentId, new ProcessPaymentRequest(null, null), CancellationToken.None);
 
         var badRequestResult = result.Should().BeOfType<BadRequestObjectResult>().Subject;
         badRequestResult.StatusCode.Should().Be(400);
@@ -183,7 +183,7 @@ public class PaymentsControllerTests
             .Setup(x => x.RefundPaymentAsync(_userId, paymentId, 50.00m, "Customer requested refund", It.IsAny<CancellationToken>()))
             .ReturnsAsync(Result<PaymentDto>.Success(paymentDto));
 
-        var result = await _controller.RefundPayment(paymentId, new RefundPaymentRequest(paymentId, 50.00m, "Customer requested refund"), CancellationToken.None);
+        var result = await _controller.RefundPayment(paymentId, new RefundPaymentRequest(50.00m, "Customer requested refund"), CancellationToken.None);
 
         var okResult = result.Should().BeOfType<OkObjectResult>().Subject;
         okResult.StatusCode.Should().Be(200);
@@ -199,7 +199,7 @@ public class PaymentsControllerTests
             .Setup(x => x.RefundPaymentAsync(_userId, paymentId, null, null, It.IsAny<CancellationToken>()))
             .ReturnsAsync(Result<PaymentDto>.Failure("Only paid payments can be refunded"));
 
-        var result = await _controller.RefundPayment(paymentId, new RefundPaymentRequest(paymentId, null, null), CancellationToken.None);
+        var result = await _controller.RefundPayment(paymentId, new RefundPaymentRequest(null, null), CancellationToken.None);
 
         var badRequestResult = result.Should().BeOfType<BadRequestObjectResult>().Subject;
         badRequestResult.StatusCode.Should().Be(400);

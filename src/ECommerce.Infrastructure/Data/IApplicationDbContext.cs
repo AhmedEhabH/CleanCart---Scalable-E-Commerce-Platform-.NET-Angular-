@@ -20,5 +20,6 @@ public interface IApplicationDbContext
     DbSet<Payment> Payments { get; }
     DbSet<Review> Reviews { get; }
     DbSet<RefreshToken> RefreshTokens { get; }
+    Microsoft.EntityFrameworkCore.Infrastructure.DatabaseFacade Database { get; }
     Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
 }

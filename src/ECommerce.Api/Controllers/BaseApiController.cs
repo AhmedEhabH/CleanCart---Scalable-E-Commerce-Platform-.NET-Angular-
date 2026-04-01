@@ -13,11 +13,11 @@ public abstract class BaseApiController : ControllerBase
     protected IActionResult HandleCreated<T>(T data, string? message = null)
     {
         var response = ApiResponse<T>.SuccessResponse(data, message);
-        return Created($"/{typeof(T).Name.ToLower()}", response);
+        return StatusCode(201, response);
     }
 
-    protected IActionResult HandleNoContent(string? message = null) =>
-        Ok(ApiResponse<object>.SuccessResponse(message ?? "Operation completed successfully"));
+    protected IActionResult HandleOkWithMessage(string message) =>
+        Ok(ApiResponse<object>.SuccessResponse(message));
 
     protected IActionResult HandleNotFound(string message = "Resource not found") =>
         NotFound(ApiResponse<object>.ErrorResponse(message));

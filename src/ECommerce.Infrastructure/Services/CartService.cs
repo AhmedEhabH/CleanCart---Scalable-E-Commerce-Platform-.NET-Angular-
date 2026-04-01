@@ -9,9 +9,9 @@ namespace ECommerce.Infrastructure.Services;
 
 public class CartService : ICartService
 {
-    private readonly ApplicationDbContext _context;
+    private readonly IApplicationDbContext _context;
 
-    public CartService(ApplicationDbContext context)
+    public CartService(IApplicationDbContext context)
     {
         _context = context;
     }
@@ -32,6 +32,9 @@ public class CartService : ICartService
 
         if (request.Quantity <= 0)
             return Result<CartDto>.Failure("Quantity must be greater than zero");
+
+        if (product.StockQuantity < request.Quantity)
+            return Result<CartDto>.Failure($"Insufficient stock. Available: {product.StockQuantity}, Requested: {request.Quantity}");
 
         var cart = await GetOrCreateCartAsync(userId, cancellationToken);
 

@@ -118,15 +118,15 @@ public class CartController : BaseApiController
         var result = await _cartService.RemoveItemAsync(userId, itemId, cancellationToken);
         if (result.IsFailure)
             return HandleNotFound(result.Error ?? "Failed to remove item");
-        return HandleNoContent();
+        return HandleOkWithMessage("Item removed from cart");
     }
 
     /// <summary>
     /// Clear all items from the cart
     /// </summary>
     /// <param name="cancellationToken">Cancellation token</param>
-    /// <returns>No content on success</returns>
-    /// <response code="204">Cart cleared successfully</response>
+    /// <returns>Ok on success</returns>
+    /// <response code="200">Cart cleared successfully</response>
     /// <response code="401">User not authenticated</response>
     [HttpDelete("clear")]
     [ProducesResponseType(typeof(ApiResponse<object>), 200)]
@@ -139,6 +139,6 @@ public class CartController : BaseApiController
         var result = await _cartService.ClearCartAsync(userId, cancellationToken);
         if (result.IsFailure)
             return HandleBadRequest(result.Error ?? "Failed to clear cart");
-        return HandleNoContent();
+        return HandleOkWithMessage("Cart cleared successfully");
     }
 }

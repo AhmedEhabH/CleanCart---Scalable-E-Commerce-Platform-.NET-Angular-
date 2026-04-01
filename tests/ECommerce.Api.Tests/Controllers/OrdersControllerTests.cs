@@ -38,7 +38,7 @@ public class OrdersControllerTests
 
         var result = await _controller.CreateOrder(request, CancellationToken.None);
 
-        var createdResult = result.Should().BeOfType<CreatedResult>().Subject;
+        var createdResult = result.Should().BeOfType<ObjectResult>().Subject;
         createdResult.StatusCode.Should().Be(201);
         _mockOrderService.Verify(x => x.CreateOrderAsync(_userId, request, It.IsAny<CancellationToken>()), Times.Once);
     }

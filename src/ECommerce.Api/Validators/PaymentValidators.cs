@@ -28,11 +28,11 @@ public class ProcessPaymentRequestValidator : AbstractValidator<ProcessPaymentRe
 {
     public ProcessPaymentRequestValidator()
     {
-        RuleFor(x => x.PaymentId)
-            .NotEmpty().WithMessage("Payment ID is required");
-
         RuleFor(x => x.ProviderReference)
             .MaximumLength(100).WithMessage("Provider reference must not exceed 100 characters");
+
+        RuleFor(x => x.ProviderResponse)
+            .MaximumLength(2000).WithMessage("Provider response must not exceed 2000 characters");
     }
 }
 
@@ -40,9 +40,6 @@ public class RefundPaymentRequestValidator : AbstractValidator<RefundPaymentRequ
 {
     public RefundPaymentRequestValidator()
     {
-        RuleFor(x => x.PaymentId)
-            .NotEmpty().WithMessage("Payment ID is required");
-
         RuleFor(x => x.RefundAmount)
             .GreaterThan(0).When(x => x.RefundAmount.HasValue)
             .WithMessage("Refund amount must be greater than zero");

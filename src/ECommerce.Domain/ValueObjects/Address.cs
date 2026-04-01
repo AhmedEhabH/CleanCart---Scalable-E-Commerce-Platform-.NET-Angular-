@@ -1,3 +1,5 @@
+using System.Text.Json.Serialization;
+
 namespace ECommerce.Domain.ValueObjects;
 
 public record Address
@@ -8,7 +10,7 @@ public record Address
     public string PostalCode { get; init; } = string.Empty;
     public string Country { get; init; } = string.Empty;
 
-    private Address() { }
+    public Address() { }
 
     public static Address Create(string street, string city, string state, string postalCode, string country)
     {

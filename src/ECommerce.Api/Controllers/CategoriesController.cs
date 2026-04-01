@@ -140,6 +140,6 @@ public class CategoriesController : BaseApiController
         var result = await _categoryService.DeleteAsync(id, cancellationToken);
         if (result.IsFailure)
             return HandleNotFound(result.Error ?? "Resource not found");
-        return HandleNoContent();
+        return HandleOkWithMessage("Category deleted successfully");
     }
 }
