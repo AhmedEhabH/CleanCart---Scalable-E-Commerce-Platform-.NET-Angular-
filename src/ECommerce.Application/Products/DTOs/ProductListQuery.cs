@@ -5,9 +5,12 @@ public record ProductListQuery(
     int PageSize = 20,
     string? SearchTerm = null,
     Guid? CategoryId = null,
+    Guid? VendorId = null,
     bool? IsFeatured = null,
     bool? IsActive = null,
     bool? IsInStock = null,
+    decimal? MinPrice = null,
+    decimal? MaxPrice = null,
     string? SortBy = null,
     bool SortDescending = false
 );

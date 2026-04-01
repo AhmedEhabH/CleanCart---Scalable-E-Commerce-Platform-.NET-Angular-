@@ -16,6 +16,15 @@ public class ProductsController : BaseApiController
         _currentUserService = currentUserService;
     }
 
+    [HttpGet]
+    public async Task<IActionResult> GetList([FromQuery] ProductListQuery query, CancellationToken cancellationToken)
+    {
+        var result = await _productService.GetPagedAsync(query, cancellationToken);
+        if (result.IsFailure)
+            return HandleBadRequest(result.Error ?? "Bad request");
+        return HandleSuccess(result.Value);
+    }
+
     [HttpGet("{id:guid}")]
     public async Task<IActionResult> GetById(Guid id, CancellationToken cancellationToken)
     {

@@ -14,6 +14,11 @@ public class ProductRepository : IProductRepository
         _context = context;
     }
 
+    public IQueryable<Product> GetQueryable()
+    {
+        return _context.Products.AsQueryable();
+    }
+
     public async Task<Product?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
     {
         return await _context.Products

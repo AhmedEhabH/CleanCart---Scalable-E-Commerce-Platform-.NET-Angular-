@@ -11,6 +11,7 @@ public interface IUserRepository : IRepository<User>
 
 public interface IProductRepository : IRepository<Product>
 {
+    IQueryable<Product> GetQueryable();
     Task<Product?> GetBySlugAsync(string slug, CancellationToken cancellationToken = default);
     Task<Product?> GetWithImagesAsync(Guid id, CancellationToken cancellationToken = default);
     Task<Product?> GetBySKUAsync(string sku, CancellationToken cancellationToken = default);

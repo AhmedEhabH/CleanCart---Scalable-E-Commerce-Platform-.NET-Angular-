@@ -3,6 +3,7 @@ using ECommerce.Application.Products.DTOs;
 using ECommerce.Application.Products.Interfaces;
 using ECommerce.Domain.Entities;
 using ECommerce.Domain.Interfaces;
+using Microsoft.EntityFrameworkCore;
 
 namespace ECommerce.Application.Products.Services;
 
@@ -28,17 +29,21 @@ public class ProductService : IProductService
 
     public async Task<Result<PaginatedResult<ProductDto>>> GetPagedAsync(ProductListQuery query, CancellationToken cancellationToken = default)
     {
-        var products = await _productRepository.GetAllAsync(cancellationToken);
-        var filtered = ApplyFilters(products, query);
-        var sorted = ApplySorting(filtered, query).ToList();
-        var totalCount = sorted.Count;
-        var paged = sorted
+        var queryable = _productRepository.GetQueryable();
+
+        queryable = ApplyFilters(queryable, query);
+        queryable = ApplySorting(queryable, query);
+
+        var totalCount = await queryable.CountAsync(cancellationToken);
+
+        var products = await queryable
+            .Include(p => p.Images)
             .Skip((query.Page - 1) * query.PageSize)
             .Take(query.PageSize)
-            .Select(p => MapToDto(p))
-            .ToList();
+            .ToListAsync(cancellationToken);
 
-        var result = new PaginatedResult<ProductDto>(paged, totalCount, query.Page, query.PageSize);
+        var dtos = products.Select(MapToDto).ToList();
+        var result = new PaginatedResult<ProductDto>(dtos, totalCount, query.Page, query.PageSize);
 
         return Result<PaginatedResult<ProductDto>>.Success(result);
     }
@@ -242,55 +247,59 @@ public class ProductService : IProductService
         );
     }
 
-    private static IEnumerable<Product> ApplyFilters(IReadOnlyList<Product> products, ProductListQuery query)
+    private static IQueryable<Product> ApplyFilters(IQueryable<Product> queryable, ProductListQuery query)
     {
-        var filtered = products.AsEnumerable();
-
         if (!string.IsNullOrWhiteSpace(query.SearchTerm))
         {
             var term = query.SearchTerm.ToLowerInvariant();
-            filtered = filtered.Where(p =>
+            queryable = queryable.Where(p =>
                 p.Name.ToLowerInvariant().Contains(term) ||
                 (p.Description != null && p.Description.ToLowerInvariant().Contains(term)));
         }
 
         if (query.CategoryId.HasValue)
-            filtered = filtered.Where(p => p.CategoryId == query.CategoryId.Value);
+            queryable = queryable.Where(p => p.CategoryId == query.CategoryId.Value);
+
+        if (query.VendorId.HasValue)
+            queryable = queryable.Where(p => p.VendorId == query.VendorId.Value);
 
         if (query.IsFeatured.HasValue)
-            filtered = filtered.Where(p => p.IsFeatured == query.IsFeatured.Value);
+            queryable = queryable.Where(p => p.IsFeatured == query.IsFeatured.Value);
 
         if (query.IsActive.HasValue)
-            filtered = filtered.Where(p => p.IsActive == query.IsActive.Value);
+            queryable = queryable.Where(p => p.IsActive == query.IsActive.Value);
 
         if (query.IsInStock.HasValue)
-            filtered = filtered.Where(p => p.IsInStock == query.IsInStock.Value);
+            queryable = queryable.Where(p => p.StockQuantity > 0 == query.IsInStock.Value);
 
-        return filtered;
+        if (query.MinPrice.HasValue)
+            queryable = queryable.Where(p => p.Price >= query.MinPrice.Value);
+
+        if (query.MaxPrice.HasValue)
+            queryable = queryable.Where(p => p.Price <= query.MaxPrice.Value);
+
+        return queryable;
     }
 
-    private static IEnumerable<Product> ApplySorting(IEnumerable<Product> products, ProductListQuery query)
+    private static IQueryable<Product> ApplySorting(IQueryable<Product> queryable, ProductListQuery query)
     {
-        var list = products.ToList();
-        IEnumerable<Product> sorted = query.SortBy?.ToLowerInvariant() switch
+        return query.SortBy?.ToLowerInvariant() switch
         {
             "name" => query.SortDescending
-                ? (IEnumerable<Product>)list.OrderByDescending(p => p.Name)
-                : list.OrderBy(p => p.Name),
+                ? queryable.OrderByDescending(p => p.Name)
+                : queryable.OrderBy(p => p.Name),
             "price" => query.SortDescending
-                ? (IEnumerable<Product>)list.OrderByDescending(p => p.Price)
-                : list.OrderBy(p => p.Price),
+                ? queryable.OrderByDescending(p => p.Price)
+                : queryable.OrderBy(p => p.Price),
             "created" => query.SortDescending
-                ? (IEnumerable<Product>)list.OrderByDescending(p => p.CreatedAt)
-                : list.OrderBy(p => p.CreatedAt),
+                ? queryable.OrderByDescending(p => p.CreatedAt)
+                : queryable.OrderBy(p => p.CreatedAt),
             "rating" => query.SortDescending
-                ? (IEnumerable<Product>)list.OrderByDescending(p => p.AverageRating)
-                : list.OrderBy(p => p.AverageRating),
+                ? queryable.OrderByDescending(p => p.AverageRating)
+                : queryable.OrderBy(p => p.AverageRating),
             _ => query.SortDescending
-                ? (IEnumerable<Product>)list.OrderByDescending(p => p.CreatedAt)
-                : list.OrderBy(p => p.CreatedAt)
+                ? queryable.OrderByDescending(p => p.CreatedAt)
+                : queryable.OrderBy(p => p.CreatedAt)
         };
-
-        return sorted;
     }
 }
