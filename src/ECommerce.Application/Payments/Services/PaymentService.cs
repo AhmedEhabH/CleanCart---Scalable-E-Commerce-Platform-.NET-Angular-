@@ -19,11 +19,23 @@ public class PaymentService : IPaymentService
         _orderRepository = orderRepository;
     }
 
-    public async Task<Result<PaymentDto>> CreatePaymentAsync(CreatePaymentRequest request, CancellationToken cancellationToken = default)
+    public async Task<Result<PaymentDto>> CreatePaymentAsync(Guid userId, CreatePaymentRequest request, CancellationToken cancellationToken = default)
     {
         var order = await _orderRepository.GetByIdAsync(request.OrderId, cancellationToken);
         if (order == null)
             return Result<PaymentDto>.Failure("Order not found");
+
+        if (order.UserId != userId)
+            return Result<PaymentDto>.Failure("Order not found");
+
+        var existingPayments = await _paymentRepository.GetByOrderIdAsync(request.OrderId, cancellationToken);
+        var hasSuccessfulPayment = existingPayments.Any(p => p.IsSuccessful);
+        if (hasSuccessfulPayment)
+            return Result<PaymentDto>.Failure("A successful payment already exists for this order");
+
+        var amountDifference = Math.Abs(request.Amount - order.TotalAmount);
+        if (amountDifference > 0.01m)
+            return Result<PaymentDto>.Failure($"Payment amount must match order total. Order total: {order.TotalAmount}, Payment amount: {request.Amount}");
 
         var payment = Payment.Create(
             request.OrderId,
@@ -40,17 +52,25 @@ public class PaymentService : IPaymentService
         return Result<PaymentDto>.Success(MapToDto(created));
     }
 
-    public async Task<Result<PaymentDto>> GetPaymentByIdAsync(Guid paymentId, CancellationToken cancellationToken = default)
+    public async Task<Result<PaymentDto>> GetPaymentByIdAsync(Guid userId, Guid paymentId, CancellationToken cancellationToken = default)
     {
         var payment = await _paymentRepository.GetByIdAsync(paymentId, cancellationToken);
         if (payment == null)
             return Result<PaymentDto>.Failure("Payment not found");
 
+        var order = await _orderRepository.GetByIdAsync(payment.OrderId, cancellationToken);
+        if (order == null || order.UserId != userId)
+            return Result<PaymentDto>.Failure("Payment not found");
+
         return Result<PaymentDto>.Success(MapToDto(payment));
     }
 
-    public async Task<Result<PaymentDto>> GetPaymentByOrderIdAsync(Guid orderId, CancellationToken cancellationToken = default)
+    public async Task<Result<PaymentDto>> GetPaymentByOrderIdAsync(Guid userId, Guid orderId, CancellationToken cancellationToken = default)
     {
+        var order = await _orderRepository.GetByIdAsync(orderId, cancellationToken);
+        if (order == null || order.UserId != userId)
+            return Result<PaymentDto>.Failure("Order not found");
+
         var payments = await _paymentRepository.GetByOrderIdAsync(orderId, cancellationToken);
         var payment = payments.FirstOrDefault();
         if (payment == null)
@@ -59,10 +79,14 @@ public class PaymentService : IPaymentService
         return Result<PaymentDto>.Success(MapToDto(payment));
     }
 
-    public async Task<Result<PaymentDto>> ProcessPaymentAsync(Guid paymentId, string? providerReference = null, CancellationToken cancellationToken = default)
+    public async Task<Result<PaymentDto>> ProcessPaymentAsync(Guid userId, Guid paymentId, string? providerReference = null, CancellationToken cancellationToken = default)
     {
         var payment = await _paymentRepository.GetByIdAsync(paymentId, cancellationToken);
         if (payment == null)
+            return Result<PaymentDto>.Failure("Payment not found");
+
+        var order = await _orderRepository.GetByIdAsync(payment.OrderId, cancellationToken);
+        if (order == null || order.UserId != userId)
             return Result<PaymentDto>.Failure("Payment not found");
 
         try
@@ -80,10 +104,14 @@ public class PaymentService : IPaymentService
         }
     }
 
-    public async Task<Result<PaymentDto>> MarkPaymentAsPaidAsync(Guid paymentId, string? providerResponse = null, CancellationToken cancellationToken = default)
+    public async Task<Result<PaymentDto>> MarkPaymentAsPaidAsync(Guid userId, Guid paymentId, string? providerResponse = null, CancellationToken cancellationToken = default)
     {
         var payment = await _paymentRepository.GetByIdAsync(paymentId, cancellationToken);
         if (payment == null)
+            return Result<PaymentDto>.Failure("Payment not found");
+
+        var order = await _orderRepository.GetByIdAsync(payment.OrderId, cancellationToken);
+        if (order == null || order.UserId != userId)
             return Result<PaymentDto>.Failure("Payment not found");
 
         try
@@ -99,10 +127,14 @@ public class PaymentService : IPaymentService
         }
     }
 
-    public async Task<Result<PaymentDto>> MarkPaymentAsFailedAsync(Guid paymentId, string reason, CancellationToken cancellationToken = default)
+    public async Task<Result<PaymentDto>> MarkPaymentAsFailedAsync(Guid userId, Guid paymentId, string reason, CancellationToken cancellationToken = default)
     {
         var payment = await _paymentRepository.GetByIdAsync(paymentId, cancellationToken);
         if (payment == null)
+            return Result<PaymentDto>.Failure("Payment not found");
+
+        var order = await _orderRepository.GetByIdAsync(payment.OrderId, cancellationToken);
+        if (order == null || order.UserId != userId)
             return Result<PaymentDto>.Failure("Payment not found");
 
         payment.MarkAsFailed(reason);
@@ -111,10 +143,14 @@ public class PaymentService : IPaymentService
         return Result<PaymentDto>.Success(MapToDto(payment));
     }
 
-    public async Task<Result<PaymentDto>> RefundPaymentAsync(Guid paymentId, decimal? refundAmount = null, string? reason = null, CancellationToken cancellationToken = default)
+    public async Task<Result<PaymentDto>> RefundPaymentAsync(Guid userId, Guid paymentId, decimal? refundAmount = null, string? reason = null, CancellationToken cancellationToken = default)
     {
         var payment = await _paymentRepository.GetByIdAsync(paymentId, cancellationToken);
         if (payment == null)
+            return Result<PaymentDto>.Failure("Payment not found");
+
+        var order = await _orderRepository.GetByIdAsync(payment.OrderId, cancellationToken);
+        if (order == null || order.UserId != userId)
             return Result<PaymentDto>.Failure("Payment not found");
 
         try

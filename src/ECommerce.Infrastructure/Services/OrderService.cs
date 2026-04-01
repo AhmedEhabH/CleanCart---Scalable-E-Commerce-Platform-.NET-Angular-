@@ -23,21 +23,13 @@ public class OrderService : IOrderService
 
     public async Task<Result<OrderDto>> CreateOrderAsync(Guid userId, CreateOrderRequest request, CancellationToken cancellationToken = default)
     {
-        var cartResult = await _cartService.GetCartAsync(userId, cancellationToken);
-        if (!cartResult.IsSuccess)
-            return Result<OrderDto>.Failure(cartResult.Error!);
-
-        var cart = cartResult.Value;
-        if (cart.IsEmpty)
-            return Result<OrderDto>.Failure("Cart is empty");
-
         var cartEntity = await _context.Carts
             .Include(c => c.Items)
             .ThenInclude(i => i.Product)
             .FirstOrDefaultAsync(c => c.UserId == userId && c.IsActive, cancellationToken);
 
-        if (cartEntity == null || cartEntity.IsEmpty)
-            return Result<OrderDto>.Failure("No items in cart");
+        if (cartEntity == null || cartEntity.Items.Count == 0)
+            return Result<OrderDto>.Failure("Cart is empty");
 
         var cartItems = cartEntity.Items.ToList();
 
@@ -56,7 +48,7 @@ public class OrderService : IOrderService
             }
         }
 
-        if (stockErrors.Any())
+        if (stockErrors.Count > 0)
             return Result<OrderDto>.Failure(string.Join("; ", stockErrors));
 
         var subtotal = cartItems.Sum(ci => ci.UnitPrice * ci.Quantity);
@@ -83,40 +75,58 @@ public class OrderService : IOrderService
             )
             : null;
 
-        var order = Order.Create(
-            userId,
-            subtotal,
-            taxAmount,
-            shippingCost,
-            discountAmount,
-            shippingAddress,
-            billingAddress,
-            request.Notes
-        );
+        await using var transaction = await _context.Database.BeginTransactionAsync(cancellationToken);
 
-        foreach (var item in cartItems)
+        try
         {
-            if (item.Product != null)
+            var order = Order.Create(
+                userId,
+                subtotal,
+                taxAmount,
+                shippingCost,
+                discountAmount,
+                shippingAddress,
+                billingAddress,
+                request.Notes
+            );
+
+            foreach (var item in cartItems)
             {
-                order.AddItem(
-                    item.ProductId,
-                    item.Product.VendorId,
-                    item.Product.Name,
-                    item.Product.SKU,
-                    item.UnitPrice,
-                    item.Quantity
-                );
+                if (item.Product != null)
+                {
+                    order.AddItem(
+                        item.ProductId,
+                        item.Product.VendorId,
+                        item.Product.Name,
+                        item.Product.SKU,
+                        item.UnitPrice,
+                        item.Quantity
+                    );
 
-                item.Product.UpdateStock(-item.Quantity);
+                    item.Product.UpdateStock(-item.Quantity);
+                }
             }
+
+            _context.Orders.Add(order);
+            await _context.SaveChangesAsync(cancellationToken);
+
+            cartEntity.Clear();
+            await _context.SaveChangesAsync(cancellationToken);
+
+            await transaction.CommitAsync(cancellationToken);
+
+            return Result<OrderDto>.Success(MapToOrderDto(order));
         }
-
-        _context.Orders.Add(order);
-        await _context.SaveChangesAsync(cancellationToken);
-
-        await _cartService.ClearCartAsync(userId, cancellationToken);
-
-        return Result<OrderDto>.Success(MapToOrderDto(order));
+        catch (InvalidOperationException ex) when (ex.Message.Contains("Insufficient stock"))
+        {
+            await transaction.RollbackAsync(cancellationToken);
+            return Result<OrderDto>.Failure(ex.Message);
+        }
+        catch
+        {
+            await transaction.RollbackAsync(cancellationToken);
+            throw;
+        }
     }
 
     public async Task<Result<OrderDto>> GetOrderByIdAsync(Guid orderId, Guid userId, CancellationToken cancellationToken = default)
