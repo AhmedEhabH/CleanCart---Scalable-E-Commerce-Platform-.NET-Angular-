@@ -31,8 +31,8 @@ public class Order : BaseEntity
         decimal taxAmount,
         decimal shippingCost,
         decimal discountAmount,
-        Address shippingAddress,
-        Address? billingAddress = null,
+        ValueObjects.Address shippingAddress,
+        ValueObjects.Address? billingAddress = null,
         string? notes = null)
     {
         if (subtotal < 0)
