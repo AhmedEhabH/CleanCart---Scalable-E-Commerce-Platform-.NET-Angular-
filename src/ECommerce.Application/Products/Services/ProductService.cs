@@ -1,3 +1,4 @@
+using ECommerce.Application.Common.Interfaces;
 using ECommerce.Application.Common.Models;
 using ECommerce.Application.Products.DTOs;
 using ECommerce.Application.Products.Interfaces;
@@ -11,18 +12,23 @@ public class ProductService : IProductService
 {
     private readonly IProductRepository _productRepository;
     private readonly ICategoryRepository _categoryRepository;
+    private readonly ILoggerService _logger;
 
-    public ProductService(IProductRepository productRepository, ICategoryRepository categoryRepository)
+    public ProductService(IProductRepository productRepository, ICategoryRepository categoryRepository, ILoggerService logger)
     {
         _productRepository = productRepository;
         _categoryRepository = categoryRepository;
+        _logger = logger;
     }
 
     public async Task<Result<ProductDto>> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
     {
         var product = await _productRepository.GetWithImagesAsync(id, cancellationToken);
         if (product == null)
+        {
+            _logger.LogWarning("Product not found: {ProductId}", id);
             return Result<ProductDto>.Failure("Product not found", "PRODUCT_NOT_FOUND");
+        }
 
         return Result<ProductDto>.Success(MapToDto(product));
     }
@@ -45,6 +51,8 @@ public class ProductService : IProductService
         var dtos = products.Select(MapToDto).ToList();
         var result = new PaginatedResult<ProductDto>(dtos, totalCount, query.Page, query.PageSize);
 
+        _logger.LogDebug("Retrieved {Count} products (page {Page}, total {TotalCount})", dtos.Count, query.Page, totalCount);
+
         return Result<PaginatedResult<ProductDto>>.Success(result);
     }
 
@@ -52,7 +60,10 @@ public class ProductService : IProductService
     {
         var product = await _productRepository.GetBySlugAsync(slug, cancellationToken);
         if (product == null)
+        {
+            _logger.LogWarning("Product not found by slug: {Slug}", slug);
             return Result<ProductDetailResponse>.Failure("Product not found", "PRODUCT_NOT_FOUND");
+        }
 
         var category = await _categoryRepository.GetByIdAsync(product.CategoryId, cancellationToken);
 
@@ -73,7 +84,10 @@ public class ProductService : IProductService
     {
         var categoryExists = await _categoryRepository.ExistsAsync(categoryId, cancellationToken);
         if (!categoryExists)
+        {
+            _logger.LogWarning("Category not found for product query: {CategoryId}", categoryId);
             return Result<IReadOnlyList<ProductDto>>.Failure("Category not found", "CATEGORY_NOT_FOUND");
+        }
 
         var products = await _productRepository.GetByCategoryAsync(categoryId, cancellationToken);
         var dtos = products.Select(MapToDto).ToList();
@@ -87,6 +101,9 @@ public class ProductService : IProductService
 
         var products = await _productRepository.SearchAsync(searchTerm, cancellationToken);
         var dtos = products.Select(MapToDto).ToList();
+
+        _logger.LogDebug("Product search: {SearchTerm}, found {Count} results", searchTerm, dtos.Count);
+
         return Result<IReadOnlyList<ProductDto>>.Success(dtos);
     }
 
@@ -94,15 +111,24 @@ public class ProductService : IProductService
     {
         var categoryExists = await _categoryRepository.ExistsAsync(request.CategoryId, cancellationToken);
         if (!categoryExists)
+        {
+            _logger.LogWarning("Failed to create product: category {CategoryId} not found", request.CategoryId);
             return Result<ProductDto>.Failure("Category not found", "CATEGORY_NOT_FOUND");
+        }
 
         var skuExists = await _productRepository.GetBySKUAsync(request.SKU, cancellationToken);
         if (skuExists != null)
+        {
+            _logger.LogWarning("Failed to create product: SKU {SKU} already exists", request.SKU);
             return Result<ProductDto>.Failure("A product with this SKU already exists", "PRODUCT_SKU_EXISTS");
+        }
 
         var slugExists = await _productRepository.GetBySlugAsync(request.Slug, cancellationToken);
         if (slugExists != null)
+        {
+            _logger.LogWarning("Failed to create product: slug {Slug} already exists", request.Slug);
             return Result<ProductDto>.Failure("A product with this slug already exists", "PRODUCT_SLUG_EXISTS");
+        }
 
         var product = Product.Create(
             vendorId,
@@ -120,6 +146,8 @@ public class ProductService : IProductService
 
         await _productRepository.AddAsync(product, cancellationToken);
 
+        _logger.LogInformation("Product created: {ProductId}, Name: {Name}, VendorId: {VendorId}", product.Id, product.Name, vendorId);
+
         return Result<ProductDto>.Success(MapToDto(product));
     }
 
@@ -127,7 +155,10 @@ public class ProductService : IProductService
     {
         var product = await _productRepository.GetByIdAsync(id, cancellationToken);
         if (product == null)
+        {
+            _logger.LogWarning("Failed to update product: {ProductId} not found", id);
             return Result<ProductDto>.Failure("Product not found", "PRODUCT_NOT_FOUND");
+        }
 
         product.Update(
             request.Name ?? product.Name,
@@ -140,6 +171,8 @@ public class ProductService : IProductService
 
         await _productRepository.UpdateAsync(product, cancellationToken);
 
+        _logger.LogInformation("Product updated: {ProductId}, Name: {Name}", product.Id, product.Name);
+
         return Result<ProductDto>.Success(MapToDto(product));
     }
 
@@ -147,9 +180,14 @@ public class ProductService : IProductService
     {
         var product = await _productRepository.GetByIdAsync(id, cancellationToken);
         if (product == null)
+        {
+            _logger.LogWarning("Failed to delete product: {ProductId} not found", id);
             return Result.Failure("Product not found", "PRODUCT_NOT_FOUND");
+        }
 
         await _productRepository.DeleteAsync(product, cancellationToken);
+
+        _logger.LogInformation("Product deleted: {ProductId}, Name: {Name}", product.Id, product.Name);
 
         return Result.Success();
     }

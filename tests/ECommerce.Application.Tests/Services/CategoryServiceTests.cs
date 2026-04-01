@@ -1,5 +1,6 @@
 using ECommerce.Application.Categories.DTOs;
 using ECommerce.Application.Categories.Services;
+using ECommerce.Application.Common.Interfaces;
 using ECommerce.Domain.Entities;
 using ECommerce.Domain.Interfaces;
 using FluentAssertions;
@@ -11,12 +12,14 @@ namespace ECommerce.Application.Tests.Services;
 public class CategoryServiceTests
 {
     private readonly Mock<ICategoryRepository> _categoryRepositoryMock;
+    private readonly Mock<ILoggerService> _loggerMock;
     private readonly CategoryService _sut;
 
     public CategoryServiceTests()
     {
         _categoryRepositoryMock = new Mock<ICategoryRepository>();
-        _sut = new CategoryService(_categoryRepositoryMock.Object);
+        _loggerMock = new Mock<ILoggerService>();
+        _sut = new CategoryService(_categoryRepositoryMock.Object, _loggerMock.Object);
     }
 
     #region GetByIdAsync

@@ -1,3 +1,4 @@
+using ECommerce.Application.Common.Interfaces;
 using ECommerce.Application.Common.Models;
 using ECommerce.Application.Products.DTOs;
 using ECommerce.Application.Products.Services;
@@ -13,13 +14,15 @@ public class ProductServiceTests
 {
     private readonly Mock<IProductRepository> _productRepositoryMock;
     private readonly Mock<ICategoryRepository> _categoryRepositoryMock;
+    private readonly Mock<ILoggerService> _loggerMock;
     private readonly ProductService _sut;
 
     public ProductServiceTests()
     {
         _productRepositoryMock = new Mock<IProductRepository>();
         _categoryRepositoryMock = new Mock<ICategoryRepository>();
-        _sut = new ProductService(_productRepositoryMock.Object, _categoryRepositoryMock.Object);
+        _loggerMock = new Mock<ILoggerService>();
+        _sut = new ProductService(_productRepositoryMock.Object, _categoryRepositoryMock.Object, _loggerMock.Object);
     }
 
     #region GetByIdAsync
