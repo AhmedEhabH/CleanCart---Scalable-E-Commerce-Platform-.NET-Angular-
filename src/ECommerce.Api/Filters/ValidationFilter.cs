@@ -1,3 +1,4 @@
+using ECommerce.Api.Models;
 using FluentValidation;
 using FluentValidation.Results;
 using Microsoft.AspNetCore.Mvc;
@@ -55,11 +56,7 @@ public class ValidationFilter : IAsyncActionFilter
 
         if (validationErrors.Any())
         {
-            context.Result = new BadRequestObjectResult(new
-            {
-                message = "Validation failed",
-                errors = validationErrors
-            });
+            context.Result = new BadRequestObjectResult(ApiResponse<object>.ErrorResponse("Validation failed", validationErrors));
             return;
         }
 
