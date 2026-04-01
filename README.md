@@ -81,10 +81,19 @@ The API starts at `http://localhost:5000` (or the configured port). On first run
 | `/api/categories/{id}` | PUT | Update category (Admin) |
 | `/api/categories/{id}` | DELETE | Delete category (Admin) |
 
+### Cart
+| Endpoint | Method | Description |
+|---|---|---|
+| `/api/cart` | GET | Get current user's cart |
+| `/api/cart/items` | POST | Add item to cart |
+| `/api/cart/items/{id}` | PUT | Update cart item quantity |
+| `/api/cart/items/{id}` | DELETE | Remove item from cart |
+| `/api/cart/clear` | DELETE | Clear all cart items |
+
 ### Orders
 | Endpoint | Method | Description |
 |---|---|---|
-| `/api/orders` | POST | Create a new order |
+| `/api/orders` | POST | Create a new order from cart |
 | `/api/orders` | GET | Get user's orders |
 | `/api/orders/{id}` | GET | Get order details |
 
