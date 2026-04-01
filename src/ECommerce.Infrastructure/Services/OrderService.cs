@@ -123,6 +123,7 @@ public class OrderService : IOrderService
     {
         var order = await _context.Orders
             .Include(o => o.Items)
+            .Include(o => o.Payment)
             .FirstOrDefaultAsync(o => o.Id == orderId && o.UserId == userId, cancellationToken);
 
         if (order == null)
@@ -135,6 +136,7 @@ public class OrderService : IOrderService
     {
         var orders = await _context.Orders
             .Include(o => o.Items)
+            .Include(o => o.Payment)
             .Where(o => o.UserId == userId)
             .OrderByDescending(o => o.CreatedAt)
             .ToListAsync(cancellationToken);
@@ -197,7 +199,9 @@ public class OrderService : IOrderService
             CreatedAt: order.CreatedAt,
             UpdatedAt: order.UpdatedAt,
             Items: items.AsReadOnly(),
-            TotalItems: order.TotalItems
+            TotalItems: order.TotalItems,
+            PaymentId: order.PaymentId,
+            PaymentStatus: order.Payment?.Status.ToString()
         );
     }
 }

@@ -15,7 +15,9 @@ public record OrderDto(
     DateTime CreatedAt,
     DateTime? UpdatedAt,
     IReadOnlyCollection<OrderItemDto> Items,
-    int TotalItems
+    int TotalItems,
+    Guid? PaymentId,
+    string? PaymentStatus
 );
 
 public record OrderItemDto(

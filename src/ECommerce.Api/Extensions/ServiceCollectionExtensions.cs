@@ -4,6 +4,8 @@ using ECommerce.Application.Categories.Interfaces;
 using ECommerce.Application.Categories.Services;
 using ECommerce.Application.Common.Interfaces;
 using ECommerce.Application.Orders.Interfaces;
+using ECommerce.Application.Payments.Interfaces;
+using ECommerce.Application.Payments.Services;
 using ECommerce.Application.Products.Interfaces;
 using ECommerce.Application.Products.Services;
 using ECommerce.Domain.Interfaces;
@@ -33,6 +35,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<ICategoryService>(sp => new CachedCategoryService(sp.GetRequiredService<CategoryService>(), sp.GetRequiredService<ICacheService>()));
         services.AddScoped<ICartService, CartService>();
         services.AddScoped<IOrderService, OrderService>();
+        services.AddScoped<IPaymentService, PaymentService>();
         
         return services;
     }
@@ -55,6 +58,8 @@ public static class ServiceCollectionExtensions
     {
         services.AddScoped<ICategoryRepository, CategoryRepository>();
         services.AddScoped<IProductRepository, ProductRepository>();
+        services.AddScoped<IPaymentRepository, PaymentRepository>();
+        services.AddScoped<IOrderRepository, OrderRepository>();
         
         return services;
     }

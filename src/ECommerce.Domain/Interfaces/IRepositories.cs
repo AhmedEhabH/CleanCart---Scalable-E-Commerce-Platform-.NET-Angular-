@@ -47,6 +47,7 @@ public interface IOrderRepository : IRepository<Order>
     Task<Order?> GetByOrderNumberAsync(string orderNumber, CancellationToken cancellationToken = default);
     Task<IReadOnlyList<Order>> GetByUserIdAsync(Guid userId, CancellationToken cancellationToken = default);
     Task<IReadOnlyList<Order>> GetByVendorIdAsync(Guid vendorId, CancellationToken cancellationToken = default);
+    Task<Order?> GetByIdWithPaymentAsync(Guid id, CancellationToken cancellationToken = default);
 }
 
 public interface IPaymentRepository : IRepository<Payment>
