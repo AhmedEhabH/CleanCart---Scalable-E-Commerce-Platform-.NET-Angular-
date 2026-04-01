@@ -54,44 +54,102 @@ dotnet run --project src/ECommerce.Api
 
 The API starts at `http://localhost:5000` (or the configured port). On first run, the database is seeded with an admin account and sample data.
 
-## Authentication & Authorization
+## API Endpoints
 
 ### Authentication
+| Endpoint | Method | Description |
+|---|---|---|
+| `/api/auth/register` | POST | Register a new user |
+| `/api/auth/login` | POST | Login and get JWT token |
+| `/api/auth/refresh` | POST | Refresh access token |
 
-The API uses JWT Bearer tokens. Obtain tokens via the `/api/auth/register` or `/api/auth/login` endpoints.
+### Products
+| Endpoint | Method | Description |
+|---|---|---|
+| `/api/products` | GET | List all products |
+| `/api/products/{id}` | GET | Get product by ID |
+| `/api/products` | POST | Create product (Admin) |
+| `/api/products/{id}` | PUT | Update product (Admin) |
+| `/api/products/{id}` | DELETE | Delete product (Admin) |
 
-```bash
-# Register a new user
-curl -X POST http://localhost:5000/api/auth/register \
-  -H "Content-Type: application/json" \
-  -d '{"email":"user@example.com","password":"SecurePass123!","firstName":"John","lastName":"Doe"}'
+### Categories
+| Endpoint | Method | Description |
+|---|---|---|
+| `/api/categories` | GET | List all categories |
+| `/api/categories/{id}` | GET | Get category by ID |
+| `/api/categories` | POST | Create category (Admin) |
+| `/api/categories/{id}` | PUT | Update category (Admin) |
+| `/api/categories/{id}` | DELETE | Delete category (Admin) |
 
-# Login
-curl -X POST http://localhost:5000/api/auth/login \
-  -H "Content-Type: application/json" \
-  -d '{"email":"user@example.com","password":"SecurePass123!"}'
-```
+### Orders
+| Endpoint | Method | Description |
+|---|---|---|
+| `/api/orders` | POST | Create a new order |
+| `/api/orders` | GET | Get user's orders |
+| `/api/orders/{id}` | GET | Get order details |
 
-### Roles
+### Checkout
+| Endpoint | Method | Description |
+|---|---|---|
+| `/api/checkout` | POST | Process checkout from cart |
 
-| Role | Permissions |
-|---|---|
-| **Admin** | Full access — create, update, delete products and categories |
-| **User** | Read-only access to products and categories |
+### Payments
+| Endpoint | Method | Description |
+|---|---|---|
+| `/api/payments` | POST | Initiate a payment |
+| `/api/payments/{id}` | GET | Get payment details |
+| `/api/payments/order/{orderId}` | GET | Get payment by order |
+| `/api/payments/{id}/process` | POST | Process a payment |
+| `/api/payments/{id}/refund` | POST | Refund a payment |
 
-Include the token in the `Authorization` header:
+### Authorization
+
+All protected endpoints require a JWT token in the `Authorization` header:
 
 ```
 Authorization: Bearer <your-token>
 ```
 
-### Default Admin Account
+| Role | Permissions |
+|---|---|
+| **Admin** | Full access — create, update, delete products, categories, and manage payments |
+| **User** | Read products, create orders, manage own payments |
 
-Seeded on first run:
+### Usage Examples
 
-| Email | Password | Role |
-|---|---|---|
-| `admin@ecommerce.com` | `Admin@123` | Admin |
+```bash
+# Create an order
+curl -X POST http://localhost:5000/api/orders \
+  -H "Authorization: Bearer <token>" \
+  -H "Content-Type: application/json" \
+  -d '{"items":[{"productId":"<guid>","quantity":2}],"shippingAddress":"123 Main St"}'
+
+# Get user's orders
+curl -X GET http://localhost:5000/api/orders \
+  -H "Authorization: Bearer <token>"
+
+# Process checkout
+curl -X POST http://localhost:5000/api/checkout \
+  -H "Authorization: Bearer <token>" \
+  -H "Content-Type: application/json" \
+  -d '{"items":[{"productId":"<guid>","quantity":1}],"shippingAddress":"123 Main St","paymentMethod":"CreditCard"}'
+
+# Initiate payment
+curl -X POST http://localhost:5000/api/payments \
+  -H "Authorization: Bearer <token>" \
+  -H "Content-Type: application/json" \
+  -d '{"orderId":"<guid>","amount":99.99,"method":"CreditCard"}'
+
+# Process payment
+curl -X POST http://localhost:5000/api/payments/<payment-id>/process \
+  -H "Authorization: Bearer <token>"
+
+# Refund payment
+curl -X POST http://localhost:5000/api/payments/<payment-id>/refund \
+  -H "Authorization: Bearer <token>" \
+  -H "Content-Type: application/json" \
+  -d '{"reason":"Customer request"}'
+```
 
 ## Swagger
 
