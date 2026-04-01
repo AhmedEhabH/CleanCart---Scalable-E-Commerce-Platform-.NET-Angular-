@@ -1,0 +1,126 @@
+using ECommerce.Application.Auth.DTOs;
+using ECommerce.Application.Auth.Interfaces;
+using ECommerce.Application.Common.Interfaces;
+using ECommerce.Infrastructure.Data;
+using ECommerce.Infrastructure.Services;
+using Microsoft.Extensions.Configuration;
+using Xunit;
+using FluentAssertions;
+
+namespace ECommerce.Api.Tests.Integration;
+
+public class AuthIntegrationTests : IDisposable
+{
+    private readonly ApplicationDbContext _context;
+    private readonly IAuthService _authService;
+
+    public AuthIntegrationTests()
+    {
+        _context = TestDatabaseFixture.CreateInMemoryContext(Guid.NewGuid().ToString());
+        
+        var config = new ConfigurationBuilder()
+            .AddJsonFile("appsettings.json", optional: true)
+            .Build();
+            
+        var passwordHasher = new PasswordHasher();
+        var dateTimeService = new DateTimeService();
+        var tokenService = new TokenService(config);
+        
+        _authService = new AuthService(_context, passwordHasher, tokenService, dateTimeService);
+        
+        Task.Run(() => TestDatabaseFixture.SeedTestDataAsync(_context)).Wait();
+    }
+
+    public void Dispose()
+    {
+        _context.Database.EnsureDeleted();
+        _context.Dispose();
+    }
+
+    [Fact]
+    public async Task Register_ShouldCreateUser_WhenDataIsValid()
+    {
+        var request = new RegisterRequest(
+            "newuser@test.com",
+            "SecurePass123!",
+            "New",
+            "User",
+            "+9876543210"
+        );
+
+        var result = await _authService.RegisterAsync(request);
+
+        result.Should().NotBeNull();
+        result.Email.Should().Be("newuser@test.com");
+        result.FullName.Should().Be("New User");
+        result.AccessToken.Should().NotBeNullOrEmpty();
+        result.RefreshToken.Should().NotBeNullOrEmpty();
+    }
+
+    [Fact]
+    public async Task Register_ShouldThrowException_WhenEmailAlreadyExists()
+    {
+        var request = new RegisterRequest(
+            "test@example.com",
+            "SecurePass123!",
+            "Test",
+            "User",
+            "+1234567890"
+        );
+
+        var act = () => _authService.RegisterAsync(request);
+
+        await act.Should().ThrowAsync<InvalidOperationException>()
+            .WithMessage("*already exists*");
+    }
+
+    [Fact]
+    public async Task Register_ShouldThrowException_WhenEmailIsInvalid()
+    {
+        var request = new RegisterRequest(
+            "invalid-email",
+            "SecurePass123!",
+            "Test",
+            "User"
+        );
+
+        var act = () => _authService.RegisterAsync(request);
+
+        await act.Should().ThrowAsync<ArgumentException>();
+    }
+
+    [Fact]
+    public async Task Login_ShouldReturnTokens_WhenCredentialsAreValid()
+    {
+        var request = new LoginRequest("test@example.com", "TestPassword123!");
+
+        var result = await _authService.LoginAsync(request);
+
+        result.Should().NotBeNull();
+        result.Email.Should().Be("test@example.com");
+        result.AccessToken.Should().NotBeNullOrEmpty();
+        result.RefreshToken.Should().NotBeNullOrEmpty();
+    }
+
+    [Fact]
+    public async Task Login_ShouldThrowException_WhenPasswordIsWrong()
+    {
+        var request = new LoginRequest("test@example.com", "WrongPassword");
+
+        var act = () => _authService.LoginAsync(request);
+
+        await act.Should().ThrowAsync<UnauthorizedAccessException>()
+            .WithMessage("*Invalid*");
+    }
+
+    [Fact]
+    public async Task Login_ShouldThrowException_WhenUserDoesNotExist()
+    {
+        var request = new LoginRequest("nonexistent@test.com", "Password123!");
+
+        var act = () => _authService.LoginAsync(request);
+
+        await act.Should().ThrowAsync<UnauthorizedAccessException>()
+            .WithMessage("*Invalid*");
+    }
+}
