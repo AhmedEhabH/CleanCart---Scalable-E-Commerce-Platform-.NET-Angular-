@@ -4,6 +4,7 @@ using ECommerce.Api.Extensions;
 using ECommerce.Api.Filters;
 using ECommerce.Infrastructure.Data;
 using ECommerce.Infrastructure.Services;
+using ECommerce.Infrastructure.Seeding;
 using ECommerce.Application.Common.Interfaces;
 using FluentValidation;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -146,5 +147,11 @@ app.MapHealthChecks("/health/ready", new Microsoft.AspNetCore.Diagnostics.Health
 {
     Predicate = check => check.Tags.Contains("ready")
 });
+
+using (var scope = app.Services.CreateScope())
+{
+    var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+    await DatabaseSeeder.SeedAsync(context);
+}
 
 app.Run();
