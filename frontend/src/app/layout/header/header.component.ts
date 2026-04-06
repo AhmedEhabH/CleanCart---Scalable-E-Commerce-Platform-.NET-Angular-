@@ -3,6 +3,7 @@ import { RouterLink, RouterLinkActive } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { map } from 'rxjs';
 import { AuthService } from '../../core/services/auth.service';
+import { ThemeService } from '../../core/services/theme.service';
 
 @Component({
   selector: 'app-header',
@@ -13,6 +14,7 @@ import { AuthService } from '../../core/services/auth.service';
 })
 export class HeaderComponent {
   private authService = inject(AuthService);
+  protected themeService = inject(ThemeService);
 
   isAuthenticated$ = this.authService.authUser$.pipe(
     map(user => !!user)
@@ -21,5 +23,9 @@ export class HeaderComponent {
 
   logout(): void {
     this.authService.logout();
+  }
+
+  toggleTheme(): void {
+    this.themeService.toggle();
   }
 }

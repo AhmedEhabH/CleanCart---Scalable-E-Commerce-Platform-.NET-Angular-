@@ -5,6 +5,7 @@
   position: sticky;
   top: 0;
   z-index: 100;
+  transition: background-color var(--transition-normal), border-color var(--transition-normal);
 
   &__inner {
     display: flex;
@@ -21,6 +22,7 @@
 
     &:hover {
       color: var(--color-primary-dark);
+      text-decoration: none;
     }
   }
 
@@ -30,19 +32,26 @@
     gap: var(--space-5);
 
     a {
-      color: var(--color-text);
+      color: var(--color-text-secondary);
       text-decoration: none;
       font-weight: 500;
       padding: var(--space-2) 0;
       border-bottom: 2px solid transparent;
-      transition: color 0.2s, border-color 0.2s;
+      transition: color var(--transition-fast), border-color var(--transition-fast);
 
       &:hover,
       &.active {
         color: var(--color-primary);
         border-bottom-color: var(--color-primary);
+        text-decoration: none;
       }
     }
+  }
+
+  &__actions {
+    display: flex;
+    align-items: center;
+    gap: var(--space-4);
   }
 
   &__auth {
@@ -51,21 +60,55 @@
     gap: var(--space-3);
 
     a {
-      color: var(--color-text);
+      color: var(--color-text-secondary);
       text-decoration: none;
       font-weight: 500;
+      transition: color var(--transition-fast);
 
       &:hover,
       &.active {
         color: var(--color-primary);
+        text-decoration: none;
       }
     }
   }
 
   &__user {
-    color: var(--color-text);
+    color: var(--color-text-secondary);
     font-weight: 500;
     font-size: 0.875rem;
+  }
+}
+
+.theme-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  background-color: transparent;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  color: var(--color-text-secondary);
+  transition: background-color var(--transition-fast), 
+              border-color var(--transition-fast), 
+              color var(--transition-fast);
+
+  &:hover {
+    background-color: var(--color-bg-secondary);
+    border-color: var(--color-primary);
+    color: var(--color-primary);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--color-primary);
+    outline-offset: 2px;
+  }
+
+  &__icon {
+    display: block;
   }
 }
 
@@ -78,6 +121,11 @@
 
     &__nav {
       gap: var(--space-3);
+    }
+
+    &__actions {
+      width: 100%;
+      justify-content: space-between;
     }
   }
 }

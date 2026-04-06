@@ -54,6 +54,67 @@ ng e2e
 
 Angular CLI does not come with an end-to-end testing framework by default. You can choose one that suits your needs.
 
+## Theming
+
+The application supports light and dark themes with a ChatGPT-inspired design aesthetic.
+
+### Theme System
+
+The theming system uses CSS custom properties (variables) defined in `src/styles.scss`. Semantic tokens are used for consistent styling across light and dark modes:
+
+| Token | Description |
+|-------|-------------|
+| `--color-bg` | Main background |
+| `--color-surface` | Card/component surfaces |
+| `--color-surface-elevated` | Elevated surfaces (modals, dropdowns) |
+| `--color-border` | Border color |
+| `--color-text` | Primary text |
+| `--color-text-secondary` | Secondary text |
+| `--color-text-muted` | Muted/disabled text |
+| `--color-primary` | Primary accent color |
+| `--color-primary-dark` | Primary hover/active color |
+| `--color-error` | Error/danger color |
+| `--color-success` | Success color |
+| `--color-warning` | Warning color |
+
+### Theme Toggle
+
+- Theme toggle button is located in the header, next to authentication controls
+- Click the sun/moon icon to switch between light and dark modes
+- Theme preference is persisted in localStorage under the key `app-theme`
+- On first load, the system checks:
+  1. Saved user preference (if previously selected)
+  2. System `prefers-color-scheme` media query (if no saved preference)
+  3. Defaults to light mode
+
+### Dark Mode Design
+
+The dark mode features:
+- Near-black background (#0f0f0f) for reduced eye strain
+- Charcoal surfaces (#1a1a1a) with subtle elevation
+- Soft borders (#2e2e2e) for definition without harshness
+- Indigo accent (#6366f1) for interactive elements
+- Muted text colors for hierarchy and readability
+- Smooth transitions between themes
+
+### Adding New Themeable Components
+
+When creating new components, use CSS variables instead of hardcoded colors:
+
+```scss
+.my-component {
+  background-color: var(--color-surface);
+  color: var(--color-text);
+  border: 1px solid var(--color-border);
+}
+```
+
+Avoid hardcoded colors like `#ffffff`, `#000000`, or specific hex values. Use the semantic tokens for consistency.
+
+### Theme Persistence
+
+Theme preference is stored in `localStorage` and read before the app initializes to prevent flash of unstyled content (FOUC). The initialization script in `index.html` applies the correct theme immediately.
+
 ## Additional Resources
 
 For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.

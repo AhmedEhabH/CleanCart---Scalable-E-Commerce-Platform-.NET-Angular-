@@ -6,4 +6,5 @@
   text-align: center;
   color: var(--color-text-muted);
   font-size: 0.875rem;
+  transition: background-color var(--transition-normal), border-color var(--transition-normal);
 }
