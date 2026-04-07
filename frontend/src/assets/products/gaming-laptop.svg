@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400" width="400" height="400">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#f83600"/>
+      <stop offset="100%" stop-color="#f9d423"/>
+    </linearGradient>
+  </defs>
+  <rect width="400" height="400" fill="url(#bg)"/>
+  <rect x="70" y="100" width="260" height="170" rx="12" fill="rgba(255,255,255,0.15)" stroke="rgba(255,255,255,0.3)" stroke-width="2"/>
+  <rect x="85" y="115" width="230" height="120" rx="6" fill="rgba(255,255,255,0.1)"/>
+  <rect x="140" y="280" width="120" height="12" rx="4" fill="rgba(255,255,255,0.2)"/>
+  <rect x="160" y="298" width="80" height="6" rx="3" fill="rgba(255,255,255,0.15)"/>
+  <polygon points="170,140 230,175 170,210" fill="rgba(255,255,255,0.3)" stroke="rgba(255,255,255,0.5)" stroke-width="2"/>
+  <text x="200" y="350" font-family="system-ui, -apple-system, sans-serif" font-size="18" font-weight="600" fill="white" text-anchor="middle">Gaming Laptop</text>
+</svg>

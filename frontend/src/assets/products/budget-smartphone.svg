@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400" width="400" height="400">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#43e97b"/>
+      <stop offset="100%" stop-color="#38f9d7"/>
+    </linearGradient>
+  </defs>
+  <rect width="400" height="400" fill="url(#bg)"/>
+  <rect x="130" y="70" width="140" height="260" rx="18" fill="rgba(255,255,255,0.2)" stroke="rgba(255,255,255,0.35)" stroke-width="2"/>
+  <rect x="145" y="90" width="110" height="180" rx="6" fill="rgba(255,255,255,0.12)"/>
+  <circle cx="200" cy="300" r="10" fill="rgba(255,255,255,0.25)" stroke="rgba(255,255,255,0.4)" stroke-width="2"/>
+  <rect x="180" y="320" width="40" height="3" rx="1.5" fill="rgba(255,255,255,0.35)"/>
+  <text x="200" y="370" font-family="system-ui, -apple-system, sans-serif" font-size="18" font-weight="600" fill="white" text-anchor="middle">Budget Smartphone</text>
+</svg>

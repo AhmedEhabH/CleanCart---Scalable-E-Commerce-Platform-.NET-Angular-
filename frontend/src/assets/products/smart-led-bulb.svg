@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400" width="400" height="400">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#ffecd2"/>
+      <stop offset="100%" stop-color="#fcb69f"/>
+    </linearGradient>
+  </defs>
+  <rect width="400" height="400" fill="url(#bg)"/>
+  <ellipse cx="200" cy="180" rx="60" ry="70" fill="rgba(255,255,255,0.2)" stroke="rgba(255,255,255,0.35)" stroke-width="2"/>
+  <circle cx="200" cy="180" r="30" fill="rgba(255,255,255,0.15)"/>
+  <line x1="200" y1="110" x2="200" y2="250" stroke="rgba(255,255,255,0.3)" stroke-width="2"/>
+  <line x1="200" y1="250" x2="200" y2="280" stroke="rgba(255,255,255,0.25)" stroke-width="3"/>
+  <rect x="185" y="280" width="30" height="8" rx="4" fill="rgba(255,255,255,0.2)"/>
+  <circle cx="170" cy="150" r="8" fill="rgba(255,255,255,0.2)"/>
+  <circle cx="230" cy="150" r="8" fill="rgba(255,255,255,0.2)"/>
+  <circle cx="170" cy="200" r="8" fill="rgba(255,255,255,0.2)"/>
+  <circle cx="230" cy="200" r="8" fill="rgba(255,255,255,0.2)"/>
+  <text x="200" y="350" font-family="system-ui, -apple-system, sans-serif" font-size="18" font-weight="600" fill="white" text-anchor="middle">Smart LED Bulb</text>
+</svg>

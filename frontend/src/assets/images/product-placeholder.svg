@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400" width="400" height="400">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#e2e8f0"/>
+      <stop offset="100%" stop-color="#cbd5e1"/>
+    </linearGradient>
+  </defs>
+  <rect width="400" height="400" fill="url(#bg)"/>
+  <rect x="100" y="100" width="200" height="160" rx="12" fill="rgba(255,255,255,0.5)" stroke="rgba(148,163,184,0.4)" stroke-width="2"/>
+  <circle cx="160" cy="160" r="24" fill="rgba(148,163,184,0.3)"/>
+  <path d="M100 260 L170 200 L210 230 L260 180 L300 220 L300 260 Z" fill="rgba(148,163,184,0.2)"/>
+  <text x="200" y="310" font-family="system-ui, -apple-system, sans-serif" font-size="16" font-weight="600" fill="#94a3b8" text-anchor="middle">Product Image</text>
+</svg>

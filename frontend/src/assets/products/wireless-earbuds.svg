@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400" width="400" height="400">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#a18cd1"/>
+      <stop offset="100%" stop-color="#fbc2eb"/>
+    </linearGradient>
+  </defs>
+  <rect width="400" height="400" fill="url(#bg)"/>
+  <ellipse cx="160" cy="190" rx="50" ry="60" fill="rgba(255,255,255,0.2)" stroke="rgba(255,255,255,0.35)" stroke-width="2"/>
+  <ellipse cx="240" cy="190" rx="50" ry="60" fill="rgba(255,255,255,0.2)" stroke="rgba(255,255,255,0.35)" stroke-width="2"/>
+  <circle cx="160" cy="190" r="20" fill="rgba(255,255,255,0.15)"/>
+  <circle cx="240" cy="190" r="20" fill="rgba(255,255,255,0.15)"/>
+  <path d="M160 130 Q200 100 240 130" fill="none" stroke="rgba(255,255,255,0.3)" stroke-width="3"/>
+  <text x="200" y="310" font-family="system-ui, -apple-system, sans-serif" font-size="18" font-weight="600" fill="white" text-anchor="middle">Wireless Earbuds</text>
+</svg>

@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400" width="400" height="400">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#f093fb"/>
+      <stop offset="100%" stop-color="#f5576c"/>
+    </linearGradient>
+  </defs>
+  <rect width="400" height="400" fill="url(#bg)"/>
+  <path d="M130 120 L270 120 L290 160 L290 300 L110 300 L110 160 Z" fill="rgba(255,255,255,0.15)" stroke="rgba(255,255,255,0.3)" stroke-width="2"/>
+  <path d="M140 130 L260 130 L275 160 L125 160 Z" fill="rgba(255,255,255,0.1)"/>
+  <path d="M160 160 Q200 200 240 160" fill="none" stroke="rgba(255,255,255,0.3)" stroke-width="3"/>
+  <rect x="170" y="210" width="60" height="60" rx="4" fill="rgba(255,255,255,0.12)"/>
+  <text x="200" y="350" font-family="system-ui, -apple-system, sans-serif" font-size="18" font-weight="600" fill="white" text-anchor="middle">Classic T-Shirt</text>
+</svg>

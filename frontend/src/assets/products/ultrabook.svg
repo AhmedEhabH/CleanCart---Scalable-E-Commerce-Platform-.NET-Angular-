@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400" width="400" height="400">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#4facfe"/>
+      <stop offset="100%" stop-color="#00f2fe"/>
+    </linearGradient>
+  </defs>
+  <rect width="400" height="400" fill="url(#bg)"/>
+  <rect x="60" y="90" width="280" height="180" rx="10" fill="rgba(255,255,255,0.15)" stroke="rgba(255,255,255,0.3)" stroke-width="2"/>
+  <rect x="75" y="105" width="250" height="140" rx="4" fill="rgba(255,255,255,0.1)"/>
+  <rect x="130" y="280" width="140" height="10" rx="4" fill="rgba(255,255,255,0.2)"/>
+  <rect x="155" y="296" width="90" height="5" rx="2.5" fill="rgba(255,255,255,0.15)"/>
+  <rect x="185" y="130" width="30" height="80" rx="4" fill="rgba(255,255,255,0.25)"/>
+  <text x="200" y="350" font-family="system-ui, -apple-system, sans-serif" font-size="18" font-weight="600" fill="white" text-anchor="middle">Ultrabook</text>
+</svg>

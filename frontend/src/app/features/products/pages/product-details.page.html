@@ -15,7 +15,7 @@
     } @else if (product(); as p) {
       <div class="product-details">
         <div class="product-details__image">
-          <img [src]="p.mainImageUrl | productImage" [alt]="p.name" />
+          <img [src]="p.mainImageUrl | productImage: p.slug" [alt]="p.name" />
         </div>
 
         <div class="product-details__info">

@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400" width="400" height="400">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#667eea"/>
+      <stop offset="100%" stop-color="#764ba2"/>
+    </linearGradient>
+  </defs>
+  <rect width="400" height="400" fill="url(#bg)"/>
+  <rect x="120" y="60" width="160" height="280" rx="20" fill="rgba(255,255,255,0.15)" stroke="rgba(255,255,255,0.3)" stroke-width="2"/>
+  <rect x="135" y="80" width="130" height="200" rx="8" fill="rgba(255,255,255,0.1)"/>
+  <circle cx="200" cy="310" r="12" fill="rgba(255,255,255,0.2)" stroke="rgba(255,255,255,0.4)" stroke-width="2"/>
+  <rect x="175" y="330" width="50" height="4" rx="2" fill="rgba(255,255,255,0.3)"/>
+  <circle cx="160" cy="100" r="5" fill="rgba(255,255,255,0.4)"/>
+  <circle cx="180" cy="100" r="5" fill="rgba(255,255,255,0.4)"/>
+  <circle cx="200" cy="100" r="5" fill="rgba(255,255,255,0.4)"/>
+  <text x="200" y="370" font-family="system-ui, -apple-system, sans-serif" font-size="18" font-weight="600" fill="white" text-anchor="middle">Premium Smartphone</text>
+</svg>

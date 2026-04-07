@@ -287,7 +287,7 @@ The frontend calls the REST API through a typed `ApiService` wrapper. Authentica
         "description": "High-performance laptop...",
         "price": 1299.99,
         "compareAtPrice": 1499.99,
-        "mainImageUrl": "https://via.placeholder.com/400x400?text=Laptop",
+        "mainImageUrl": "https://example.com/laptop.jpg",
         "images": [{ "id": "guid", "imageUrl": "...", "altText": null, "displayOrder": 1 }],
         "isInStock": true,
         "hasDiscount": true,
@@ -312,13 +312,18 @@ The frontend calls the REST API through a typed `ApiService` wrapper. Authentica
 
 ### Product Image Handling
 
-Product images are resolved through a reusable `ProductImagePipe`:
+Product images are resolved through a reusable `ProductImagePipe` with a three-tier strategy:
 
-- **Absolute URLs** (`http://`, `https://`) — used as-is, except for known unreliable services like `via.placeholder.com`
-- **Backend-relative paths** (e.g. `/uploads/products/img.jpg`) — prefixed with the API base host (e.g. `http://localhost:5000/uploads/products/img.jpg`)
-- **Missing, null, or unreliable URLs** — fall back to a local SVG placeholder (`/images/placeholder.svg`)
+1. **Local product assets (highest priority)** — Known seeded demo products are mapped by `slug` to locally generated SVG assets stored in `frontend/src/assets/products/`. The mapping is centralized in the pipe and covers all 8 seeded products:
+   - `premium-smartphone`, `budget-smartphone`, `gaming-laptop`, `ultrabook`, `wireless-earbuds`, `classic-tshirt`, `smart-led-bulb`, `garden-tool-set`
 
-This ensures images display correctly regardless of whether the backend stores absolute external URLs or relative paths. The placeholder is served from the Angular app's public assets folder.
+2. **Backend-relative paths** — Relative URLs (e.g. `/uploads/products/img.jpg`) are prefixed with the API base host (e.g. `http://localhost:5000/uploads/products/img.jpg`)
+
+3. **Absolute URLs** — External URLs (`http://`, `https://`) are used as-is, except for known unreliable placeholder services like `via.placeholder.com` which are skipped
+
+4. **Fallback** — If no valid image is available, a local SVG placeholder at `/assets/images/product-placeholder.svg` is displayed
+
+This ensures images always display correctly without depending on external placeholder services. Demo product assets are locally generated and stored in the repo for full offline support.
 
 ### Project Structure
 
@@ -346,28 +351,31 @@ frontend/src/app/
 └── environments/              # Environment-specific config
 ```
 
+### Local Product Assets
+
+The following demo product SVG images are generated and stored locally in `frontend/src/assets/products/`:
+
+| Slug | File |
+|---|---|
+| `premium-smartphone` | `premium-smartphone.svg` |
+| `budget-smartphone` | `budget-smartphone.svg` |
+| `gaming-laptop` | `gaming-laptop.svg` |
+| `ultrabook` | `ultrabook.svg` |
+| `wireless-earbuds` | `wireless-earbuds.svg` |
+| `classic-tshirt` | `classic-tshirt.svg` |
+| `smart-led-bulb` | `smart-led-bulb.svg` |
+| `garden-tool-set` | `garden-tool-set.svg` |
+
+A generic fallback placeholder is available at `frontend/src/assets/images/product-placeholder.svg`.
+
 ### Screenshots
 
-> **Note:** The following screenshot files must be added to `docs/screenshots/` to display properly on GitHub:
-> - `home.png` — Home page screenshot
-> - `login.png` — Login page screenshot
-> - `register.png` — Register page screenshot
-> - `products-list.png` — Products listing page screenshot
-> - `product-details.png` — Product details page screenshot
-> - `cart.png` — Shopping cart page screenshot
-> - `checkout.png` — Checkout page screenshot
+> **Note:** To add screenshots, run the frontend locally (`npm start`), navigate to each page, and save PNG screenshots into `docs/screenshots/`. Then update the image references below.
 
-#### Home
-![Home](docs/screenshots/home.png)
-
-#### Login
-![Login](docs/screenshots/login.png)
-
-#### Register
-![Register](docs/screenshots/register.png)
-
-#### Products List
-![Products List](docs/screenshots/products-list.png)
-
-#### Product Details
-![Product Details](docs/screenshots/product-details.png)
+| File | Description |
+|---|---|
+| `home.png` | Home page |
+| `login.png` | Login page |
+| `register.png` | Register page |
+| `products-list.png` | Products listing page |
+| `product-details.png` | Product details page |

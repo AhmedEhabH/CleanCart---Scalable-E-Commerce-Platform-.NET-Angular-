@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400" width="400" height="400">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#11998e"/>
+      <stop offset="100%" stop-color="#38ef7d"/>
+    </linearGradient>
+  </defs>
+  <rect width="400" height="400" fill="url(#bg)"/>
+  <rect x="100" y="120" width="200" height="140" rx="12" fill="rgba(255,255,255,0.15)" stroke="rgba(255,255,255,0.3)" stroke-width="2"/>
+  <line x1="130" y1="150" x2="270" y2="150" stroke="rgba(255,255,255,0.25)" stroke-width="3"/>
+  <line x1="130" y1="180" x2="270" y2="180" stroke="rgba(255,255,255,0.25)" stroke-width="3"/>
+  <line x1="130" y1="210" x2="270" y2="210" stroke="rgba(255,255,255,0.25)" stroke-width="3"/>
+  <line x1="130" y1="240" x2="200" y2="240" stroke="rgba(255,255,255,0.25)" stroke-width="3"/>
+  <path d="M160 120 L160 100 L240 100 L240 120" fill="none" stroke="rgba(255,255,255,0.2)" stroke-width="3"/>
+  <circle cx="200" cy="100" r="10" fill="rgba(255,255,255,0.2)" stroke="rgba(255,255,255,0.35)" stroke-width="2"/>
+  <text x="200" y="320" font-family="system-ui, -apple-system, sans-serif" font-size="18" font-weight="600" fill="white" text-anchor="middle">Garden Tool Set</text>
+</svg>
