@@ -13,4 +13,10 @@ import { ProductImagePipe } from '../../../../shared/pipes/product-image.pipe';
 })
 export class ProductCardComponent {
   @Input({ required: true }) product!: Product;
+
+  onAddToCart(event: Event): void {
+    event.preventDefault();
+    event.stopPropagation();
+    // Placeholder - cart functionality will be added in next step
+  }
 }

@@ -49,4 +49,8 @@ export class ProductDetailsPage implements OnInit {
       }
     });
   }
+
+  onAddToCart(): void {
+    // Placeholder - cart functionality will be added in next step
+  }
 }

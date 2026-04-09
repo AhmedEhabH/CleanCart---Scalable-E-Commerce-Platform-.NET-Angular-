@@ -59,6 +59,10 @@
               </div>
             }
           </div>
+
+          <button class="product-details__add-btn" (click)="onAddToCart()" [disabled]="!p.isInStock">
+            Add to Cart
+          </button>
         </div>
       </div>
     }

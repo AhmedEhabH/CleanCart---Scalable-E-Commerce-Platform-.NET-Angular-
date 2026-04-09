@@ -27,5 +27,9 @@
         <span class="product-card__price-current">{{ product.price | currency }}</span>
       }
     </div>
+
+    <button class="product-card__add-btn" (click)="onAddToCart($event)" [disabled]="!product.isInStock">
+      Add to Cart
+    </button>
   </div>
 </a>

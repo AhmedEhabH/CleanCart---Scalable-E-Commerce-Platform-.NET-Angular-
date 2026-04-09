@@ -164,6 +164,28 @@
       color: var(--color-text);
     }
   }
+
+  &__add-btn {
+    margin-top: var(--space-4);
+    padding: var(--space-3) var(--space-6);
+    background: var(--color-primary);
+    color: white;
+    border: none;
+    border-radius: var(--radius-sm);
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color var(--transition-fast);
+
+    &:hover:not(:disabled) {
+      background: var(--color-primary-dark);
+    }
+
+    &:disabled {
+      background: var(--color-text-muted);
+      cursor: not-allowed;
+    }
+  }
 }
 
 @keyframes spin {

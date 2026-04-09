@@ -2,5 +2,54 @@
   <div class="container">
     <h1>Shopping Cart</h1>
     <p class="page__subtitle">Review your items before checkout.</p>
+
+    <div class="cart-layout">
+      <div class="cart-items">
+        <!-- Placeholder item for UI shell - will be replaced with real data -->
+        <div class="cart-item">
+          <img class="cart-item__image" src="https://placehold.co/80x80/e2e8f0/64748b?text=Product" alt="Product" />
+          <div class="cart-item__info">
+            <h3 class="cart-item__name">Sample Product - UI Shell</h3>
+            <p class="cart-item__price">$99.99</p>
+            <p class="cart-item__stock">In Stock</p>
+          </div>
+          <div class="cart-item__quantity">
+            <button class="qty-btn" disabled>-</button>
+            <span>1</span>
+            <button class="qty-btn" disabled>+</button>
+          </div>
+          <button class="cart-item__remove">Remove</button>
+        </div>
+
+        <!-- Empty state placeholder -->
+        <div class="cart-empty">
+          <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="9" cy="21" r="1"></circle>
+            <circle cx="20" cy="21" r="1"></circle>
+            <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
+          </svg>
+          <p>Your cart is empty</p>
+          <a routerLink="/products" class="btn">Continue Shopping</a>
+        </div>
+      </div>
+
+      <div class="cart-summary">
+        <h2>Order Summary</h2>
+        <div class="cart-summary__row">
+          <span class="cart-summary__label">Subtotal</span>
+          <span class="cart-summary__value">$0.00</span>
+        </div>
+        <div class="cart-summary__row">
+          <span class="cart-summary__label">Shipping</span>
+          <span class="cart-summary__value">Calculated at checkout</span>
+        </div>
+        <div class="cart-summary__row">
+          <span class="cart-summary__label">Total</span>
+          <span class="cart-summary__value">$0.00</span>
+        </div>
+        <button class="checkout-btn" disabled>Proceed to Checkout</button>
+        <p class="summary-note">Login to see your cart items</p>
+      </div>
+    </div>
   </div>
 </div>
