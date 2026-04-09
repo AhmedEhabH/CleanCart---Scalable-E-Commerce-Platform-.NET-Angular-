@@ -2,21 +2,25 @@ export interface CartItem {
   id: string;
   productId: string;
   productName: string;
-  productImageUrl: string;
+  productSlug: string;
+  productImageUrl?: string;
   quantity: number;
   unitPrice: number;
-  subtotal: number;
+  total: number;
+  isInStock: boolean;
 }
 
 export interface CartResponse {
   success: boolean;
-  message?: string;
+  message?: string | null;
   data?: {
+    id: string;
     items: CartItem[];
     totalItems: number;
-    subtotal: number;
+    subTotal: number;
+    isEmpty: boolean;
   };
-  errors?: string[];
+  errors?: string[] | null;
 }
 
 export interface AddToCartRequest {
