@@ -4,6 +4,7 @@ import { CommonModule } from '@angular/common';
 import { map } from 'rxjs';
 import { AuthService } from '../../core/services/auth.service';
 import { ThemeService } from '../../core/services/theme.service';
+import { CartService } from '../../core/services/cart.service';
 
 @Component({
   selector: 'app-header',
@@ -15,6 +16,7 @@ import { ThemeService } from '../../core/services/theme.service';
 export class HeaderComponent {
   private authService = inject(AuthService);
   protected themeService = inject(ThemeService);
+  protected cartService = inject(CartService);
 
   isAuthenticated$ = this.authService.authUser$.pipe(
     map(user => !!user)

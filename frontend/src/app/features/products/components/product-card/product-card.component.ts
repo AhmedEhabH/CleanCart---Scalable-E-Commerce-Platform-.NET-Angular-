@@ -22,12 +22,17 @@ export class ProductCardComponent {
     event.preventDefault();
     event.stopPropagation();
     
+    if (this.adding) return;
+    
     this.adding = true;
     this.cartService.addToCart({ productId: this.product.id, quantity: 1 }).subscribe({
       next: () => {
         this.adding = false;
       },
       error: () => {
+        this.adding = false;
+      },
+      complete: () => {
         this.adding = false;
       }
     });

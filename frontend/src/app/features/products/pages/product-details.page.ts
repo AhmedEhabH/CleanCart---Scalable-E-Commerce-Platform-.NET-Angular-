@@ -55,7 +55,7 @@ export class ProductDetailsPage implements OnInit {
 
   onAddToCart(): void {
     const currentProduct = this.product();
-    if (!currentProduct) return;
+    if (!currentProduct || this.adding()) return;
 
     this.adding.set(true);
     this.cartService.addToCart({ productId: currentProduct.id, quantity: 1 }).subscribe({
@@ -63,6 +63,9 @@ export class ProductDetailsPage implements OnInit {
         this.adding.set(false);
       },
       error: () => {
+        this.adding.set(false);
+      },
+      complete: () => {
         this.adding.set(false);
       }
     });
