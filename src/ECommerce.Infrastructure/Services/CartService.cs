@@ -38,12 +38,16 @@ public class CartService : ICartService
 
         var cart = await GetOrCreateCartAsync(userId, cancellationToken);
 
-        if (cart.HasProduct(product.Id))
-            return Result<CartDto>.Failure("Product already exists in cart. Use update to change quantity.");
+        var existingItem = cart.Items.FirstOrDefault(i => i.ProductId == product.Id);
+        if (existingItem != null)
+        {
+            existingItem.UpdateQuantity(existingItem.Quantity + request.Quantity);
+            existingItem.SetUnitPrice(product.Price);
+            await _context.SaveChangesAsync(cancellationToken);
+            return Result<CartDto>.Success(MapToDto(cart));
+        }
 
-        var item = cart.AddItem(product.Id, request.Quantity);
-        item.SetUnitPrice(product.Price);
-
+        cart.AddItemWithPrice(product.Id, request.Quantity, product.Price);
         await _context.SaveChangesAsync(cancellationToken);
         return Result<CartDto>.Success(MapToDto(cart));
     }
@@ -101,7 +105,6 @@ public class CartService : ICartService
         {
             cart = Cart.CreateForUser(userId);
             _context.Carts.Add(cart);
-            await _context.SaveChangesAsync(cancellationToken);
         }
 
         return cart;

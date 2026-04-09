@@ -58,6 +58,24 @@ public class Cart : BaseEntity
         return item;
     }
 
+    public CartItem AddItemWithPrice(Guid productId, int quantity, decimal unitPrice)
+    {
+        var existingItem = _items.FirstOrDefault(i => i.ProductId == productId);
+        
+        if (existingItem != null)
+        {
+            existingItem.UpdateQuantity(existingItem.Quantity + quantity);
+            existingItem.SetUnitPrice(unitPrice);
+            return existingItem;
+        }
+
+        var item = CartItem.Create(Id, productId, quantity);
+        item.SetUnitPrice(unitPrice);
+        _items.Add(item);
+        MarkAsUpdated();
+        return item;
+    }
+
     public void RemoveItem(Guid itemId)
     {
         var item = _items.FirstOrDefault(i => i.Id == itemId);
