@@ -2,13 +2,14 @@ import { Component, inject, OnInit, ChangeDetectorRef } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { CurrencyPipe } from '@angular/common';
+import { ProductImagePipe } from '../../shared/pipes/product-image.pipe';
 import { CartService } from '../../core/services/cart.service';
-import { CartResponse } from '../../core/models/cart.model';
+import { CartResponse, CartItem } from '../../core/models/cart.model';
 
 @Component({
   selector: 'app-cart',
   standalone: true,
-  imports: [CommonModule, RouterLink, CurrencyPipe],
+  imports: [CommonModule, RouterLink, CurrencyPipe, ProductImagePipe],
   templateUrl: './cart.component.html',
   styleUrl: './cart.component.scss'
 })
@@ -16,11 +17,12 @@ export class CartComponent implements OnInit {
   private cartService = inject(CartService);
   private cdr = inject(ChangeDetectorRef);
   
-  cartItems = [] as any[];
+  cartItems: CartItem[] = [];
   loading = true;
   error = null as string | null;
   totalItems = 0;
   subtotal = 0;
+  updatingItems = new Set<string>();
 
   ngOnInit(): void {
     this.loadCart();
@@ -50,5 +52,51 @@ export class CartComponent implements OnInit {
         this.cdr.detectChanges();
       }
     });
+  }
+
+  removeItem(itemId: string): void {
+    if (this.updatingItems.has(itemId)) return;
+    
+    this.updatingItems.add(itemId);
+    this.cartService.removeCartItem(itemId).subscribe({
+      next: (response) => {
+        if (response.success && response.data) {
+          this.cartItems = response.data.items || [];
+          this.totalItems = response.data.totalItems || 0;
+          this.subtotal = response.data.subTotal || 0;
+        }
+        this.updatingItems.delete(itemId);
+        this.cdr.detectChanges();
+      },
+      error: () => {
+        this.updatingItems.delete(itemId);
+        this.cdr.detectChanges();
+      }
+    });
+  }
+
+  updateQuantity(itemId: string, newQuantity: number): void {
+    if (newQuantity < 1 || this.updatingItems.has(itemId)) return;
+    
+    this.updatingItems.add(itemId);
+    this.cartService.updateCartItem(itemId, newQuantity).subscribe({
+      next: (response) => {
+        if (response.success && response.data) {
+          this.cartItems = response.data.items || [];
+          this.totalItems = response.data.totalItems || 0;
+          this.subtotal = response.data.subTotal || 0;
+        }
+        this.updatingItems.delete(itemId);
+        this.cdr.detectChanges();
+      },
+      error: () => {
+        this.updatingItems.delete(itemId);
+        this.cdr.detectChanges();
+      }
+    });
+  }
+
+  isItemUpdating(itemId: string): boolean {
+    return this.updatingItems.has(itemId);
   }
 }

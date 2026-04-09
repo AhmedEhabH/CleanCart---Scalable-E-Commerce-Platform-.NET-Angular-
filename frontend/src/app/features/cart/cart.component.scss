@@ -41,13 +41,17 @@
 
 .cart-item {
   display: grid;
-  grid-template-columns: 80px 1fr auto auto;
+  grid-template-columns: 80px 1fr auto auto auto;
   gap: var(--space-4);
   align-items: center;
   padding: var(--space-4);
   background-color: var(--color-surface);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-lg);
+
+  &__image-link {
+    display: block;
+  }
 
   &__image {
     width: 80px;
@@ -67,6 +71,12 @@
     font-weight: 600;
     color: var(--color-text);
     margin: 0;
+    text-decoration: none;
+    display: block;
+
+    &:hover {
+      color: var(--color-primary);
+    }
   }
 
   &__price {
@@ -102,8 +112,13 @@
     padding: var(--space-2);
     transition: opacity var(--transition-fast);
 
-    &:hover {
+    &:hover:not(:disabled) {
       opacity: 0.8;
+    }
+
+    &:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
     }
   }
 }
@@ -130,6 +145,12 @@
     opacity: 0.5;
     cursor: not-allowed;
   }
+}
+
+.qty-value {
+  min-width: 24px;
+  text-align: center;
+  font-weight: 600;
 }
 
 .cart-summary {
