@@ -105,6 +105,47 @@ public class CartServiceTests : IDisposable
         result.Error.Should().Contain("Insufficient stock");
     }
 
+    [Fact]
+    public async Task AddItemAsync_ShouldIncrementQuantity_WhenProductAlreadyInCart()
+    {
+        var userId = Guid.NewGuid();
+        var product = CreateProduct("Test Product", 25.00m, stockQuantity: 100);
+        _context.Products.Add(product);
+        await _context.SaveChangesAsync();
+
+        var result1 = await _sut.AddItemAsync(userId, new AddCartItemRequest(product.Id, 2));
+        result1.IsSuccess.Should().BeTrue();
+        result1.Value!.Items.Should().HaveCount(1);
+        result1.Value!.Items.First().Quantity.Should().Be(2);
+
+        var result2 = await _sut.AddItemAsync(userId, new AddCartItemRequest(product.Id, 3));
+        result2.IsSuccess.Should().BeTrue();
+        result2.Value!.Items.Should().HaveCount(1);
+        result2.Value!.Items.First().Quantity.Should().Be(5);
+        result2.Value!.Items.First().UnitPrice.Should().Be(25.00m);
+    }
+
+    [Fact]
+    public async Task AddItemAsync_ShouldPersistItem_WhenCartIsNew()
+    {
+        var userId = Guid.NewGuid();
+        var product = CreateProduct("Test Product", 49.99m, stockQuantity: 100);
+        _context.Products.Add(product);
+        await _context.SaveChangesAsync();
+
+        var result = await _sut.AddItemAsync(userId, new AddCartItemRequest(product.Id, 1));
+
+        result.IsSuccess.Should().BeTrue();
+        result.Value.Should().NotBeNull();
+        result.Value!.Items.Should().HaveCount(1);
+        result.Value!.Items.First().ProductId.Should().Be(product.Id);
+        result.Value!.Items.First().Quantity.Should().Be(1);
+        result.Value!.Items.First().UnitPrice.Should().Be(49.99m);
+        result.Value!.SubTotal.Should().Be(49.99m);
+        result.Value!.TotalItems.Should().Be(1);
+        result.Value!.IsEmpty.Should().BeFalse();
+    }
+
     #endregion
 
     #region UpdateItemQuantityAsync Tests
