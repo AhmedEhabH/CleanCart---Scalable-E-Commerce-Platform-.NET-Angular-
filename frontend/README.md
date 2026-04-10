@@ -122,3 +122,77 @@ For more information on using the Angular CLI, including detailed command refere
 ## Cart
 
 Cart UI shell is now present with Add to Cart buttons on product cards and details page, cart link in header, and cart page layout. Cart functionality will be added in subsequent steps.
+
+## Checkout Foundation
+
+Checkout flow from cart to order placement is now implemented.
+
+### Current Capabilities
+
+- **Checkout Page** (`/checkout`)
+  - Contact information form (full name, email, phone)
+  - Shipping address form (street, city, state, postal code, country)
+  - Order notes (optional, max 500 characters)
+  - Real-time form validation
+  - Order summary sidebar with cart items
+
+- **Cart-to-Checkout Integration**
+  - "Proceed to Checkout" button on cart page
+  - Redirect to cart if cart is empty
+  - Cart state integration via CartService
+
+- **Order Placement**
+  - POST to `/api/Checkout` endpoint
+  - Authenticated users only (via authGuard)
+  - Loading state during submission
+  - Error handling with user feedback
+
+- **Order Success Page** (`/order-success`)
+  - Displays order confirmation
+  - Shows order number, status, total, and item count
+  - Links to continue shopping
+
+### Backend Contract
+
+**Endpoint:** `POST /api/Checkout`
+
+**Request Body:**
+```typescript
+{
+  shippingAddress: {
+    street: string;      // required
+    city: string;        // required
+    state: string;       // optional
+    postalCode: string;  // optional
+    country: string;     // required
+  };
+  billingAddress?: {...} // optional (same structure)
+  notes?: string;       // optional, max 500 chars
+}
+```
+
+**Response:** `OrderDto` with order details
+
+### Files Added/Changed
+
+| File | Change |
+|------|--------|
+| `src/app/core/models/order.model.ts` | Added - Order DTOs and types |
+| `src/app/core/services/order.service.ts` | Added - Order API service |
+| `src/app/features/checkout/checkout.component.ts` | Updated - Full implementation |
+| `src/app/features/checkout/checkout.component.html` | Updated - Complete form UI |
+| `src/app/features/checkout/checkout.component.scss` | Updated - Styles for textarea |
+| `src/app/features/order-success/order-success.component.ts` | Added - Success page |
+| `src/app/features/cart/cart.component.html` | Updated - Checkout link |
+| `src/app/features/cart/cart.component.scss` | Updated - Anchor button styles |
+| `src/app/app.routes.ts` | Updated - Order success route |
+| `README.md` | Updated - Documentation |
+
+### Deferred/Not Implemented
+
+- Payment gateway UI (no backend payment integration ready)
+- Coupon/discount system
+- Order history/account pages
+- Email confirmation display
+- Order tracking
+- Billing address form (separate from shipping)

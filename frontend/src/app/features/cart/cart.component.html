@@ -85,7 +85,7 @@
             <span class="cart-summary__label">Total</span>
             <span class="cart-summary__value">{{ subtotal | currency }}</span>
           </div>
-          <button class="checkout-btn" [disabled]="cartItems.length === 0">Proceed to Checkout</button>
+          <a routerLink="/checkout" class="checkout-btn" [class.checkout-btn--disabled]="cartItems.length === 0">Proceed to Checkout</a>
         </div>
       </div>
     }

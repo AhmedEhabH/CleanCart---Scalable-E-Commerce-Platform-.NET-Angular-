@@ -195,6 +195,7 @@
 }
 
 .checkout-btn {
+  display: block;
   width: 100%;
   padding: var(--space-3);
   background: var(--color-primary);
@@ -205,15 +206,18 @@
   font-weight: 600;
   cursor: pointer;
   margin-top: var(--space-4);
+  text-align: center;
+  text-decoration: none;
   transition: background-color var(--transition-fast);
 
-  &:hover:not(:disabled) {
+  &:hover {
     background: var(--color-primary-dark);
   }
 
-  &:disabled {
+  &--disabled {
     background: var(--color-text-muted);
     cursor: not-allowed;
+    pointer-events: none;
   }
 }
 

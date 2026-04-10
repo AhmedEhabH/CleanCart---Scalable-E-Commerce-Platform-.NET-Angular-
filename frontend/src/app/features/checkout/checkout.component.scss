@@ -77,6 +77,11 @@
     &--error {
       border-color: var(--color-error);
     }
+
+    &--textarea {
+      resize: vertical;
+      min-height: 80px;
+    }
   }
 
   &__error {

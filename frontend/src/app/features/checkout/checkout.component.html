@@ -1,6 +1,220 @@
 <div class="page">
-  <div class="container container--narrow">
+  <div class="container">
     <h1>Checkout</h1>
     <p class="page__subtitle">Complete your order.</p>
+
+    @if (loading) {
+      <div class="loading">
+        <div class="loading__spinner"></div>
+        <p>Loading checkout...</p>
+      </div>
+    } @else if (cartItems.length === 0) {
+      <div class="cart-empty">
+        <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="9" cy="21" r="1"></circle>
+          <circle cx="20" cy="21" r="1"></circle>
+          <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
+        </svg>
+        <p>Your cart is empty</p>
+        <a routerLink="/products" class="btn">Continue Shopping</a>
+      </div>
+    } @else {
+      @if (error) {
+        <div class="form-error">
+          {{ error }}
+        </div>
+      }
+
+      <form [formGroup]="checkoutForm" (ngSubmit)="placeOrder()" class="checkout-layout">
+        <div class="checkout-form">
+          <div class="form-section">
+            <h2>Contact Information</h2>
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-group__label" for="fullName">Full Name *</label>
+                <input 
+                  type="text" 
+                  id="fullName"
+                  class="form-group__input"
+                  [class.form-group__input--error]="hasError('fullName', 'required') || hasError('fullName', 'minlength')"
+                  formControlName="fullName"
+                  placeholder="John Doe"
+                />
+                @if (hasError('fullName', 'required')) {
+                  <span class="form-group__error">Full name is required</span>
+                }
+                @if (hasError('fullName', 'minlength')) {
+                  <span class="form-group__error">Name must be at least 2 characters</span>
+                }
+              </div>
+              <div class="form-group">
+                <label class="form-group__label" for="email">Email *</label>
+                <input 
+                  type="email" 
+                  id="email"
+                  class="form-group__input"
+                  [class.form-group__input--error]="hasError('email', 'required') || hasError('email', 'email')"
+                  formControlName="email"
+                  placeholder="john@example.com"
+                />
+                @if (hasError('email', 'required')) {
+                  <span class="form-group__error">Email is required</span>
+                }
+                @if (hasError('email', 'email')) {
+                  <span class="form-group__error">Please enter a valid email</span>
+                }
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="form-group__label" for="phone">Phone *</label>
+              <input 
+                type="tel" 
+                id="phone"
+                class="form-group__input"
+                [class.form-group__input--error]="hasError('phone', 'required')"
+                formControlName="phone"
+                placeholder="+1 (555) 123-4567"
+              />
+              @if (hasError('phone', 'required')) {
+                <span class="form-group__error">Phone number is required</span>
+              }
+            </div>
+          </div>
+
+          <div class="form-section">
+            <h2>Shipping Address</h2>
+            <div class="form-group">
+              <label class="form-group__label" for="street">Street Address *</label>
+              <input 
+                type="text" 
+                id="street"
+                class="form-group__input"
+                [class.form-group__input--error]="hasError('street', 'required')"
+                formControlName="street"
+                placeholder="123 Main Street"
+              />
+              @if (hasError('street', 'required')) {
+                <span class="form-group__error">Street address is required</span>
+              }
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-group__label" for="city">City *</label>
+                <input 
+                  type="text" 
+                  id="city"
+                  class="form-group__input"
+                  [class.form-group__input--error]="hasError('city', 'required')"
+                  formControlName="city"
+                  placeholder="New York"
+                />
+                @if (hasError('city', 'required')) {
+                  <span class="form-group__error">City is required</span>
+                }
+              </div>
+              <div class="form-group">
+                <label class="form-group__label" for="state">State / Province</label>
+                <input 
+                  type="text" 
+                  id="state"
+                  class="form-group__input"
+                  formControlName="state"
+                  placeholder="NY"
+                />
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-group__label" for="postalCode">Postal Code</label>
+                <input 
+                  type="text" 
+                  id="postalCode"
+                  class="form-group__input"
+                  formControlName="postalCode"
+                  placeholder="10001"
+                />
+              </div>
+              <div class="form-group">
+                <label class="form-group__label" for="country">Country *</label>
+                <input 
+                  type="text" 
+                  id="country"
+                  class="form-group__input"
+                  [class.form-group__input--error]="hasError('country', 'required')"
+                  formControlName="country"
+                  placeholder="United States"
+                />
+                @if (hasError('country', 'required')) {
+                  <span class="form-group__error">Country is required</span>
+                }
+              </div>
+            </div>
+          </div>
+
+          <div class="form-section">
+            <h2>Order Notes</h2>
+            <div class="form-group">
+              <label class="form-group__label" for="notes">Additional Notes (Optional)</label>
+              <textarea 
+                id="notes"
+                class="form-group__input form-group__input--textarea"
+                formControlName="notes"
+                placeholder="Special instructions for delivery..."
+                rows="3"
+              ></textarea>
+              @if (hasError('notes', 'maxlength')) {
+                <span class="form-group__error">Notes must not exceed 500 characters</span>
+              }
+            </div>
+          </div>
+        </div>
+
+        <div class="order-summary">
+          <h2>Order Summary</h2>
+          <div class="order-items">
+            @for (item of cartItems; track item.id) {
+              <div class="order-item">
+                <img 
+                  class="order-item__image" 
+                  [src]="null | productImage:item.productSlug" 
+                  [alt]="item.productName"
+                />
+                <div class="order-item__info">
+                  <p class="order-item__name">{{ item.productName }}</p>
+                  <p class="order-item__qty">Qty: {{ item.quantity }}</p>
+                </div>
+                <p class="order-item__price">{{ item.total | currency }}</p>
+              </div>
+            }
+          </div>
+          <div class="order-totals">
+            <div class="order-totals__row">
+              <span class="order-totals__label">Items ({{ totalItems }})</span>
+              <span class="order-totals__value">{{ subtotal | currency }}</span>
+            </div>
+            <div class="order-totals__row">
+              <span class="order-totals__label">Shipping</span>
+              <span class="order-totals__value">Calculated at next step</span>
+            </div>
+            <div class="order-totals__row">
+              <span class="order-totals__label">Total</span>
+              <span class="order-totals__value">{{ subtotal | currency }}</span>
+            </div>
+          </div>
+          <button 
+            class="btn btn-place-order" 
+            (click)="placeOrder()"
+            [disabled]="submitting"
+          >
+            @if (submitting) {
+              <span class="spinner"></span>
+              Processing...
+            } @else {
+              Place Order
+            }
+          </button>
+        </div>
+      </form>
+    }
   </div>
 </div>

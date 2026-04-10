@@ -4,6 +4,7 @@ import { LoginComponent } from './features/auth/login/login.component';
 import { RegisterComponent } from './features/auth/register/register.component';
 import { CartComponent } from './features/cart/cart.component';
 import { CheckoutComponent } from './features/checkout/checkout.component';
+import { OrderSuccessComponent } from './features/order-success/order-success.component';
 import { NotFoundComponent } from './features/not-found/not-found.component';
 import { ProductListPage } from './features/products/pages/product-list.page';
 import { ProductDetailsPage } from './features/products/pages/product-details.page';
@@ -17,5 +18,6 @@ export const routes: Routes = [
   { path: 'products/:id', component: ProductDetailsPage, title: 'Product Details' },
   { path: 'cart', component: CartComponent, title: 'Cart' },
   { path: 'checkout', component: CheckoutComponent, canActivate: [authGuard], title: 'Checkout' },
+  { path: 'order-success', component: OrderSuccessComponent, title: 'Order Success' },
   { path: '**', component: NotFoundComponent, title: 'Not Found' }
 ];
