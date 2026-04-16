@@ -1,15 +1,16 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { CommonModule, CurrencyPipe } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { WishlistService } from '../../core/services/wishlist.service';
 import { Product } from '../products/models/product.model';
+import { ProductImagePipe } from '../../shared/pipes/product-image.pipe';
 import { CartService } from '../../core/services/cart.service';
 import { ToastService } from '../../shared/components/toast/toast.service';
 
 @Component({
   selector: 'app-wishlist',
   standalone: true,
-  imports: [CommonModule, RouterLink],
+  imports: [CommonModule, RouterLink, CurrencyPipe, ProductImagePipe],
   template: `
     <div class="page">
       <div class="container">
@@ -37,14 +38,19 @@ import { ToastService } from '../../shared/components/toast/toast.service';
           <div class="products-grid">
             @for (product of items(); track product.id) {
               <div class="product-card">
-                <a routerLink="/products/[[product.id]]" class="product-card__link">
+                <a [routerLink]="['/products', product.id]" class="product-card__link">
                   <div class="product-card__image">
-                    <img [src]="product.mainImageUrl || ''" [alt]="product.name" />
+                    <img [src]="product.mainImageUrl | productImage: product.slug" [alt]="product.name" />
                   </div>
                   <div class="product-card__info">
                     <h3 class="product-card__name">{{ product.name }}</h3>
                     <div class="product-card__price">
-                      <span class="product-card__price-current">{{ product.price }}</span>
+                      @if (product.hasDiscount && product.compareAtPrice) {
+                        <span class="product-card__price-current">{{ product.price | currency }}</span>
+                        <span class="product-card__price-original">{{ product.compareAtPrice | currency }}</span>
+                      } @else {
+                        <span class="product-card__price-current">{{ product.price | currency }}</span>
+                      }
                     </div>
                   </div>
                 </a>
@@ -110,6 +116,7 @@ import { ToastService } from '../../shared/components/toast/toast.service';
     }
     .product-card__price { display: flex; align-items: center; gap: var(--space-2); }
     .product-card__price-current { font-size: 1.1rem; font-weight: 700; color: var(--color-primary); }
+    .product-card__price-original { font-size: 0.85rem; color: var(--color-text-muted); text-decoration: line-through; }
     .product-card__actions { display: flex; gap: var(--space-2); padding: var(--space-3); padding-top: 0; }
     .product-card__remove-btn, .product-card__add-btn {
       flex: 1; padding: var(--space-2) var(--space-3); border-radius: var(--radius-sm);
