@@ -3,16 +3,18 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ProductGridComponent } from '../components/product-grid/product-grid.component';
 import { SortDropdownComponent, SortOption } from '../components/sort-dropdown/sort-dropdown.component';
+import { ShoppingAssistantComponent } from '../../../shared/components/shopping-assistant/shopping-assistant.component';
 import { ProductsService } from '../services/products.service';
 import { CategoriesService } from '../services/categories.service';
 import { Product } from '../models/product.model';
 import { CategorySimple } from '../models/category.model';
 import { PaginatedResult } from '../models/pagination.model';
+import { AssistantFilter } from '../../../shared/services/shopping-assistant.service';
 
 @Component({
   selector: 'app-product-list-page',
   standalone: true,
-  imports: [CommonModule, FormsModule, ProductGridComponent, SortDropdownComponent],
+  imports: [CommonModule, FormsModule, ProductGridComponent, SortDropdownComponent, ShoppingAssistantComponent],
   templateUrl: './product-list.page.html',
   styleUrl: './product-list.page.scss'
 })
@@ -173,5 +175,32 @@ export class ProductListPage implements OnInit {
     if (pag?.hasPreviousPage) {
       this.loadProducts(this.currentPage() - 1);
     }
+  }
+
+  onAssistantFilters(filters: AssistantFilter): void {
+    if (filters.searchTerm !== undefined) {
+      this.searchInput = filters.searchTerm;
+      this.searchTerm.set(filters.searchTerm);
+    }
+    if (filters.inStockOnly !== undefined) {
+      this.inStockOnly.set(filters.inStockOnly);
+    }
+    if (filters.featuredOnly !== undefined) {
+      this.featuredOnly.set(filters.featuredOnly);
+    }
+    if (filters.maxPrice !== undefined) {
+      this.searchInput = (this.searchInput || '') + ' max:' + filters.maxPrice;
+    }
+    if (filters.sortBy) {
+      this.sortBy.set(filters.sortBy);
+    }
+    if (filters.sortDescending !== undefined) {
+      this.sortDescending.set(filters.sortDescending);
+    }
+    this.loadProducts(1);
+  }
+
+  onAssistantReset(): void {
+    this.clearFilters();
   }
 }
