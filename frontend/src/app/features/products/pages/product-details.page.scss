@@ -112,21 +112,33 @@
     margin: 0;
   }
 
-  &__rating {
-    display: flex;
-    align-items: center;
-    gap: var(--space-2);
-    font-size: 0.9rem;
-  }
+   &__rating {
+     display: flex;
+     align-items: center;
+     gap: var(--space-2);
+     font-size: 0.9rem;
+     margin-bottom: var(--space-3);
+   }
 
-  &__stars {
-    color: var(--color-warning);
-    font-weight: 600;
-  }
+   &__rating-text {
+     display: flex;
+     flex-direction: column;
+   }
 
-  &__count {
-    color: var(--color-text-muted);
-  }
+   &__rating-average {
+     font-weight: 600;
+     color: var(--color-text-primary);
+   }
+
+   &__rating-count {
+     color: var(--color-text-muted);
+     font-size: 0.85rem;
+   }
+
+   &__stars {
+     color: var(--color-warning);
+     font-weight: 600;
+   }
 
   &__price {
     display: flex;

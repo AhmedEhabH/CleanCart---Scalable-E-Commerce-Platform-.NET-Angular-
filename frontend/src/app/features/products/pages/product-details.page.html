@@ -31,12 +31,15 @@
         <div class="product-details__info">
           <h1 class="product-details__name">{{ p.name }}</h1>
 
-          @if (p.averageRating > 0) {
-            <div class="product-details__rating">
-              <span class="product-details__stars">{{ p.averageRating | number:'1.1-1' }}</span>
-              <span class="product-details__count">({{ p.reviewCount }} reviews)</span>
-            </div>
-          }
+           @if (p.averageRating > 0) {
+             <div class="product-details__rating">
+               <app-star-rating [rating]="p.averageRating" [showLabel]="false"></app-star-rating>
+               <div class="product-details__rating-text">
+                 <span class="product-details__rating-average">{{ p.averageRating | number:'1.1-1' }}</span>
+                 <span class="product-details__rating-count">({{ p.reviewCount }} reviews)</span>
+               </div>
+             </div>
+           }
 
           <div class="product-details__price">
             @if (p.hasDiscount && p.compareAtPrice) {

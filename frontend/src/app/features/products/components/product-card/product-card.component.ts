@@ -6,11 +6,12 @@ import { ProductImagePipe } from '../../../../shared/pipes/product-image.pipe';
 import { CartService } from '../../../../core/services/cart.service';
 import { WishlistService } from '../../../../core/services/wishlist.service';
 import { ToastService } from '../../../../shared/components/toast/toast.service';
+import { StarRatingComponent } from '../../../../shared/components/star-rating/star-rating.component';
 
 @Component({
   selector: 'app-product-card',
   standalone: true,
-  imports: [CommonModule, RouterLink, CurrencyPipe, ProductImagePipe],
+  imports: [CommonModule, RouterLink, CurrencyPipe, ProductImagePipe, StarRatingComponent],
   templateUrl: './product-card.component.html',
   styleUrl: './product-card.component.scss'
 })
@@ -24,6 +25,18 @@ export class ProductCardComponent {
 
   get isFavorite(): boolean {
     return this.wishlistService.isInWishlist(this.product.id);
+  }
+
+  get isTopRated(): boolean {
+    return this.product.averageRating >= 4.5;
+  }
+
+  get isPopular(): boolean {
+    return this.product.reviewCount >= 50;
+  }
+
+  get isLowStock(): boolean {
+    return this.product.stockQuantity <= 5 && this.product.isInStock;
   }
 
   onAddToCart(event: Event): void {

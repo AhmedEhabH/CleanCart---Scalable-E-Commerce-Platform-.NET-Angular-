@@ -14,6 +14,15 @@
     @if (product.hasDiscount) {
       <span class="product-card__badge product-card__badge--sale">-{{ product.discountPercentage | number:'1.0-0' }}%</span>
     }
+    @if (isTopRated) {
+      <span class="product-card__badge product-card__badge--top-rated">Top Rated</span>
+    }
+    @if (isPopular) {
+      <span class="product-card__badge product-card__badge--popular">Popular</span>
+    }
+    @if (isLowStock) {
+      <span class="product-card__badge product-card__badge--low-stock">Low Stock</span>
+    }
     @if (!product.isInStock) {
       <span class="product-card__badge product-card__badge--out">Out of stock</span>
     }
@@ -24,9 +33,14 @@
 
     @if (product.averageRating > 0) {
       <div class="product-card__rating">
-        <span class="product-card__stars">{{ product.averageRating | number:'1.1-1' }}</span>
-        <span class="product-card__count">({{ product.reviewCount }})</span>
+        <app-star-rating [rating]="product.averageRating" [showLabel]="false"></app-star-rating>
+        <div class="product-card__rating-text">
+          <span class="product-card__rating-average">{{ product.averageRating | number:'1.1-1' }}</span>
+          <span class="product-card__rating-count">({{ product.reviewCount }} reviews)</span>
+        </div>
       </div>
+    } @else {
+      <p class="product-card__no-reviews">No reviews yet</p>
     }
 
     <div class="product-card__price">
