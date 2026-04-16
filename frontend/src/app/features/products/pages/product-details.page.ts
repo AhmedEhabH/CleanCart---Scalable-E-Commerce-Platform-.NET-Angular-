@@ -5,6 +5,7 @@ import { ProductsService } from '../services/products.service';
 import { Product } from '../models/product.model';
 import { ProductImagePipe } from '../../../shared/pipes/product-image.pipe';
 import { CartService } from '../../../core/services/cart.service';
+import { WishlistService } from '../../../core/services/wishlist.service';
 import { ToastService } from '../../../shared/components/toast/toast.service';
 
 @Component({
@@ -18,6 +19,7 @@ export class ProductDetailsPage implements OnInit {
   private productsService = inject(ProductsService);
   private route = inject(ActivatedRoute);
   private cartService = inject(CartService);
+  private wishlistService = inject(WishlistService);
   private toastService = inject(ToastService);
 
   product = signal<Product | null>(null);
@@ -25,6 +27,11 @@ export class ProductDetailsPage implements OnInit {
   error = signal<string | null>(null);
   adding = signal(false);
   quantity = signal(1);
+
+  get isFavorite(): boolean {
+    const p = this.product();
+    return p ? this.wishlistService.isInWishlist(p.id) : false;
+  }
 
   ngOnInit(): void {
     const id = this.route.snapshot.paramMap.get('id');
@@ -89,5 +96,17 @@ export class ProductDetailsPage implements OnInit {
         this.adding.set(false);
       }
     });
+  }
+
+  onToggleWishlist(): void {
+    const currentProduct = this.product();
+    if (!currentProduct) return;
+
+    this.wishlistService.toggleWishlist(currentProduct);
+    if (this.isFavorite) {
+      this.toastService.success(`${currentProduct.name} removed from wishlist`);
+    } else {
+      this.toastService.success(`${currentProduct.name} added to wishlist`);
+    }
   }
 }

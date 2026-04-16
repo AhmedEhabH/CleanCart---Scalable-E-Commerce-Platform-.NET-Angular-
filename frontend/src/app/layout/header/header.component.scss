@@ -79,7 +79,8 @@
     font-size: 0.875rem;
   }
 
-  &__cart-link {
+  &__cart-link,
+  &__wishlist-link {
     display: flex;
     align-items: center;
     gap: var(--space-1);

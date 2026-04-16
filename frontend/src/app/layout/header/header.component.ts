@@ -5,6 +5,7 @@ import { map } from 'rxjs';
 import { AuthService } from '../../core/services/auth.service';
 import { ThemeService, Theme } from '../../core/services/theme.service';
 import { CartService } from '../../core/services/cart.service';
+import { WishlistService } from '../../core/services/wishlist.service';
 
 @Component({
   selector: 'app-header',
@@ -17,6 +18,7 @@ export class HeaderComponent {
   private authService = inject(AuthService);
   protected themeService = inject(ThemeService);
   protected cartService = inject(CartService);
+  protected wishlistService = inject(WishlistService);
   private elementRef = inject(ElementRef);
   private router = inject(Router);
 
@@ -24,6 +26,7 @@ export class HeaderComponent {
     map(user => !!user)
   );
   authUser$ = this.authService.authUser$;
+  wishlistCount$ = this.wishlistService.wishlistCount$;
 
   isAccountMenuOpen = false;
   isThemeMenuOpen = false;
