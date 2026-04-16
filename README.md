@@ -1,62 +1,143 @@
-# ECommerce API
+# ECommerce Platform
 
-A production-ready ASP.NET Core 8 REST API for e-commerce management, built with Clean Architecture and CQRS patterns.
+A production-ready full-stack e-commerce solution built with ASP.NET Core 8 (Clean Architecture) and Angular 21, designed for scalability, maintainability, and exceptional user experience.
 
-## Features
+## Overview
 
-- [x] **Authentication & Authorization** — JWT Bearer tokens with refresh tokens, role-based access (Admin/User)
-- [x] **Product Management** — Full CRUD with admin controls
-- [x] **Category Management** — Hierarchical product categorization
-- [x] **Shopping Cart** — Add, update, remove items per user
-- [x] **Order Management** — Create orders from cart, track order history
-- [x] **Payment Processing** — Initiate, process, and refund payments
-- [x] **Checkout Flow** — End-to-end checkout with payment integration
-- [x] **API Documentation** — Swagger/OpenAPI interactive UI
-- [x] **Health Checks** — Application and database readiness endpoints
-- [x] **Structured Logging** — Serilog integration
-- [x] **Database Seeding** — Auto-seeds admin account and sample data
-- [x] **CI/CD** — GitHub Actions for build and test automation
-- [x] **Docker Support** — Multi-stage Dockerfile and docker-compose setup
-- [x] **Testing** — Unit and integration tests across all layers
+This project demonstrates a complete e-commerce platform featuring a robust backend API and a modern frontend SPA. It implements industry-standard patterns and practices, making it suitable for both learning and production use cases. The platform includes essential e-commerce functionality such as product catalog, shopping cart, checkout, order management, and user authentication.
+
+## Key Features
+
+### Customer Features
+- Product browsing and search
+- Detailed product pages with images, ratings, and reviews
+- Shopping cart with quantity adjustments
+- Secure checkout process
+- Order history and tracking
+- User authentication (login/register)
+- Wishlist functionality
+- Responsive design for mobile and desktop
+
+### Admin & Business Features
+- Product and category management
+- Order management
+- Payment processing integration
+- Role-based access control (Admin/User)
+- API documentation with Swagger/OpenAPI
+- Health checks and monitoring
+- Structured logging
+- Database seeding for demo data
+- Docker support for easy deployment
+
+### Technical Features
+- Clean Architecture backend with CQRS
+- Feature-based Angular frontend with standalone components
+- JWT-based authentication with refresh tokens
+- Entity Framework Core with SQL Server
+- TypeScript throughout the frontend
+- Unit and integration test coverage
+- CI/CD pipeline with GitHub Actions
+- Responsive UI with Angular Flex-Layout
+- Theme support (light/dark modes)
+
+## Tech Stack
+
+### Backend
+- **Framework:** ASP.NET Core 8
+- **Architecture:** Clean Architecture with CQRS
+- **Database:** SQL Server with Entity Framework Core
+- **Authentication:** JWT Bearer tokens with refresh tokens
+- **Authorization:** Role-based access control
+- **Validation:** FluentValidation
+- **Logging:** Serilog
+- **API Documentation:** Swagger/OpenAPI 3.0
+- **Testing:** xUnit
+- **Containerization:** Docker & Docker Compose
+
+### Frontend
+- **Framework:** Angular 21
+- **Language:** TypeScript
+- **Architecture:** Feature-based modules with standalone components
+- **State Management:** RxJS services
+- **Styling:** SCSS with CSS variables for theming
+- **UI Components:** Custom reusable components (product cards, forms, etc.)
+- **HTTP Client:** Typed Angular HttpClient with interceptors
+- **Routing:** Angular Router with lazy-loading capabilities
+- **Forms:** Reactive Forms with validation
+- **Build:** Angular CLI with production optimizations
+- **Testing:** Jasmine & Karma
+
+### Infrastructure
+- **Database:** SQL Server (local or Docker)
+- **API Communication:** RESTful JSON over HTTPS
+- **Dependency Injection:** Built-in .NET Core and Angular DI
+- **Environment Management:** Environment-specific configuration files
 
 ## Architecture
 
-Built with Clean Architecture principles, the solution is organized into four independent layers:
+### Backend (Clean Architecture)
+The backend follows Clean Architecture principles with separate layers of concern:
+- **API Layer:** Controllers, middleware, Swagger configuration
+- **Application Layer:** Use cases, DTOs, validators, CQRS handlers
+- **Infrastructure Layer:** Database contexts, repositories, external services
+- **Domain Layer:** Business entities, enums, domain services (zero dependencies)
 
-```
-┌─────────────────────────────────────────────────┐
-│                   API Layer                     │
-│  Controllers, Middleware, Swagger, Composition  │
-├─────────────────────────────────────────────────┤
-│               Application Layer                 │
-│  Services, Interfaces, DTOs, Validators, CQRS   │
-├─────────────────────────────────────────────────┤
-│              Infrastructure Layer               │
-│  EF Core DbContext, Repositories, External Svc  │
-├─────────────────────────────────────────────────┤
-│                 Domain Layer                    │
-│  Entities, Enums, Domain Logic (no dependencies)│
-└─────────────────────────────────────────────────┘
-```
+### Frontend (Feature-Based Angular)
+The Angular application uses a feature-based architecture:
+- **Core:** Singleton services, guards, interceptors, shared models
+- **Features:** Self-contained modules for auth, products, cart, etc.
+- **Layout:** Shell components (header, footer, app shell)
+- **Shared:** Pipes, directives, utilities used across features
+- **Environment:** Configuration files for different deployment targets
 
-**Key Technologies:**
-- **Framework:** ASP.NET Core 8
-- **Database:** SQL Server with Entity Framework Core
-- **Validation:** FluentValidation
-- **Security:** BCrypt password hashing, JWT authentication
-- **Logging:** Serilog
-- **Testing:** xUnit
+## Screenshots
+
+Below are screenshots showcasing the platform's key features and user flows:
+
+### Light Theme
+![Home Page - Light](docs/screenshots/home-light.png)
+![Products List - Light](docs/screenshots/products-light.png)
+![Product Details - Light](docs/screenshots/product-details-light.png)
+![Shopping Cart - Light](docs/screenshots/cart-light.png)
+![Checkout - Light](docs/screenshots/checkout-light.png)
+![User Orders - Light](docs/screenshots/orders-light.png)
+![Wishlist - Light](docs/screenshots/wishlist-light.png)
+![Login Page - Light](docs/screenshots/login-light.png)
+![Register Page - Light](docs/screenshots/register-light.png)
+
+### Dark Theme
+![Home Page - Dark](docs/screenshots/home-dark.png)
+![Products List - Dark](docs/screenshots/products-dark.png)
+![Product Details - Dark](docs/screenshots/product-details-dark.png)
+![Shopping Cart - Dark](docs/screenshots/cart-dark.png)
+![Checkout - Dark](docs/screenshots/checkout-dark.png)
+![User Orders - Dark](docs/screenshots/orders-dark.png)
+![Wishlist - Dark](docs/screenshots/wishlist-dark.png)
+![Login Page - Dark](docs/screenshots/login-dark.png)
+![Register Page - Dark](docs/screenshots/register-dark.png)
+
+### Mobile View
+![Mobile Home Menu](docs/screenshots/mobile-menu.png)
+![Mobile Home Page](docs/screenshots/mobile-home.png)
+![Mobile Products List](docs/screenshots/mobile-products.png)
+
+### Additional Features
+![Product Reviews & Ratings](docs/screenshots/reviews.png)
+![Admin Product Management](docs/screenshots/admin-products.png) *(if applicable)*
 
 ## Getting Started
 
 ### Prerequisites
+- [.NET 8 SDK](https://dotnet.microsoft.com/download/dotnet/8.0)
+- [Node.js 18+](https://nodejs.org/) (for frontend)
+- [SQL Server](https://www.microsoft.com/en-us/sql-server/sql-server-downloads) (local or via Docker)
+- [Docker](https://www.docker.com/get-started) (optional but recommended)
 
-- .NET 8 SDK
-- SQL Server (local or Docker)
+### Backend Setup
 
-### Option 1: Local Development
-
-1. **Configure the database** — Update `src/ECommerce.Api/appsettings.json`:
+#### Option 1: Local Development
+1. Clone the repository
+2. Configure the database connection in `src/ECommerce.Api/appsettings.json`:
    ```json
    {
      "ConnectionStrings": {
@@ -64,315 +145,167 @@ Built with Clean Architecture principles, the solution is organized into four in
      }
    }
    ```
-
-2. **Apply migrations:**
+3. Apply EF Core migrations:
    ```bash
    dotnet ef database update --project src/ECommerce.Infrastructure --startup-project src/ECommerce.Api
    ```
-
-3. **Run the API:**
+4. Run the API:
    ```bash
    dotnet run --project src/ECommerce.Api
    ```
+   The API will be available at `http://localhost:5000`
 
-   The API starts at `http://localhost:5000`. On first run, the database is seeded with an admin account and sample data.
+#### Option 2: Docker (Recommended)
+1. Ensure Docker is running
+2. Start the stack with Docker Compose:
+   ```bash
+   docker compose up --build
+   ```
+   This will start:
+   - API at `http://localhost:8080`
+   - SQL Server at `localhost:1433`
 
-### Option 2: Docker (Recommended)
+### Frontend Setup
+1. Ensure the backend is running (see above)
+2. Navigate to the frontend directory:
+   ```bash
+   cd frontend
+   ```
+3. Install dependencies:
+   ```bash
+   npm install
+   ```
+4. Start the development server:
+   ```bash
+   npm start
+   ```
+   or
+   ```bash
+   ng serve
+   ```
+5. The application will be available at `http://localhost:4200`
 
-**Run with Docker Compose (starts API + SQL Server):**
-```bash
-docker compose up --build
-```
+### Environment Configuration
+The frontend uses environment files to configure the API base URL:
+- `src/environments/environment.ts` (development): `http://localhost:5000/api`
+- `src/environments/environment.prod.ts` (production): `/api` (relative to host)
 
-This starts:
-- **API** on `http://localhost:8080`
-- **SQL Server** on `localhost:1433`
+Update these files if your backend runs on a different URL.
 
-The database is persisted via a named volume. The API waits for the database to be healthy before starting.
-
-**Build and run the image only:**
-```bash
-docker build -t ecommerce-api .
-docker run -p 8080:8080 ecommerce-api
-```
-
-### Option 3: API Documentation & Testing
-
-#### Swagger UI
-- Available at `http://localhost:5000` (local) or `http://localhost:8080` (Docker) in Development mode
-- Use the **Authorize** button to enter JWT tokens (`Bearer <token>`)
-- Interactive endpoint documentation with request/response schemas
-
-#### Postman
-1. Import `ECommerce.postman_collection.json` into Postman
-2. Set the `baseUrl` variable to your API URL (default: `http://localhost:8080`)
-3. Login via `/api/auth/login` to get an access token
-4. Set the `accessToken` variable with your token for authenticated requests
-
-#### cURL Examples
-```bash
-# Login
-curl -X POST http://localhost:8080/api/auth/login \
-  -H "Content-Type: application/json" \
-  -d '{"email":"admin@ecommerce.com","password":"Admin@123"}'
-
-# Get products (public)
-curl -X GET http://localhost:8080/api/products
-
-# Create order (requires auth)
-curl -X POST http://localhost:8080/api/orders \
-  -H "Authorization: Bearer <token>" \
-  -H "Content-Type: application/json" \
-  -d '{"items":[{"productId":"<guid>","quantity":2}],"shippingAddress":"123 Main St"}'
-```
-
-## API Endpoints
+## API Overview
 
 ### Authentication
-| Endpoint | Method | Description |
-|---|---|---|
-| `/api/auth/register` | POST | Register a new user |
-| `/api/auth/login` | POST | Login and get JWT token |
-| `/api/auth/refresh` | POST | Refresh access token |
+- `POST /api/auth/register` - Register new user
+- `POST /api/auth/login` - Login and receive JWT token
+- `POST /api/auth/refresh` - Refresh expired access token
 
 ### Products
-| Endpoint | Method | Description |
-|---|---|---|
-| `/api/products` | GET | List all products |
-| `/api/products/{id}` | GET | Get product by ID |
-| `/api/products` | POST | Create product (Admin) |
-| `/api/products/{id}` | PUT | Update product (Admin) |
-| `/api/products/{id}` | DELETE | Delete product (Admin) |
+- `GET /api/products` - List products (with filtering/pagination)
+- `GET /api/products/{id}` - Get product details
+- `POST /api/products` - Create product (Admin only)
+- `PUT /api/products/{id}` - Update product (Admin only)
+- `DELETE /api/products/{id}` - Delete product (Admin only)
 
 ### Categories
-| Endpoint | Method | Description |
-|---|---|---|
-| `/api/categories` | GET | List all categories |
-| `/api/categories/{id}` | GET | Get category by ID |
-| `/api/categories` | POST | Create category (Admin) |
-| `/api/categories/{id}` | PUT | Update category (Admin) |
-| `/api/categories/{id}` | DELETE | Delete category (Admin) |
+- `GET /api/categories` - List categories
+- `GET /api/categories/{id}` - Get category details
+- `POST /api/categories` - Create category (Admin)
+- `PUT /api/categories/{id}` - Update category (Admin)
+- `DELETE /api/categories/{id}` - Delete category (Admin)
 
-### Cart
-| Endpoint | Method | Description |
-|---|---|---|
-| `/api/cart` | GET | Get current user's cart |
-| `/api/cart/items` | POST | Add item to cart |
-| `/api/cart/items/{id}` | PUT | Update cart item quantity |
-| `/api/cart/items/{id}` | DELETE | Remove item from cart |
-| `/api/cart/clear` | DELETE | Clear all cart items |
+### Shopping Cart
+- `GET /api/cart` - Get current user's cart
+- `POST /api/cart/items` - Add item to cart
+- `PUT /api/cart/items/{id}` - Update cart item quantity
+- `DELETE /api/cart/items/{id}` - Remove item from cart
+- `DELETE /api/cart/clear` - Clear entire cart
 
-### Orders
-| Endpoint | Method | Description |
-|---|---|---|
-| `/api/orders` | POST | Create a new order from cart |
-| `/api/orders` | GET | Get user's orders |
-| `/api/orders/{id}` | GET | Get order details |
+### Orders & Checkout
+- `POST /api/orders` - Create order from cart
+- `GET /api/orders` - Get user's order history
+- `GET /api/orders/{id}` - Get specific order details
+- `POST /api/checkout` - Process checkout from cart
+- `POST /api/payments` - Initiate payment
+- `POST /api/payments/{id}/process` - Process payment
+- `POST /api/payments/{id}/refund` - Refund payment
 
-### Checkout & Payments
-| Endpoint | Method | Description |
-|---|---|---|
-| `/api/checkout` | POST | Process checkout from cart |
-| `/api/payments` | POST | Initiate a payment |
-| `/api/payments/{id}` | GET | Get payment details |
-| `/api/payments/order/{orderId}` | GET | Get payment by order |
-| `/api/payments/{id}/process` | POST | Process a payment |
-| `/api/payments/{id}/refund` | POST | Refund a payment |
-
-### Authorization
-
-All protected endpoints require a JWT token in the `Authorization` header:
+### Security
+All endpoints except authentication and public product listings require a valid JWT token:
 ```
-Authorization: Bearer <your-token>
+Authorization: Bearer <access_token>
 ```
 
-| Role | Permissions |
-|---|---|
-| **Admin** | Full access — manage products, categories, and payments |
-| **User** | Browse products, create orders, manage own payments |
+## Testing
 
-## Health Checks
+### Backend Tests
+- Unit tests for application services, validators, and domain logic
+- Integration tests for API endpoints and database interactions
+- Run all backend tests:
+  ```bash
+  dotnet test
+  ```
 
-| Endpoint | Description |
-|---|---|
-| `/health` | Overall application health |
-| `/health/ready` | Readiness check (database connectivity) |
+### Frontend Tests
+- Unit tests for components, services, and pipes
+- End-to-end tests using Cypress or Playwright (planned)
+- Run frontend unit tests:
+  ```bash
+  cd frontend
+  npm test
+  ```
 
-## Running Tests
+## Project Highlights
 
-```bash
-dotnet test
+### Why This Project Stands Out
+1. **Production-Ready Architecture:** Clean Architecture backend with clear separation of concerns ensures maintainability and scalability.
+2. **Full E-Commerce Flow:** Complete implementation from product browsing to order fulfillment, including payment processing.
+3. **Modern Technology Stack:** Utilizes latest stable versions of .NET 8, Angular 21, Entity Framework Core, and TypeScript.
+4. **Quality Focus:** Comprehensive testing, structured logging, and API documentation demonstrate professional development practices.
+5. **Deployment Ready:** Docker support and CI/CD pipeline enable consistent deployments across environments.
+6. **Portfolio Quality:** Clean codebase, responsive design, and attention to UX details make it suitable for showcasing to employers or clients.
+7. **Extensible Foundation:** Modular architecture allows for easy addition of features like wishlist, reviews, or admin dashboards.
+
+## Future Enhancements
+
+### Planned Improvements
+- **AI Shopping Assistant:** Integrate natural language search and product recommendations
+- **Admin Dashboard:** Analytics, sales reports, and user management
+- **Payment Gateway Extensions:** Stripe, PayPal, and other popular payment processors
+- **Email Notifications:** Order confirmations, shipping updates, and promotional campaigns
+- **Advanced Filtering:** Enhanced product search with faceted navigation and sorting
+- **Inventory Management:** Stock tracking, low-stock alerts, and supplier management
+- **Performance Optimization:** Caching strategies (Redis) and CDN integration for static assets
+- **Internationalization:** Multi-language support and currency localization
+- **Progressive Web App (PWA):** Offline capabilities and installable mobile experience
+- **Accessibility Improvements:** WCAG 2.1 compliance for inclusive design
+
+## Folder Structure
+
 ```
-
-## CI/CD
-
-A GitHub Actions workflow (`.github/workflows/ci.yml`) runs on every push and pull request to `main`/`master`. It restores dependencies, builds the solution, and runs all tests.
-
-## Roadmap
-
-- [ ] Redis caching for products and categories
-- [ ] Email notifications for order confirmations
-- [ ] File upload for product images
-- [ ] Pagination and filtering for list endpoints
-- [ ] Rate limiting and API throttling
-- [ ] Integration with external payment gateways (Stripe, PayPal)
-- [ ] GraphQL API alternative
-- [ ] Kubernetes deployment manifests
+.
+├── .github/                 # GitHub Actions workflows and templates
+├── docs/                    # Documentation and screenshots
+│   └── screenshots/         # UI screenshots for README
+├── src/                     # Source code
+│   ├── ECommerce.Api/       # ASP.NET Core Web API project
+│   ├── ECommerce.Application/# Application layer (CQRS, DTOs, services)
+│   ├── ECommerce.Domain/    # Domain layer (entities, enums, logic)
+│   ├── ECommerce.Infrastructure/# Infrastructure layer (EF Core, repositories)
+│   └── frontend/            # Angular SPA
+│       ├── src/
+│       │   ├── app/         # Application modules and components
+│       │   ├── assets/      # Static assets (images, icons, etc.)
+│       │   ├── environments/# Environment configuration files
+│       │   └── styles/      # Global styles and themes
+├── tests/                   # Test projects
+│   ├── ECommerce.Application.Tests/
+│   ├── ECommerce.Domain.Tests/
+│   └── ECommerce.Infrastructure.Tests/
+├── docker-compose.yml       # Docker Compose definition
+├── Dockerfile               # Multi-stage Dockerfile for API
+├── README.md                # This file
+└── .gitignore               # Git ignore rules
+```
 
 ---
-
-## Frontend (Angular)
-
-A standalone Angular SPA that consumes the ECommerce API. Built with Angular 21, standalone components, and typed HTTP clients.
-
-### Features Implemented
-
-- [x] **App Shell** — Header with navigation, footer, responsive layout
-- [x] **Authentication** — Login, Register, JWT interceptor, route guards
-- [x] **Products Catalog** — Paginated product listing, product details page, reusable card/grid components
-- [x] **Shopping Cart** — Add to cart from product card/details, cart page displays real items from API
-
-### How to Run the Frontend
-
-**Prerequisites:**
-- Node.js 18+
-- The backend API must be running (see Getting Started above)
-
-**Install dependencies:**
-```bash
-cd frontend
-npm install
-```
-
-**Development server:**
-```bash
-npm start
-# or
-ng serve
-```
-The app starts at `http://localhost:4200`.
-
-**Production build:**
-```bash
-npm run build
-# or
-ng build --configuration production
-```
-Output is written to `frontend/dist/frontend`.
-
-### API Configuration
-
-The frontend reads the backend URL from environment files:
-
-| File | `apiBaseUrl` |
-|---|---|
-| `src/environments/environment.ts` | `http://localhost:5000/api` |
-| `src/environments/environment.prod.ts` | `/api` |
-
-Update `environment.ts` if your API runs on a different host or port.
-
-### How the Frontend Uses the Backend
-
-The frontend calls the REST API through a typed `ApiService` wrapper. Authenticated requests include a JWT Bearer token via the `AuthInterceptor`.
-
-**Example product list response shape:**
-```json
-{
-  "success": true,
-  "data": {
-    "items": [
-      {
-        "id": "guid",
-        "name": "Gaming Laptop",
-        "slug": "gaming-laptop",
-        "description": "High-performance laptop...",
-        "price": 1299.99,
-        "compareAtPrice": 1499.99,
-        "mainImageUrl": "https://example.com/laptop.jpg",
-        "images": [{ "id": "guid", "imageUrl": "...", "altText": null, "displayOrder": 1 }],
-        "isInStock": true,
-        "hasDiscount": true,
-        "discountPercentage": 13,
-        "averageRating": 4.5,
-        "reviewCount": 42,
-        "sku": "LAPTOP-001",
-        "stockQuantity": 15,
-        "createdAt": "2024-01-01T00:00:00Z",
-        "updatedAt": "2024-01-01T00:00:00Z"
-      }
-    ],
-    "totalCount": 150,
-    "page": 1,
-    "pageSize": 12,
-    "totalPages": 13,
-    "hasPreviousPage": false,
-    "hasNextPage": true
-  }
-}
-```
-
-### Product Image Handling
-
-Product images are resolved through a reusable `ProductImagePipe` with a three-tier strategy:
-
-1. **Local product assets (highest priority)** — Known seeded demo products are mapped by `slug` to locally generated SVG assets stored in `frontend/src/assets/products/`. The mapping is centralized in the pipe and covers all 8 seeded products:
-   - `premium-smartphone`, `budget-smartphone`, `gaming-laptop`, `ultrabook`, `wireless-earbuds`, `classic-tshirt`, `smart-led-bulb`, `garden-tool-set`
-
-2. **Backend-relative paths** — Relative URLs (e.g. `/uploads/products/img.jpg`) are prefixed with the API base host (e.g. `http://localhost:5000/uploads/products/img.jpg`)
-
-3. **Absolute URLs** — External URLs (`http://`, `https://`) are used as-is, except for known unreliable placeholder services like `via.placeholder.com` which are skipped
-
-4. **Fallback** — If no valid image is available, a local SVG placeholder at `/assets/images/product-placeholder.svg` is displayed
-
-This ensures images always display correctly without depending on external placeholder services. Demo product assets are locally generated and stored in the repo for full offline support.
-
-### Project Structure
-
-```
-frontend/src/app/
-├── core/                      # Singleton services, guards, interceptors, models
-│   ├── guards/                # Route guards (authGuard)
-│   ├── interceptors/          # HTTP interceptors (authInterceptor)
-│   ├── models/                # Shared type definitions
-│   └── services/              # Core services (ApiService, AuthService)
-├── features/                  # Feature modules (lazy-load ready)
-│   ├── auth/                  # Login & Register pages
-│   ├── products/              # Products catalog
-│   │   ├── components/        # Reusable UI (product-card, product-grid)
-│   │   ├── models/            # Product & pagination types
-│   │   ├── pages/             # Route-level pages (list, details)
-│   │   └── services/          # ProductsService
-│   ├── home/
-│   ├── cart/
-│   ├── checkout/
-│   └── not-found/
-├── layout/                    # Header, footer, shell components
-├── shared/                    # Shared pipes, directives, utilities
-│   └── pipes/                 # ProductImagePipe
-└── environments/              # Environment-specific config
-```
-
-### Local Product Assets
-
-The following demo product SVG images are generated and stored locally in `frontend/src/assets/products/`:
-
-| Slug | File |
-|---|---|
-| `premium-smartphone` | `premium-smartphone.svg` |
-| `budget-smartphone` | `budget-smartphone.svg` |
-| `gaming-laptop` | `gaming-laptop.svg` |
-| `ultrabook` | `ultrabook.svg` |
-| `wireless-earbuds` | `wireless-earbuds.svg` |
-| `classic-tshirt` | `classic-tshirt.svg` |
-| `smart-led-bulb` | `smart-led-bulb.svg` |
-| `garden-tool-set` | `garden-tool-set.svg` |
-
-A generic fallback placeholder is available at `frontend/src/assets/images/product-placeholder.svg`.
-
-### Screenshots
-
-![Home](docs/screenshots/home.png)
-![Login](docs/screenshots/login.png)
-![Register](docs/screenshots/register.png)
-![Products List](docs/screenshots/products-list.png)
-![Product Details](docs/screenshots/product-details.png)
+*Built with ❤️ using modern .NET and Angular technologies. Designed for developers who value clean architecture, maintainable code, and beautiful user experiences.*
