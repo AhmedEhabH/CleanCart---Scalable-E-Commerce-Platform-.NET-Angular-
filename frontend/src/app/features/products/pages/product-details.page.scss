@@ -292,3 +292,323 @@
     grid-template-columns: 1fr;
   }
 }
+
+.reviews-section {
+  margin-top: var(--space-12);
+  padding-top: var(--space-8);
+  border-top: 1px solid var(--color-border);
+
+  &__title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin-bottom: var(--space-6);
+  }
+
+  &__write-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    padding: var(--space-2) var(--space-4);
+    background: var(--color-primary);
+    color: white;
+    border: none;
+    border-radius: var(--radius-md);
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color var(--transition-fast);
+
+    &:hover {
+      background: var(--color-primary-dark);
+    }
+  }
+
+  &__user-review {
+    display: flex;
+    align-items: center;
+    gap: var(--space-4);
+    padding: var(--space-4);
+    background: var(--color-surface);
+    border-radius: var(--radius-md);
+    margin-bottom: var(--space-6);
+
+    p {
+      margin: 0;
+      color: var(--color-text-muted);
+    }
+  }
+
+  &__delete-btn {
+    padding: var(--space-1) var(--space-3);
+    background: transparent;
+    color: var(--color-error);
+    border: 1px solid var(--color-error);
+    border-radius: var(--radius-md);
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: all var(--transition-fast);
+
+    &:hover {
+      background: var(--color-error);
+      color: white;
+    }
+  }
+
+  &__login-prompt {
+    padding: var(--space-4);
+    background: var(--color-surface);
+    border-radius: var(--radius-md);
+    margin-bottom: var(--space-6);
+    text-align: center;
+    color: var(--color-text-muted);
+
+    a {
+      color: var(--color-primary);
+      text-decoration: none;
+      font-weight: 600;
+
+      &:hover {
+        text-decoration: underline;
+      }
+    }
+  }
+}
+
+.reviews-summary {
+  display: flex;
+  gap: var(--space-8);
+  padding: var(--space-6);
+  background: var(--color-surface);
+  border-radius: var(--radius-md);
+  margin-bottom: var(--space-6);
+
+  &__overall {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-width: 120px;
+    gap: var(--space-2);
+  }
+
+  &__rating {
+    font-size: 3rem;
+    font-weight: 700;
+    line-height: 1;
+  }
+
+  &__count {
+    font-size: 0.85rem;
+    color: var(--color-text-muted);
+  }
+
+  &__breakdown {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+    justify-content: center;
+  }
+
+  &__bar {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+  }
+
+  &__bar-label {
+    min-width: 50px;
+    font-size: 0.85rem;
+    color: var(--color-text-muted);
+  }
+
+  &__bar-track {
+    flex: 1;
+    height: 8px;
+    background: var(--color-border);
+    border-radius: 4px;
+    overflow: hidden;
+  }
+
+  &__bar-fill {
+    height: 100%;
+    background: var(--color-warning);
+    border-radius: 4px;
+    transition: width 0.3s ease;
+  }
+
+  &__bar-count {
+    min-width: 24px;
+    text-align: right;
+    font-size: 0.85rem;
+    color: var(--color-text-muted);
+  }
+}
+
+@media (max-width: 640px) {
+  .reviews-summary {
+    flex-direction: column;
+    align-items: center;
+  }
+}
+
+.review-form {
+  padding: var(--space-6);
+  background: var(--color-surface);
+  border-radius: var(--radius-md);
+  margin-bottom: var(--space-6);
+
+  &__title {
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin-bottom: var(--space-4);
+  }
+
+  &__field {
+    margin-bottom: var(--space-4);
+  }
+
+  &__label {
+    display: block;
+    margin-bottom: var(--space-2);
+    font-weight: 500;
+    font-size: 0.9rem;
+  }
+
+  &__input,
+  &__textarea {
+    width: 100%;
+    padding: var(--space-2) var(--space-3);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    font-size: 1rem;
+    background: var(--color-background);
+    color: var(--color-text);
+    transition: border-color var(--transition-fast);
+
+    &:focus {
+      outline: none;
+      border-color: var(--color-primary);
+    }
+
+    &::placeholder {
+      color: var(--color-text-muted);
+    }
+  }
+
+  &__textarea {
+    resize: vertical;
+    min-height: 100px;
+  }
+
+  &__actions {
+    display: flex;
+    gap: var(--space-3);
+    margin-top: var(--space-4);
+  }
+
+  &__submit {
+    padding: var(--space-2) var(--space-4);
+    background: var(--color-primary);
+    color: white;
+    border: none;
+    border-radius: var(--radius-md);
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color var(--transition-fast);
+
+    &:hover:not(:disabled) {
+      background: var(--color-primary-dark);
+    }
+
+    &:disabled {
+      background: var(--color-text-muted);
+      cursor: not-allowed;
+    }
+  }
+
+  &__cancel {
+    padding: var(--space-2) var(--space-4);
+    background: transparent;
+    color: var(--color-text);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    font-weight: 500;
+    cursor: pointer;
+    transition: all var(--transition-fast);
+
+    &:hover {
+      background: var(--color-border);
+    }
+  }
+}
+
+.reviews-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+
+  &__loading {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: var(--space-8);
+    color: var(--color-text-muted);
+  }
+
+  &__empty {
+    text-align: center;
+    padding: var(--space-8);
+    color: var(--color-text-muted);
+    background: var(--color-surface);
+    border-radius: var(--radius-md);
+  }
+}
+
+.review-card {
+  padding: var(--space-4);
+  background: var(--color-surface);
+  border-radius: var(--radius-md);
+
+  &__header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: var(--space-2);
+  }
+
+  &__user {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-1);
+  }
+
+  &__name {
+    font-weight: 600;
+    font-size: 0.95rem;
+  }
+
+  &__verified {
+    font-size: 0.75rem;
+    color: var(--color-success);
+    font-weight: 500;
+  }
+
+  &__title {
+    font-size: 1rem;
+    font-weight: 600;
+    margin: var(--space-2) 0;
+  }
+
+  &__comment {
+    color: var(--color-text-muted);
+    line-height: 1.6;
+    margin: var(--space-2) 0;
+    font-size: 0.9rem;
+  }
+
+  &__date {
+    font-size: 0.8rem;
+    color: var(--color-text-muted);
+  }
+}

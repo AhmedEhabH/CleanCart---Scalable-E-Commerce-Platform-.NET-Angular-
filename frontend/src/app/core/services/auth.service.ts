@@ -102,6 +102,7 @@ export class AuthService {
     storage.setItem(this.REFRESH_TOKEN_KEY, data.refreshToken);
     
     const user: AuthUser = {
+      id: data.email,
       email: data.email,
       fullName: data.fullName,
       role: data.role

@@ -8,6 +8,7 @@ using ECommerce.Application.Payments.Interfaces;
 using ECommerce.Application.Payments.Services;
 using ECommerce.Application.Products.Interfaces;
 using ECommerce.Application.Products.Services;
+using ECommerce.Application.Reviews.Interfaces;
 using ECommerce.Domain.Interfaces;
 using ECommerce.Infrastructure.Repositories;
 using ECommerce.Infrastructure.Data;
@@ -36,6 +37,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<ICartService, CartService>();
         services.AddScoped<IOrderService, OrderService>();
         services.AddScoped<IPaymentService, PaymentService>();
+        services.AddScoped<IReviewService, ReviewService>();
         
         return services;
     }
@@ -60,6 +62,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IProductRepository, ProductRepository>();
         services.AddScoped<IPaymentRepository, PaymentRepository>();
         services.AddScoped<IOrderRepository, OrderRepository>();
+        services.AddScoped<IReviewRepository, ReviewRepository>();
         
         return services;
     }

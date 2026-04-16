@@ -108,6 +108,146 @@
           </button>
         </div>
       </div>
+
+      <section class="reviews-section">
+        <h2 class="reviews-section__title">Customer Reviews</h2>
+
+        @if (reviewSummary(); as summary) {
+          @if (summary.totalReviews > 0) {
+            <div class="reviews-summary">
+              <div class="reviews-summary__overall">
+                <span class="reviews-summary__rating">{{ summary.averageRating.toFixed(1) }}</span>
+                <app-star-rating [rating]="summary.averageRating" [showLabel]="false"></app-star-rating>
+                <span class="reviews-summary__count">{{ summary.totalReviews }} {{ summary.totalReviews === 1 ? 'review' : 'reviews' }}</span>
+              </div>
+
+              <div class="reviews-summary__breakdown">
+                @for (star of [5, 4, 3, 2, 1]; track star) {
+                  <div class="reviews-summary__bar">
+                    <span class="reviews-summary__bar-label">{{ star }} star</span>
+                    <div class="reviews-summary__bar-track">
+                      <div 
+                        class="reviews-summary__bar-fill" 
+                        [style.width.%]="getRatingPercentage(star === 5 ? summary.fiveStars : star === 4 ? summary.fourStars : star === 3 ? summary.threeStars : star === 2 ? summary.twoStars : summary.oneStar)"
+                      ></div>
+                    </div>
+                    <span class="reviews-summary__bar-count">{{ star === 5 ? summary.fiveStars : star === 4 ? summary.fourStars : star === 3 ? summary.threeStars : star === 2 ? summary.twoStars : summary.oneStar }}</span>
+                  </div>
+                }
+              </div>
+            </div>
+          }
+        }
+
+        @if (isAuthenticated) {
+          @if (!userHasReviewed()) {
+            @if (!showReviewForm()) {
+              <button class="reviews-section__write-btn" (click)="toggleReviewForm()">
+                Write a Review
+              </button>
+            } @else {
+              <div class="review-form">
+                <h3 class="review-form__title">Write a Review</h3>
+                
+                <div class="review-form__field">
+                  <label class="review-form__label">Your Rating</label>
+                  <app-star-rating 
+                    [rating]="newReviewRating()" 
+                    [interactive]="true"
+                    (ratingChange)="onRatingChange($event)"
+                  ></app-star-rating>
+                </div>
+
+                <div class="review-form__field">
+                  <label class="review-form__label" for="review-title">Review Title</label>
+                  <input 
+                    id="review-title"
+                    type="text" 
+                    class="review-form__input"
+                    placeholder="Summarize your experience"
+                    [ngModel]="newReviewTitle()"
+                    (ngModelChange)="newReviewTitle.set($event)"
+                    maxlength="200"
+                  />
+                </div>
+
+                <div class="review-form__field">
+                  <label class="review-form__label" for="review-comment">Your Review (optional)</label>
+                  <textarea 
+                    id="review-comment"
+                    class="review-form__textarea"
+                    placeholder="Share your thoughts about this product..."
+                    [ngModel]="newReviewComment()"
+                    (ngModelChange)="newReviewComment.set($event)"
+                    rows="4"
+                    maxlength="2000"
+                  ></textarea>
+                </div>
+
+                <div class="review-form__actions">
+                  <button 
+                    class="review-form__submit" 
+                    (click)="submitReview()"
+                    [disabled]="submittingReview()"
+                  >
+                    @if (submittingReview()) {
+                      Submitting...
+                    } @else {
+                      Submit Review
+                    }
+                  </button>
+                  <button class="review-form__cancel" (click)="toggleReviewForm()">
+                    Cancel
+                  </button>
+                </div>
+              </div>
+            }
+          } @else {
+            <div class="reviews-section__user-review">
+              <p>You have already reviewed this product.</p>
+              @if (getUserReview(); as userReview) {
+                <button class="reviews-section__delete-btn" (click)="deleteReview(userReview.id)">
+                  Delete Review
+                </button>
+              }
+            </div>
+          }
+        } @else {
+          <p class="reviews-section__login-prompt">
+            <a routerLink="/auth/login">Sign in</a> to leave a review
+          </p>
+        }
+
+        <div class="reviews-list">
+          @if (loadingReviews()) {
+            <div class="reviews-list__loading">
+              <div class="loading__spinner"></div>
+              <p>Loading reviews...</p>
+            </div>
+          } @else if (reviews().length === 0) {
+            <p class="reviews-list__empty">No reviews yet. Be the first to review this product!</p>
+          } @else {
+            @for (review of reviews(); track review.id) {
+              <div class="review-card">
+                <div class="review-card__header">
+                  <div class="review-card__user">
+                    <span class="review-card__name">{{ review.userName }}</span>
+                    @if (review.isVerifiedPurchase) {
+                      <span class="review-card__verified">Verified Purchase</span>
+                    }
+                  </div>
+                  <app-star-rating [rating]="review.rating"></app-star-rating>
+                </div>
+                <h4 class="review-card__title">{{ review.title }}</h4>
+                @if (review.comment) {
+                  <p class="review-card__comment">{{ review.comment }}</p>
+                }
+                <time class="review-card__date">{{ review.createdAt | date:'mediumDate' }}</time>
+              </div>
+            }
+          }
+        </div>
+      </section>
     }
   </div>
 </div>
