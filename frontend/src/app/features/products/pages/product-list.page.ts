@@ -2,23 +2,17 @@ import { Component, inject, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ProductGridComponent } from '../components/product-grid/product-grid.component';
+import { SortDropdownComponent, SortOption } from '../components/sort-dropdown/sort-dropdown.component';
 import { ProductsService } from '../services/products.service';
 import { CategoriesService } from '../services/categories.service';
 import { Product } from '../models/product.model';
 import { CategorySimple } from '../models/category.model';
 import { PaginatedResult } from '../models/pagination.model';
 
-type SortOption = {
-  value: string;
-  label: string;
-  sortBy: string;
-  descending: boolean;
-};
-
 @Component({
   selector: 'app-product-list-page',
   standalone: true,
-  imports: [CommonModule, FormsModule, ProductGridComponent],
+  imports: [CommonModule, FormsModule, ProductGridComponent, SortDropdownComponent],
   templateUrl: './product-list.page.html',
   styleUrl: './product-list.page.scss'
 })
@@ -50,6 +44,13 @@ export class ProductListPage implements OnInit {
     { value: 'name-asc', label: 'Name: A-Z', sortBy: 'name', descending: false },
     { value: 'name-desc', label: 'Name: Z-A', sortBy: 'name', descending: true },
   ];
+
+  get sortOptionValue(): string {
+    const option = this.sortOptions.find(
+      o => o.sortBy === this.sortBy() && o.descending === this.sortDescending()
+    );
+    return option?.value || 'featured';
+  }
 
   ngOnInit(): void {
     this.loadCategories();
@@ -135,12 +136,9 @@ export class ProductListPage implements OnInit {
     this.loadProducts(1);
   }
 
-  onSortChange(): void {
-    const option = this.sortOptions.find(o => o.value === this.sortBy());
-    if (option) {
-      this.sortBy.set(option.sortBy);
-      this.sortDescending.set(option.descending);
-    }
+  onSortChange(option: SortOption): void {
+    this.sortBy.set(option.sortBy);
+    this.sortDescending.set(option.descending);
     this.loadProducts(1);
   }
 

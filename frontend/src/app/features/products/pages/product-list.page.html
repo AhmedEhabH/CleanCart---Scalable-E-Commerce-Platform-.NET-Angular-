@@ -35,15 +35,11 @@
           }
         </select>
 
-        <select 
-          class="filter-select"
-          [(ngModel)]="sortBy"
-          (ngModelChange)="onSortChange()"
-        >
-          @for (option of sortOptions; track option.value) {
-            <option [value]="option.value">{{ option.label }}</option>
-          }
-        </select>
+        <app-sort-dropdown
+          [options]="sortOptions"
+          [selectedValue]="sortOptionValue"
+          (selectionChange)="onSortChange($event)"
+        />
 
         @if (hasActiveFilters) {
           <button class="btn btn--ghost btn--sm" (click)="clearFilters()">
