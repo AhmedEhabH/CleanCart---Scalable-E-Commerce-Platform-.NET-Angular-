@@ -151,6 +151,45 @@ The dropdown:
 | Login/Register | No | Auth section (unauthenticated) |
 | Account menu | Yes | Auth section (authenticated) |
 
+## Products Page
+
+The products page (`/products`) includes advanced filtering and sorting capabilities for improved product discovery.
+
+### Search
+- Search input with debounce (300ms) for performance
+- Searches product names
+- Press Enter or wait for auto-search
+- Clear search to show all products
+
+### Filtering
+- **Category filter**: Dropdown to filter by product category
+- **In Stock toggle**: Show only products currently in stock
+- **Featured toggle**: Show only featured products
+- Filters can be combined and work together
+- "Clear Filters" button appears when any filter is active
+
+### Sorting
+Available sort options:
+| Option | Description |
+|--------|-------------|
+| Featured | Featured products first |
+| Price: Low to High | Ascending price |
+| Price: High to Low | Descending price |
+| Name: A-Z | Alphabetical A-Z |
+| Name: Z-A | Alphabetical Z-A |
+
+### Empty State
+When no products match the current search/filters, a helpful empty state is displayed with option to clear filters.
+
+### Backend Integration
+All filtering and sorting is handled server-side via query parameters:
+- `SearchTerm` - Product name search
+- `CategoryId` - Filter by category
+- `IsInStock` - Stock availability filter
+- `IsFeatured` - Featured status filter
+- `SortBy` - Field to sort by
+- `SortDescending` - Sort direction
+
 ## Checkout Foundation
 
 Checkout flow from cart to order placement is now implemented.

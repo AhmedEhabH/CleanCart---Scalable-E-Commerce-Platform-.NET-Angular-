@@ -23,6 +23,8 @@ export class ProductsService {
     if (query.categoryId) params = params.set('CategoryId', query.categoryId);
     if (query.sortBy) params = params.set('SortBy', query.sortBy);
     if (query.sortDescending !== undefined) params = params.set('SortDescending', query.sortDescending.toString());
+    if (query.isFeatured !== undefined) params = params.set('IsFeatured', query.isFeatured.toString());
+    if (query.isInStock !== undefined) params = params.set('IsInStock', query.isInStock.toString());
 
     return this.http.get<ApiResponse<PaginatedResult<Product>>>(`${this.baseUrl}/products`, { params });
   }

@@ -5,4 +5,6 @@ export interface ProductListQuery {
   categoryId?: string;
   sortBy?: string;
   sortDescending?: boolean;
+  isFeatured?: boolean;
+  isInStock?: boolean;
 }
