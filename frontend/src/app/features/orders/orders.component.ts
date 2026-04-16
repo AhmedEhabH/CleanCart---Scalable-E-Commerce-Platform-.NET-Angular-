@@ -1,4 +1,4 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { CurrencyPipe, DatePipe } from '@angular/common';
@@ -265,6 +265,7 @@ import { OrderDto } from '../../core/models/order.model';
 })
 export class OrdersComponent implements OnInit {
   private orderService = inject(OrderService);
+  private cdr = inject(ChangeDetectorRef);
 
   orders: OrderDto[] = [];
   loading = true;
@@ -282,10 +283,12 @@ export class OrdersComponent implements OnInit {
       next: (orders) => {
         this.orders = orders;
         this.loading = false;
+        this.cdr.detectChanges();
       },
       error: (err) => {
         this.error = err.error?.message || 'Failed to load orders. Please try again.';
         this.loading = false;
+        this.cdr.detectChanges();
       }
     });
   }

@@ -157,6 +157,7 @@ Checkout flow from cart to order placement is now implemented.
   - Shows order number, date, status, items count, and total
   - Authenticated users only (via authGuard)
   - Empty state when no orders exist
+  - Orders refresh immediately after successful checkout (no manual refresh needed)
 
 ### Backend Contract
 
