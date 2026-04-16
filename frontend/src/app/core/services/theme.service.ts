@@ -1,9 +1,11 @@
 import { Injectable, signal, effect, inject, PLATFORM_ID } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
 
-export type Theme = 'light' | 'dark';
+export type Theme = 'light' | 'dark' | 'github';
 
 const STORAGE_KEY = 'app-theme';
+
+const THEMES: Theme[] = ['light', 'dark', 'github'];
 
 @Injectable({
   providedIn: 'root'
@@ -12,7 +14,9 @@ export class ThemeService {
   private platformId = inject(PLATFORM_ID);
   
   readonly theme = signal<Theme>(this.getInitialTheme());
+  readonly themes = THEMES;
   readonly isDark = () => this.theme() === 'dark';
+  readonly isGithub = () => this.theme() === 'github';
 
   constructor() {
     if (isPlatformBrowser(this.platformId)) {
@@ -24,9 +28,9 @@ export class ThemeService {
 
   private getInitialTheme(): Theme {
     if (isPlatformBrowser(this.platformId)) {
-      const saved = localStorage.getItem(STORAGE_KEY) as Theme | null;
-      if (saved === 'light' || saved === 'dark') {
-        return saved;
+      const saved = localStorage.getItem(STORAGE_KEY);
+      if (saved && THEMES.includes(saved as Theme)) {
+        return saved as Theme;
       }
       if (window.matchMedia?.('(prefers-color-scheme: dark)').matches) {
         return 'dark';
@@ -41,10 +45,22 @@ export class ThemeService {
   }
 
   toggle(): void {
-    this.theme.update(current => current === 'light' ? 'dark' : 'light');
+    const currentIndex = THEMES.indexOf(this.theme());
+    const nextIndex = (currentIndex + 1) % THEMES.length;
+    this.theme.set(THEMES[nextIndex]);
   }
 
   setTheme(theme: Theme): void {
-    this.theme.set(theme);
+    if (THEMES.includes(theme)) {
+      this.theme.set(theme);
+    }
+  }
+
+  getThemeLabel(theme: Theme): string {
+    switch (theme) {
+      case 'light': return 'Light';
+      case 'dark': return 'Dark';
+      case 'github': return 'GitHub';
+    }
   }
 }

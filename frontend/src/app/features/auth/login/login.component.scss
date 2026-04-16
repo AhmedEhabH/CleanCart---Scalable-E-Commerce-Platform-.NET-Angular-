@@ -37,7 +37,8 @@
     background-color: var(--color-surface);
     color: var(--color-text);
     transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
-
+    width: 100%;
+ 
     &:focus {
       outline: none;
       border-color: var(--color-primary);
@@ -52,6 +53,12 @@
   &__error {
     color: var(--color-error);
     font-size: 0.875rem;
+  }
+
+  &__checkbox {
+    flex-direction: row;
+    align-items: center;
+    gap: var(--space-2);
   }
 }
 
@@ -96,5 +103,48 @@
 @keyframes spin {
   to {
     transform: rotate(360deg);
+  }
+}
+
+.password-input-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.password-input-wrapper .form__input {
+  padding-right: 44px;
+}
+
+.password-toggle {
+  position: absolute;
+  right: 10px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--color-text-muted);
+  padding: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: color var(--transition-fast);
+
+  &:hover {
+    color: var(--color-text);
+  }
+}
+
+.checkbox-label {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  cursor: pointer;
+  color: var(--color-text-secondary);
+  font-size: 0.875rem;
+
+  input[type="checkbox"] {
+    width: 16px;
+    height: 16px;
+    cursor: pointer;
   }
 }

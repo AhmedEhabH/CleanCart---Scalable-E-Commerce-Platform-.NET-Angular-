@@ -26,6 +26,7 @@ export class RegisterComponent {
 
   isLoading = false;
   errorMessage = '';
+  showPassword = false;
 
   get firstName() {
     return this.registerForm.get('firstName');
@@ -41,6 +42,10 @@ export class RegisterComponent {
 
   get password() {
     return this.registerForm.get('password');
+  }
+
+  togglePasswordVisibility(): void {
+    this.showPassword = !this.showPassword;
   }
 
   onSubmit(): void {

@@ -18,11 +18,13 @@ export class LoginComponent {
 
   loginForm: FormGroup = this.fb.group({
     email: ['', [Validators.required, Validators.email]],
-    password: ['', [Validators.required, Validators.minLength(6)]]
+    password: ['', [Validators.required, Validators.minLength(6)]],
+    rememberMe: [false]
   });
 
   isLoading = false;
   errorMessage = '';
+  showPassword = false;
 
   get email() {
     return this.loginForm.get('email');
@@ -30,6 +32,14 @@ export class LoginComponent {
 
   get password() {
     return this.loginForm.get('password');
+  }
+
+  get rememberMe() {
+    return this.loginForm.get('rememberMe');
+  }
+
+  togglePasswordVisibility(): void {
+    this.showPassword = !this.showPassword;
   }
 
   onSubmit(): void {
@@ -41,7 +51,8 @@ export class LoginComponent {
     this.isLoading = true;
     this.errorMessage = '';
 
-    this.authService.login(this.loginForm.value).subscribe({
+    const { rememberMe, ...credentials } = this.loginForm.value;
+    this.authService.login(credentials, rememberMe).subscribe({
       next: () => {
         this.router.navigate(['/']);
       },

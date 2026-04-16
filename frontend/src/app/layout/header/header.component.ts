@@ -3,7 +3,7 @@ import { RouterLink, RouterLinkActive, Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { map } from 'rxjs';
 import { AuthService } from '../../core/services/auth.service';
-import { ThemeService } from '../../core/services/theme.service';
+import { ThemeService, Theme } from '../../core/services/theme.service';
 import { CartService } from '../../core/services/cart.service';
 
 @Component({
@@ -26,11 +26,13 @@ export class HeaderComponent {
   authUser$ = this.authService.authUser$;
 
   isAccountMenuOpen = false;
+  isThemeMenuOpen = false;
 
   @HostListener('document:click', ['$event'])
   onDocumentClick(event: MouseEvent): void {
     if (!this.elementRef.nativeElement.contains(event.target)) {
       this.isAccountMenuOpen = false;
+      this.isThemeMenuOpen = false;
     }
   }
 
@@ -40,6 +42,19 @@ export class HeaderComponent {
 
   closeAccountMenu(): void {
     this.isAccountMenuOpen = false;
+  }
+
+  toggleThemeMenu(): void {
+    this.isThemeMenuOpen = !this.isThemeMenuOpen;
+  }
+
+  selectTheme(theme: Theme): void {
+    this.themeService.setTheme(theme);
+    this.isThemeMenuOpen = false;
+  }
+
+  getThemeLabel(theme: Theme): string {
+    return this.themeService.getThemeLabel(theme);
   }
 
   logout(): void {

@@ -80,7 +80,7 @@ The theming system uses CSS custom properties (variables) defined in `src/styles
 ### Theme Toggle
 
 - Theme toggle button is located in the header, next to authentication controls
-- Click the sun/moon icon to switch between light and dark modes
+- Click the theme button to open a dropdown with 3 theme options
 - Theme preference is persisted in localStorage under the key `app-theme`
 - On first load, the system checks:
   1. Saved user preference (if previously selected)
@@ -96,6 +96,21 @@ The dark mode features:
 - Indigo accent (#6366f1) for interactive elements
 - Muted text colors for hierarchy and readability
 - Smooth transitions between themes
+
+### Three-Theme Support
+
+The application supports three themes:
+
+1. **Light** - Clean, bright interface with white backgrounds
+2. **Dark** - Near-black background with charcoal surfaces and indigo accents
+3. **GitHub** - GitHub-inspired neutral palette with professional surfaces and subtle borders
+
+The GitHub theme features:
+- White background (#ffffff) with subtle gray surfaces (#f6f8fa)
+- Clean borders (#d0d7de) for definition
+- GitHub blue accent (#0969da) for interactive elements
+- High contrast text (#24292f) for readability
+- Restrained green for success (#1a7f37)
 
 ### Adding New Themeable Components
 
@@ -139,6 +154,40 @@ The dropdown:
 - Is keyboard accessible
 - Adapts to mobile screens (opens left-aligned)
 - Maintains consistent styling with light/dark themes
+
+## Auth UX Improvements
+
+The application includes user experience enhancements for authentication.
+
+### Show/Hide Password
+- Toggle button on login and register forms
+- Allows users to reveal/hide password while typing
+- Eye/eye-off icon indicates current state
+- Works consistently across all themes
+
+### Remember Me
+- Checkbox option on login form
+- When checked: persists auth in localStorage (survives browser close)
+- When unchecked: uses sessionStorage (session-only, cleared on tab close)
+- Default behavior maintains security standards
+- Does not change backend contracts
+
+### Files Added/Changed
+
+| File | Change |
+|------|--------|
+| `src/app/features/auth/login/login.component.ts` | Added showPassword, rememberMe |
+| `src/app/features/auth/login/login.component.html` | Added password toggle, Remember Me checkbox |
+| `src/app/features/auth/login/login.component.scss` | Added password toggle styles |
+| `src/app/features/auth/register/register.component.ts` | Added showPassword |
+| `src/app/features/auth/register/register.component.html` | Added password toggle |
+| `src/app/features/auth/register/register.component.scss` | Added password toggle styles |
+| `src/app/core/services/auth.service.ts` | Updated for session/rememberMe support |
+| `src/app/core/services/theme.service.ts` | Added github theme, 3-theme toggle |
+| `src/styles.scss` | Added GitHub theme CSS variables |
+| `src/app/layout/header/header.component.ts` | Added 3-theme dropdown |
+| `src/app/layout/header/header.component.html` | Theme dropdown UI |
+| `src/app/layout/header/header.component.scss` | Theme dropdown styles |
 
 ### Navigation Links
 
