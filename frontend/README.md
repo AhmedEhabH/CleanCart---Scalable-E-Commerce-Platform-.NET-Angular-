@@ -97,20 +97,21 @@ The dark mode features:
 - Muted text colors for hierarchy and readability
 - Smooth transitions between themes
 
-### Three-Theme Support
+### Four-Theme Support
 
-The application supports three themes:
+The application supports four themes:
 
 1. **Light** - Clean, bright interface with white backgrounds
 2. **Dark** - Near-black background with charcoal surfaces and indigo accents
 3. **GitHub** - GitHub-inspired neutral palette with professional surfaces and subtle borders
+4. **GitHub Dark** - GitHub's dark mode palette for night-time use
 
-The GitHub theme features:
-- White background (#ffffff) with subtle gray surfaces (#f6f8fa)
-- Clean borders (#d0d7de) for definition
-- GitHub blue accent (#0969da) for interactive elements
-- High contrast text (#24292f) for readability
-- Restrained green for success (#1a7f37)
+The GitHub Dark theme features:
+- Dark background (#0d1117) with elevated surfaces (#161b22)
+- Subtle borders (#30363d) for definition
+- GitHub blue accent (#58a6ff) for interactive elements
+- Readable text (#c9d1d9) with good contrast
+- Green success (#3fb950), amber warning (#d29922), red danger (#f85149)
 
 ### Adding New Themeable Components
 
