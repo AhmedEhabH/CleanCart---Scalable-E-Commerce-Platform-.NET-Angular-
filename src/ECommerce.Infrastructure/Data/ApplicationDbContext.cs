@@ -1,5 +1,6 @@
-using Microsoft.EntityFrameworkCore;
+using ECommerce.Application.Common.Interfaces;
 using ECommerce.Domain.Entities;
+using Microsoft.EntityFrameworkCore;
 
 namespace ECommerce.Infrastructure.Data;
 

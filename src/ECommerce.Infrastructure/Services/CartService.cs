@@ -1,8 +1,8 @@
 using ECommerce.Application.Cart.DTOs;
 using ECommerce.Application.Cart.Interfaces;
+using ECommerce.Application.Common.Interfaces;
 using ECommerce.Application.Common.Models;
 using ECommerce.Domain.Entities;
-using ECommerce.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 
 namespace ECommerce.Infrastructure.Services;

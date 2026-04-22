@@ -1,10 +1,10 @@
 using ECommerce.Application.Cart.Interfaces;
+using ECommerce.Application.Common.Interfaces;
 using ECommerce.Application.Common.Models;
 using ECommerce.Application.Orders.DTOs;
 using ECommerce.Application.Orders.Interfaces;
 using ECommerce.Domain.Entities;
 using ECommerce.Domain.ValueObjects;
-using ECommerce.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 using VOAddress = ECommerce.Domain.ValueObjects.Address;
 
