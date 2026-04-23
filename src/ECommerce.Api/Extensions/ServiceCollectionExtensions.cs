@@ -9,6 +9,7 @@ using ECommerce.Application.Payments.Services;
 using ECommerce.Application.Products.Interfaces;
 using ECommerce.Application.Products.Services;
 using ECommerce.Application.Reviews.Interfaces;
+using ECommerce.Application.Users.Interfaces;
 using ECommerce.Domain.Interfaces;
 using ECommerce.Infrastructure.Repositories;
 using ECommerce.Infrastructure.Data;
@@ -30,6 +31,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IPasswordHasher, PasswordHasher>();
         services.AddScoped<ITokenService, TokenService>();
         services.AddScoped<IAuthService, AuthService>();
+        services.AddScoped<IUserService, UserService>();
         services.AddScoped<ProductService>();
         services.AddScoped<CategoryService>();
         services.AddScoped<IProductService>(sp => new CachedProductService(sp.GetRequiredService<ProductService>(), sp.GetRequiredService<ICacheService>()));
