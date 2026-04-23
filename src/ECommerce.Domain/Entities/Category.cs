@@ -8,7 +8,6 @@ public class Category : BaseEntity
     public Guid? ParentId { get; private set; }
     public Category? Parent { get; private set; }
     public string? IconUrl { get; private set; }
-    public bool IsActive { get; private set; } = true;
     public int DisplayOrder { get; private set; }
 
     private readonly List<Category> _children = new();
@@ -39,8 +38,7 @@ public class Category : BaseEntity
             Description = description?.Trim(),
             ParentId = parentId,
             IconUrl = iconUrl,
-            DisplayOrder = displayOrder,
-            IsActive = true
+            DisplayOrder = displayOrder
         };
     }
 
@@ -66,10 +64,6 @@ public class Category : BaseEntity
         ParentId = parentId;
         MarkAsUpdated();
     }
-
-    public void Activate() => IsActive = true;
-
-    public void Deactivate() => IsActive = false;
 
     public string FullPath => Parent != null ? $"{Parent.FullPath} > {Name}" : Name;
 }

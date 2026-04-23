@@ -15,7 +15,6 @@ public class Product : BaseEntity
     public int StockQuantity { get; private set; }
     public int LowStockThreshold { get; private set; } = 10;
     public bool IsFeatured { get; private set; }
-    public bool IsActive { get; private set; } = true;
     public int ReviewCount { get; private set; }
     public decimal AverageRating { get; private set; }
 
@@ -72,8 +71,7 @@ public class Product : BaseEntity
             SKU = sku.Trim().ToUpperInvariant(),
             StockQuantity = stockQuantity,
             LowStockThreshold = lowStockThreshold,
-            IsFeatured = isFeatured,
-            IsActive = true
+            IsFeatured = isFeatured
         };
     }
 
@@ -99,10 +97,6 @@ public class Product : BaseEntity
         CategoryId = categoryId;
         MarkAsUpdated();
     }
-
-    public void Activate() => IsActive = true;
-
-    public void Deactivate() => IsActive = false;
 
     public void SetAsFeatured() => IsFeatured = true;
 

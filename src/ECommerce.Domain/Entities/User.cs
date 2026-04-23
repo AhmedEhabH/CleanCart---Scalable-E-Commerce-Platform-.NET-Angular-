@@ -11,7 +11,6 @@ public class User : BaseEntity
     public string? PhoneNumber { get; private set; }
     public Role Role { get; private set; }
     public bool EmailConfirmed { get; private set; }
-    public bool IsActive { get; private set; } = true;
 
     private readonly List<Address> _addresses = new();
     public IReadOnlyCollection<Address> Addresses => _addresses.AsReadOnly();
@@ -83,10 +82,6 @@ public class User : BaseEntity
     }
 
     public void ConfirmEmail() => EmailConfirmed = true;
-
-    public void Deactivate() => IsActive = false;
-
-    public void Activate() => IsActive = true;
 
     public string FullName => $"{FirstName} {LastName}";
 }
