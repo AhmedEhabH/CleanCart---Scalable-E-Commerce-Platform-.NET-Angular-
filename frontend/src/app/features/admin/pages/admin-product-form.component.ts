@@ -198,25 +198,30 @@ export class AdminProductFormComponent implements OnInit {
     });
   }
 
-  private buildRequestPayload(): any {
+private buildRequestPayload(): any {
     const payload = {
-      categoryId: this.product.categoryId,
-      name: this.product.name,
-      slug: this.product.slug,
-      price: this.product.price,
-      sku: this.product.sku,
-      stockQuantity: this.product.stockQuantity,
-      description: this.product.description || null,
-      compareAtPrice: this.product.compareAtPrice || null,
-      lowStockThreshold: 10,
-      isFeatured: this.product.isFeatured
+      CategoryId: this.product.categoryId,
+      Name: this.product.name,
+      Slug: this.product.slug,
+      Price: Number(this.product.price) || 0,
+      SKU: this.product.sku,
+      StockQuantity: Number(this.product.stockQuantity) || 0,
+      Description: this.product.description || null,
+      CompareAtPrice: this.product.compareAtPrice ? Number(this.product.compareAtPrice) : null,
+      LowStockThreshold: 10,
+      IsFeatured: Boolean(this.product.isFeatured)
     };
     return payload;
   }
 
-  onSubmit(): void {
-    if (!this.product.name || !this.product.slug || !this.product.categoryId || !this.product.sku) {
+onSubmit(): void {
+    if (!this.product.name || !this.product.slug || !this.product.categoryId || !this.product.sku || !this.product.price || !this.product.stockQuantity) {
       this.toastService.error('Please fill in all required fields');
+      return;
+    }
+
+    if (!this.product.categoryId || this.product.categoryId === '') {
+      this.toastService.error('Please select a category');
       return;
     }
 
@@ -243,11 +248,26 @@ export class AdminProductFormComponent implements OnInit {
         },
         error: (err: any) => {
           this.saving.set(false);
-          const msg = err?.error?.message || 'Failed to create product';
-          this.toastService.error(msg);
+          this.toastService.error(this.extractErrorMessage(err));
         }
       });
     }
+  }
+
+  private extractErrorMessage(error: any): string {
+    if (!error) return 'Failed to save product. Please verify the form and try again.';
+    const errorData = error.error;
+    if (errorData?.message) {
+      const msg = errorData.message.toLowerCase();
+      if (msg.includes('sku')) return 'A product with this SKU already exists';
+      if (msg.includes('slug')) return 'A product with this slug already exists';
+      if (msg.includes('category')) return 'Invalid category selected';
+      return errorData.message;
+    }
+    if (errorData?.errors) {
+      return Object.values(errorData.errors).flat().join(', ') || 'Please check your form input';
+    }
+    return 'Failed to save product. Please verify the form and try again.';
   }
 
   cancel(): void {
