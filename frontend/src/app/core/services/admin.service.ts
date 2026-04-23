@@ -29,11 +29,11 @@ export class AdminService {
   private baseUrl = environment.apiBaseUrl + '/admin';
 
   getDashboard(): Observable<DashboardSummary> {
-    return this.http.get<DashboardSummary>(`${this.baseUrl}/dashboard`);
+    return this.http.get<DashboardSummary>(`${this.baseUrl}/dashboard?_t=${Date.now()}`);
   }
 
   getProducts(): Observable<any[]> {
-    return this.http.get<any[]>(`${environment.apiBaseUrl}/products`);
+    return this.http.get<any[]>(`${environment.apiBaseUrl}/products?_t=${Date.now()}`);
   }
 
   getProduct(id: string): Observable<any> {
