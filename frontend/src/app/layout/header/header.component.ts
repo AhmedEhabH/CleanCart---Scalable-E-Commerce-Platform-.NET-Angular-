@@ -26,6 +26,9 @@ export class HeaderComponent {
     map(user => !!user)
   );
   authUser$ = this.authService.authUser$;
+  isAdmin$ = this.authService.authUser$.pipe(
+    map(user => user?.role === 'Admin')
+  );
   wishlistCount$ = this.wishlistService.wishlistCount$;
 
   isAccountMenuOpen = false;
