@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { AdminService } from '../../../core/services/admin.service';
+import { ToastService } from '../../../shared/components/toast/toast.service';
 
 @Component({
   selector: 'app-admin-product-form',
@@ -95,7 +96,15 @@ import { AdminService } from '../../../core/services/admin.service';
       background-repeat: no-repeat;
       background-position: right 0.75rem center;
       padding-right: 2.5rem;
+      cursor: pointer;
+      color: var(--color-text, var(--text-primary));
+      background-color: var(--color-surface, var(--card-bg));
     }
+    .form-group select option {
+      background: var(--color-surface, #ffffff);
+      color: var(--color-text, #111827);
+    }
+    
     .form-group.checkbox {
       display: flex;
       align-items: center;
@@ -123,6 +132,7 @@ export class AdminProductFormComponent implements OnInit {
   private route = inject(ActivatedRoute);
   private router = inject(Router);
   private adminService = inject(AdminService);
+  private toastService = inject(ToastService);
   
   product: any = this.getEmptyProduct();
   categories = signal<any[]>([]);
@@ -133,8 +143,15 @@ export class AdminProductFormComponent implements OnInit {
 
   private getEmptyProduct() {
     return {
-      name: '', slug: '', price: 0, sku: '', stockQuantity: 0,
-      categoryId: '', description: '', isFeatured: false, isActive: true
+      name: '',
+      slug: '',
+      price: 0,
+      sku: '',
+      stockQuantity: 0,
+      categoryId: '',
+      description: null as string | null,
+      isFeatured: false,
+      isActive: true
     };
   }
 
@@ -152,7 +169,7 @@ export class AdminProductFormComponent implements OnInit {
 
   private loadCategories(): void {
     this.adminService.getCategories().subscribe({
-      next: (cats: any) => this.categories.set(cats?.data || cats || []),
+      next: (response: any) => this.categories.set(response?.data || response || []),
       error: () => this.categories.set([])
     });
   }
@@ -162,24 +179,75 @@ export class AdminProductFormComponent implements OnInit {
       next: (response: any) => {
         const p = response?.data || response;
         this.product = {
-          name: p.name, slug: p.slug, price: p.price, sku: p.sku,
-          stockQuantity: p.stockQuantity, categoryId: p.categoryId,
-          description: p.description || '', isFeatured: p.isFeatured, isActive: p.isActive
+          name: p.name,
+          slug: p.slug,
+          price: p.price,
+          sku: p.sku,
+          stockQuantity: p.stockQuantity,
+          categoryId: p.categoryId,
+          description: p.description || null,
+          isFeatured: p.isFeatured,
+          isActive: p.isActive
         };
         this.loading.set(false);
       },
-      error: () => { this.loading.set(false); this.router.navigate(['/admin/products']); }
+      error: () => {
+        this.toastService.error('Failed to load product');
+        this.router.navigate(['/admin/products']);
+      }
     });
   }
 
+  private buildRequestPayload(): any {
+    const payload = {
+      categoryId: this.product.categoryId,
+      name: this.product.name,
+      slug: this.product.slug,
+      price: this.product.price,
+      sku: this.product.sku,
+      stockQuantity: this.product.stockQuantity,
+      description: this.product.description || null,
+      compareAtPrice: this.product.compareAtPrice || null,
+      lowStockThreshold: 10,
+      isFeatured: this.product.isFeatured
+    };
+    return payload;
+  }
+
   onSubmit(): void {
+    if (!this.product.name || !this.product.slug || !this.product.categoryId || !this.product.sku) {
+      this.toastService.error('Please fill in all required fields');
+      return;
+    }
+
     this.saving.set(true);
-    const request = this.adminService[this.isEdit() ? 'updateProduct' : 'createProduct'];
-    
-    request.call(this.adminService, this.productId, this.product).subscribe({
-      next: () => this.router.navigate(['/admin/products']),
-      error: () => { this.saving.set(false); alert('Failed to save product'); }
-    });
+    const payload = this.buildRequestPayload();
+
+    if (this.isEdit()) {
+      this.adminService.updateProduct(this.productId, payload).subscribe({
+        next: () => {
+          this.toastService.success('Product updated successfully');
+          this.router.navigate(['/admin/products']);
+        },
+        error: (err: any) => {
+          this.saving.set(false);
+          const msg = err?.error?.message || 'Failed to update product';
+          this.toastService.error(msg);
+        }
+      });
+    } else {
+      this.adminService.createProduct(payload).subscribe({
+        next: () => {
+          this.toastService.success('Product created successfully');
+          this.router.navigate(['/admin/products']);
+        },
+        error: (err: any) => {
+          this.saving.set(false);
+          const msg = err?.error?.message || 'Failed to create product';
+          this.toastService.error(msg);
+        }
+      });
+    }
   }
 
   cancel(): void {
