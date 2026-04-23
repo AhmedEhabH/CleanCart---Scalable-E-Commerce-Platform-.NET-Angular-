@@ -6,6 +6,8 @@ using ECommerce.Application.Products.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
+using Microsoft.EntityFrameworkCore;
+using System.Collections.Generic;
 
 namespace ECommerce.Api.Controllers;
 
@@ -18,11 +20,16 @@ public class ProductsController : BaseApiController
 {
     private readonly IProductService _productService;
     private readonly ICurrentUserService _currentUserService;
+    private readonly IApplicationDbContext _context;
 
-    public ProductsController(IProductService productService, ICurrentUserService currentUserService)
+    public ProductsController(
+        IProductService productService, 
+        ICurrentUserService currentUserService,
+        IApplicationDbContext context)
     {
         _productService = productService;
         _currentUserService = currentUserService;
+        _context = context;
     }
 
     /// <summary>
@@ -69,6 +76,26 @@ public class ProductsController : BaseApiController
         return HandleSuccess(result.Value);
     }
 
+    [HttpPost("by-ids")]
+    [AllowAnonymous]
+    [ProducesResponseType(typeof(ApiResponse<List<ProductDto>>), 200)]
+    public async Task<IActionResult> GetByIds([FromBody] List<Guid> ids, CancellationToken cancellationToken)
+    {
+        if (ids == null || !ids.Any())
+            return HandleSuccess(new List<ProductDto>());
+
+        var products = new List<ProductDto>();
+        foreach (var id in ids)
+        {
+            var result = await _productService.GetByIdAsync(id, cancellationToken);
+            if (result.IsSuccess)
+            {
+                products.Add(result.Value);
+            }
+        }
+        return HandleSuccess(products);
+    }
+
     /// <summary>
     /// Create a new product (Admin only)
     /// </summary>
@@ -102,10 +129,26 @@ public class ProductsController : BaseApiController
     [ProducesResponseType(typeof(ApiResponse<object>), 403)]
     public async Task<IActionResult> Create([FromBody] CreateProductRequest request, CancellationToken cancellationToken)
     {
-        if (_currentUserService.UserId is not Guid vendorId)
-            return HandleUnauthorized("User not authenticated");
+        Guid? vendorId = _currentUserService.UserId;
+        
+        if (vendorId == null || vendorId == Guid.Empty)
+        {
+            if (_currentUserService.IsAdmin)
+            {
+                var defaultVendor = await _context.Vendors.FirstOrDefaultAsync(v => v.IsActive, cancellationToken);
+                if (defaultVendor != null)
+                {
+                    vendorId = defaultVendor.Id;
+                }
+            }
+            
+            if (vendorId == null)
+            {
+                return HandleUnauthorized("No valid vendor found. Please contact support.");
+            }
+        }
 
-        var result = await _productService.CreateAsync(vendorId, request, cancellationToken);
+        var result = await _productService.CreateAsync(vendorId.Value, request, cancellationToken);
         if (result.IsFailure)
             return HandleBadRequest(result.Error ?? "Bad request");
         return HandleCreated(result.Value);
