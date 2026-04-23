@@ -107,7 +107,7 @@ public class ProductService : IProductService
         return Result<IReadOnlyList<ProductDto>>.Success(dtos);
     }
 
-    public async Task<Result<ProductDto>> CreateAsync(Guid vendorId, CreateProductRequest request, CancellationToken cancellationToken = default)
+    public async Task<Result<ProductDto>> CreateAsync(Guid? vendorId, CreateProductRequest request, CancellationToken cancellationToken = default)
     {
         var categoryExists = await _categoryRepository.ExistsAsync(request.CategoryId, cancellationToken);
         if (!categoryExists)

@@ -122,7 +122,8 @@ public class ApplicationDbContext : DbContext, IApplicationDbContext
             entity.HasMany(e => e.Products)
                 .WithOne(e => e.Vendor)
                 .HasForeignKey(e => e.VendorId)
-                .OnDelete(DeleteBehavior.Restrict);
+                .OnDelete(DeleteBehavior.Restrict)
+                .IsRequired(false);
         });
     }
 

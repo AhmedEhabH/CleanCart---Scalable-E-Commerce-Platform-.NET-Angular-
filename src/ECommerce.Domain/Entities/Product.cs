@@ -2,7 +2,7 @@ namespace ECommerce.Domain.Entities;
 
 public class Product : BaseEntity
 {
-    public Guid VendorId { get; private set; }
+    public Guid? VendorId { get; private set; }
     public Vendor? Vendor { get; private set; }
     public Guid CategoryId { get; private set; }
     public Category? Category { get; private set; }
@@ -36,7 +36,7 @@ public class Product : BaseEntity
     private Product() { }
 
     public static Product Create(
-        Guid vendorId,
+        Guid? vendorId,
         Guid categoryId,
         string name,
         string slug,

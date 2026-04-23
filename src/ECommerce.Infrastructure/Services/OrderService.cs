@@ -100,7 +100,7 @@ public class OrderService : IOrderService
                     {
                         order.AddItem(
                             item.ProductId,
-                            item.Product.VendorId,
+                            item.Product.VendorId ?? Guid.Empty,
                             item.Product.Name,
                             item.Product.SKU,
                             item.UnitPrice,

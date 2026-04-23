@@ -129,26 +129,14 @@ public class ProductsController : BaseApiController
     [ProducesResponseType(typeof(ApiResponse<object>), 403)]
     public async Task<IActionResult> Create([FromBody] CreateProductRequest request, CancellationToken cancellationToken)
     {
-        Guid? vendorId = _currentUserService.UserId;
+        Guid? vendorId = null;
         
-        if (vendorId == null || vendorId == Guid.Empty)
+        if (_currentUserService.IsSeller && _currentUserService.UserId != null)
         {
-            if (_currentUserService.IsAdmin)
-            {
-                var defaultVendor = await _context.Vendors.FirstOrDefaultAsync(v => v.IsActive, cancellationToken);
-                if (defaultVendor != null)
-                {
-                    vendorId = defaultVendor.Id;
-                }
-            }
-            
-            if (vendorId == null)
-            {
-                return HandleUnauthorized("No valid vendor found. Please contact support.");
-            }
+            vendorId = _currentUserService.UserId;
         }
 
-        var result = await _productService.CreateAsync(vendorId.Value, request, cancellationToken);
+        var result = await _productService.CreateAsync(vendorId, request, cancellationToken);
         if (result.IsFailure)
             return HandleBadRequest(result.Error ?? "Bad request");
         return HandleCreated(result.Value);

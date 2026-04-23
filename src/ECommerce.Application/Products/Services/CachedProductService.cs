@@ -100,7 +100,7 @@ public class CachedProductService : IProductService
         return result;
     }
 
-    public async Task<Result<ProductDto>> CreateAsync(Guid vendorId, CreateProductRequest request, CancellationToken cancellationToken = default)
+    public async Task<Result<ProductDto>> CreateAsync(Guid? vendorId, CreateProductRequest request, CancellationToken cancellationToken = default)
     {
         var result = await _inner.CreateAsync(vendorId, request, cancellationToken);
         if (result.IsSuccess)

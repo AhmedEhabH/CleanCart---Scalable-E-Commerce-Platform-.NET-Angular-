@@ -28,7 +28,7 @@ namespace ECommerce.Application.Products.DTOs;
 /// <param name="UpdatedAt">Last update timestamp</param>
 public record ProductDto(
     Guid Id,
-    Guid VendorId,
+    Guid? VendorId,
     Guid CategoryId,
     string Name,
     string Slug,
