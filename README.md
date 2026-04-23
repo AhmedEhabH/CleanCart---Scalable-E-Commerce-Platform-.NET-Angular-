@@ -19,6 +19,7 @@ This project demonstrates a complete e-commerce platform featuring a robust back
 - Responsive design for mobile and desktop
 
 ### Admin & Business Features
+- Admin Area with dashboard and product management
 - Product and category management
 - Order management
 - Admin Dashboard for business insights (orders, sales, inventory)
@@ -127,6 +128,7 @@ Below are screenshots showcasing the platform's key features and user flows:
 ![Product Reviews & Ratings](docs/screenshots/reviews.png)
 ![Admin Product Management](docs/screenshots/admin-products.png) *(if applicable)*
 ![Admin Dashboard](docs/screenshots/admin-dashboard.png) *(Business Insights)*
+![Admin Products](docs/screenshots/admin-products.png) *(Product Management)*
 ![Seller Profile](docs/screenshots/seller-profile.png) *(Marketplace)*
 
 ## Getting Started
@@ -209,6 +211,11 @@ Update these files if your backend runs on a different URL.
 - `/wishlist` - User wishlist
 - `/login` - Login page
 - `/register` - Registration page
+- `/admin` - Admin area (redirects to dashboard)
+- `/admin/dashboard` - Admin dashboard
+- `/admin/products` - Product management
+- `/admin/products/new` - Add product
+- `/admin/products/:id/edit` - Edit product
 
 ### Backend API Endpoints
 - `GET /api/sellers` - List sellers
@@ -244,6 +251,13 @@ See API Overview below for complete endpoint documentation.
 - `GET /api/sellers/{id}` - Get seller details
 - `GET /api/sellers/{id}/products` - Get seller's products
 - `GET /api/sellers/products/{productId}/seller` - Get product's seller
+
+### Admin
+- `GET /api/admin/dashboard` - Dashboard summary (Admin only)
+- `GET /api/products` - List products (Admin)
+- `POST /api/products` - Create product (Admin)
+- `PUT /api/products/{id}` - Update product (Admin)
+- `DELETE /api/products/{id}` - Delete product (Admin)
 
 ### Shopping Cart
 - `GET /api/cart` - Get current user's cart

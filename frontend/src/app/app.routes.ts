@@ -12,6 +12,10 @@ import { NotFoundComponent } from './features/not-found/not-found.component';
 import { ProductListPage } from './features/products/pages/product-list.page';
 import { ProductDetailsPage } from './features/products/pages/product-details.page';
 import { SellerPage } from './features/sellers/pages/seller-page.component';
+import { AdminLayoutComponent } from './features/admin/pages/admin-layout.component';
+import { AdminDashboardComponent } from './features/admin/pages/admin-dashboard.component';
+import { AdminProductsComponent } from './features/admin/pages/admin-products.component';
+import { AdminProductFormComponent } from './features/admin/pages/admin-product-form.component';
 import { authGuard } from './core/guards/auth.guard';
 
 export const routes: Routes = [
@@ -27,5 +31,14 @@ export const routes: Routes = [
   { path: 'order-success', component: OrderSuccessComponent, title: 'Order Success' },
   { path: 'orders', component: OrdersComponent, canActivate: [authGuard], title: 'My Orders' },
   { path: 'orders/:id', component: OrderDetailsComponent, canActivate: [authGuard], title: 'Order Details' },
+  
+  { path: 'admin', component: AdminLayoutComponent, children: [
+    { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
+    { path: 'dashboard', component: AdminDashboardComponent, title: 'Admin Dashboard' },
+    { path: 'products', component: AdminProductsComponent, title: 'Products' },
+    { path: 'products/new', component: AdminProductFormComponent, title: 'Add Product' },
+    { path: 'products/:id/edit', component: AdminProductFormComponent, title: 'Edit Product' }
+  ]},
+  
   { path: '**', component: NotFoundComponent, title: 'Not Found' }
 ];

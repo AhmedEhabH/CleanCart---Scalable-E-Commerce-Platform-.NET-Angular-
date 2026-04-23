@@ -1,0 +1,181 @@
+import { Component, inject, OnInit, signal } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { ActivatedRoute, Router } from '@angular/router';
+import { AdminService } from '../../../core/services/admin.service';
+
+@Component({
+  selector: 'app-admin-product-form',
+  standalone: true,
+  imports: [CommonModule, FormsModule],
+  template: `
+    <div class="product-form">
+      <h1>{{ isEdit() ? 'Edit' : 'Add' }} Product</h1>
+      
+      <form (ngSubmit)="onSubmit()">
+        <div class="form-group">
+          <label for="name">Name *</label>
+          <input id="name" [(ngModel)]="product.name" name="name" required />
+        </div>
+
+        <div class="form-group">
+          <label for="slug">Slug *</label>
+          <input id="slug" [(ngModel)]="product.slug" name="slug" required />
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="price">Price *</label>
+            <input id="price" type="number" [(ngModel)]="product.price" name="price" step="0.01" required />
+          </div>
+          <div class="form-group">
+            <label for="sku">SKU *</label>
+            <input id="sku" [(ngModel)]="product.sku" name="sku" required />
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="stockQuantity">Stock *</label>
+            <input id="stockQuantity" type="number" [(ngModel)]="product.stockQuantity" name="stockQuantity" required />
+          </div>
+          <div class="form-group">
+            <label for="categoryId">Category *</label>
+            <select id="categoryId" [(ngModel)]="product.categoryId" name="categoryId" required>
+              <option value="">Select category</option>
+              @for (cat of categories(); track cat.id) {
+                <option [value]="cat.id">{{ cat.name }}</option>
+              }
+            </select>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="description">Description</label>
+          <textarea id="description" [(ngModel)]="product.description" name="description" rows="4"></textarea>
+        </div>
+
+        <div class="form-group checkbox">
+          <input id="isFeatured" type="checkbox" [(ngModel)]="product.isFeatured" name="isFeatured" />
+          <label for="isFeatured">Featured product</label>
+        </div>
+
+        <div class="form-group checkbox">
+          <input id="isActive" type="checkbox" [(ngModel)]="product.isActive" name="isActive" />
+          <label for="isActive">Active</label>
+        </div>
+
+        <div class="form-actions">
+          <button type="button" class="btn-secondary" (click)="cancel()">Cancel</button>
+          <button type="submit" class="btn-primary" [disabled]="saving()">
+            {{ saving() ? 'Saving...' : 'Save' }}
+          </button>
+        </div>
+      </form>
+    </div>
+  `,
+  styles: [`
+    .product-form { max-width: 600px; }
+    h1 { margin: 0 0 1.5rem; }
+    
+    .form-group { margin-bottom: 1rem; }
+    .form-group label { display: block; margin-bottom: 0.5rem; font-weight: 500; }
+    .form-group input, .form-group select, .form-group textarea {
+      width: 100%;
+      padding: 0.75rem;
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      background: var(--input-bg);
+      color: var(--text-primary);
+      font-size: 1rem;
+    }
+    .form-group.checkbox {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .form-group.checkbox label { margin: 0; }
+    .form-group.checkbox input { width: auto; }
+    
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+    .form-actions { display: flex; gap: 1rem; margin-top: 1.5rem; }
+    
+    .btn-primary, .btn-secondary {
+      padding: 0.75rem 1.5rem;
+      border-radius: 6px;
+      font-size: 1rem;
+      cursor: pointer;
+      border: none;
+    }
+    .btn-primary { background: var(--primary); color: white; }
+    .btn-primary:disabled { opacity: 0.5; }
+    .btn-secondary { background: var(--text-muted); color: white; }
+  `]
+})
+export class AdminProductFormComponent implements OnInit {
+  private route = inject(ActivatedRoute);
+  private router = inject(Router);
+  private adminService = inject(AdminService);
+  
+  product: any = this.getEmptyProduct();
+  categories = signal<any[]>([]);
+  loading = signal(true);
+  saving = signal(false);
+  isEdit = signal(false);
+  private productId = '';
+
+  private getEmptyProduct() {
+    return {
+      name: '', slug: '', price: 0, sku: '', stockQuantity: 0,
+      categoryId: '', description: '', isFeatured: false, isActive: true
+    };
+  }
+
+  ngOnInit(): void {
+    this.productId = this.route.snapshot.paramMap.get('id') || '';
+    this.isEdit.set(!!this.productId);
+    this.loadCategories();
+    
+    if (this.productId) {
+      this.loadProduct();
+    } else {
+      this.loading.set(false);
+    }
+  }
+
+  private loadCategories(): void {
+    this.adminService.getCategories().subscribe({
+      next: (cats: any) => this.categories.set(cats?.data || cats || []),
+      error: () => this.categories.set([])
+    });
+  }
+
+  private loadProduct(): void {
+    this.adminService.getProduct(this.productId).subscribe({
+      next: (response: any) => {
+        const p = response?.data || response;
+        this.product = {
+          name: p.name, slug: p.slug, price: p.price, sku: p.sku,
+          stockQuantity: p.stockQuantity, categoryId: p.categoryId,
+          description: p.description || '', isFeatured: p.isFeatured, isActive: p.isActive
+        };
+        this.loading.set(false);
+      },
+      error: () => { this.loading.set(false); this.router.navigate(['/admin/products']); }
+    });
+  }
+
+  onSubmit(): void {
+    this.saving.set(true);
+    const request = this.adminService[this.isEdit() ? 'updateProduct' : 'createProduct'];
+    
+    request.call(this.adminService, this.productId, this.product).subscribe({
+      next: () => this.router.navigate(['/admin/products']),
+      error: () => { this.saving.set(false); alert('Failed to save product'); }
+    });
+  }
+
+  cancel(): void {
+    this.router.navigate(['/admin/products']);
+  }
+}
