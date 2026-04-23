@@ -1,5 +1,5 @@
 import { Injectable, inject } from '@angular/core';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
 
@@ -27,33 +27,32 @@ export interface ProductListItem {
 export class AdminService {
   private http = inject(HttpClient);
   private baseUrl = environment.apiBaseUrl + '/admin';
-  private jsonHeaders = new HttpHeaders({ 'Content-Type': 'application/json' });
 
   getDashboard(): Observable<DashboardSummary> {
-    return this.http.get<DashboardSummary>(`${this.baseUrl}/dashboard`, { headers: this.jsonHeaders });
+    return this.http.get<DashboardSummary>(`${this.baseUrl}/dashboard`);
   }
 
   getProducts(): Observable<any[]> {
-    return this.http.get<any[]>(`${environment.apiBaseUrl}/products`, { headers: this.jsonHeaders });
+    return this.http.get<any[]>(`${environment.apiBaseUrl}/products`);
   }
 
   getProduct(id: string): Observable<any> {
-    return this.http.get<any>(`${environment.apiBaseUrl}/products/${id}`, { headers: this.jsonHeaders });
+    return this.http.get<any>(`${environment.apiBaseUrl}/products/${id}`);
   }
 
   createProduct(product: any): Observable<any> {
-    return this.http.post<any>(`${environment.apiBaseUrl}/products`, product, { headers: this.jsonHeaders });
+    return this.http.post<any>(`${environment.apiBaseUrl}/products`, product);
   }
 
   updateProduct(id: string, product: any): Observable<any> {
-    return this.http.put<any>(`${environment.apiBaseUrl}/products/${id}`, product, { headers: this.jsonHeaders });
+    return this.http.put<any>(`${environment.apiBaseUrl}/products/${id}`, product);
   }
 
   deleteProduct(id: string): Observable<any> {
-    return this.http.delete<any>(`${environment.apiBaseUrl}/products/${id}`, { headers: this.jsonHeaders });
+    return this.http.delete<any>(`${environment.apiBaseUrl}/products/${id}`);
   }
 
   getCategories(): Observable<any[]> {
-    return this.http.get<any[]>(`${environment.apiBaseUrl}/categories`, { headers: this.jsonHeaders });
+    return this.http.get<any[]>(`${environment.apiBaseUrl}/categories`);
   }
 }
