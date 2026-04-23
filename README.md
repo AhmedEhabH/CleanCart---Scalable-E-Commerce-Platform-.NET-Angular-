@@ -21,6 +21,7 @@ This project demonstrates a complete e-commerce platform featuring a robust back
 ### Admin & Business Features
 - Product and category management
 - Order management
+- Admin Dashboard for business insights (orders, sales, inventory)
 - Payment processing integration
 - Role-based access control (Admin/User)
 - API documentation with Swagger/OpenAPI
@@ -124,6 +125,7 @@ Below are screenshots showcasing the platform's key features and user flows:
 ### Additional Features
 ![Product Reviews & Ratings](docs/screenshots/reviews.png)
 ![Admin Product Management](docs/screenshots/admin-products.png) *(if applicable)*
+![Admin Dashboard](docs/screenshots/admin-dashboard.png) *(Business Insights)*
 
 ## Getting Started
 
@@ -269,7 +271,6 @@ Authorization: Bearer <access_token>
 
 ### Planned Improvements
 - **AI Shopping Assistant:** Integrate natural language search and product recommendations
-- **Admin Dashboard:** Analytics, sales reports, and user management
 - **Payment Gateway Extensions:** Stripe, PayPal, and other popular payment processors
 - **Email Notifications:** Order confirmations, shipping updates, and promotional campaigns
 - **Advanced Filtering:** Enhanced product search with faceted navigation and sorting
