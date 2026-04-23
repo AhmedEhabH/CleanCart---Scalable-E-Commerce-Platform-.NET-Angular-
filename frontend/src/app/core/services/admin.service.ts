@@ -33,7 +33,7 @@ export class AdminService {
   }
 
   getProducts(): Observable<any[]> {
-    return this.http.get<any[]>(`${environment.apiBaseUrl}/products?_t=${Date.now()}`);
+    return this.http.get<any[]>(`${environment.apiBaseUrl}/products?page=1&pageSize=100&sortBy=created&sortDescending=true&_t=${Date.now()}`);
   }
 
   getProduct(id: string): Observable<any> {
