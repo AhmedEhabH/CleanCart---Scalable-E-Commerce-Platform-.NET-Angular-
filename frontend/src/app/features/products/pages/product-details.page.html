@@ -71,6 +71,13 @@
                 <strong>Available:</strong> {{ p.stockQuantity }}
               </div>
             }
+            @if (seller()) {
+              <div class="product-details__meta-item seller-info">
+                <strong>Sold by:</strong>
+                <a [routerLink]="['/sellers', p.vendorId]">{{ seller()!.businessName }}</a>
+                <span class="seller-products-count">({{ seller()!.productsCount }} products)</span>
+              </div>
+            }
           </div>
 
           @if (p.isInStock) {

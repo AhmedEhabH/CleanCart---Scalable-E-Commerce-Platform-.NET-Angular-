@@ -22,6 +22,7 @@ This project demonstrates a complete e-commerce platform featuring a robust back
 - Product and category management
 - Order management
 - Admin Dashboard for business insights (orders, sales, inventory)
+- Seller/Merchant Profiles for multi-vendor marketplace
 - Payment processing integration
 - Role-based access control (Admin/User)
 - API documentation with Swagger/OpenAPI
@@ -126,6 +127,7 @@ Below are screenshots showcasing the platform's key features and user flows:
 ![Product Reviews & Ratings](docs/screenshots/reviews.png)
 ![Admin Product Management](docs/screenshots/admin-products.png) *(if applicable)*
 ![Admin Dashboard](docs/screenshots/admin-dashboard.png) *(Business Insights)*
+![Seller Profile](docs/screenshots/seller-profile.png) *(Marketplace)*
 
 ## Getting Started
 
@@ -194,6 +196,28 @@ The frontend uses environment files to configure the API base URL:
 
 Update these files if your backend runs on a different URL.
 
+## Access Routes
+
+### Frontend Routes
+- `/` - Home page
+- `/products` - Product listing
+- `/products/:id` - Product details
+- `/sellers/:id` - Seller profile page
+- `/cart` - Shopping cart
+- `/checkout` - Checkout
+- `/orders` - User orders
+- `/wishlist` - User wishlist
+- `/login` - Login page
+- `/register` - Registration page
+
+### Backend API Endpoints
+- `GET /api/sellers` - List sellers
+- `GET /api/sellers/{id}` - Seller details
+- `GET /api/sellers/{id}/products` - Seller's products
+- `GET /api/sellers/products/{productId}/seller` - Product's seller
+
+See API Overview below for complete endpoint documentation.
+
 ## API Overview
 
 ### Authentication
@@ -214,6 +238,12 @@ Update these files if your backend runs on a different URL.
 - `POST /api/categories` - Create category (Admin)
 - `PUT /api/categories/{id}` - Update category (Admin)
 - `DELETE /api/categories/{id}` - Delete category (Admin)
+
+### Sellers
+- `GET /api/sellers` - List sellers
+- `GET /api/sellers/{id}` - Get seller details
+- `GET /api/sellers/{id}/products` - Get seller's products
+- `GET /api/sellers/products/{productId}/seller` - Get product's seller
 
 ### Shopping Cart
 - `GET /api/cart` - Get current user's cart

@@ -11,6 +11,7 @@ import { WishlistComponent } from './features/wishlist/wishlist.component';
 import { NotFoundComponent } from './features/not-found/not-found.component';
 import { ProductListPage } from './features/products/pages/product-list.page';
 import { ProductDetailsPage } from './features/products/pages/product-details.page';
+import { SellerPage } from './features/sellers/pages/seller-page.component';
 import { authGuard } from './core/guards/auth.guard';
 
 export const routes: Routes = [
@@ -19,6 +20,7 @@ export const routes: Routes = [
   { path: 'register', component: RegisterComponent, title: 'Register' },
   { path: 'products', component: ProductListPage, title: 'Products' },
   { path: 'products/:id', component: ProductDetailsPage, title: 'Product Details' },
+  { path: 'sellers/:id', component: SellerPage, title: 'Seller' },
   { path: 'wishlist', component: WishlistComponent, title: 'My Wishlist' },
   { path: 'cart', component: CartComponent, title: 'Cart' },
   { path: 'checkout', component: CheckoutComponent, canActivate: [authGuard], title: 'Checkout' },

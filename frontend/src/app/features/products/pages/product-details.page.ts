@@ -6,6 +6,7 @@ import { ProductsService } from '../services/products.service';
 import { ReviewService } from '../services/review.service';
 import { Product } from '../models/product.model';
 import { Review, ReviewSummary } from '../models/review.model';
+import { SellersService, Seller } from '../../../core/services/sellers.service';
 import { ProductImagePipe } from '../../../shared/pipes/product-image.pipe';
 import { CartService } from '../../../core/services/cart.service';
 import { WishlistService } from '../../../core/services/wishlist.service';
@@ -27,9 +28,11 @@ export class ProductDetailsPage implements OnInit {
   private cartService = inject(CartService);
   private wishlistService = inject(WishlistService);
   private authService = inject(AuthService);
+  private sellersService = inject(SellersService);
   private toastService = inject(ToastService);
 
   product = signal<Product | null>(null);
+  seller = signal<Seller | null>(null);
   reviews = signal<Review[]>([]);
   reviewSummary = signal<ReviewSummary | null>(null);
   loading = signal(true);
@@ -77,6 +80,7 @@ export class ProductDetailsPage implements OnInit {
       next: (response) => {
         if (response.data) {
           this.product.set(response.data);
+          this.loadSeller(response.data.vendorId);
         } else {
           this.error.set(response.message || 'Product not found.');
         }
@@ -86,6 +90,13 @@ export class ProductDetailsPage implements OnInit {
         this.error.set('Failed to load product. Please try again later.');
         this.loading.set(false);
       }
+    });
+  }
+
+  private loadSeller(vendorId: string): void {
+    this.sellersService.getSeller(vendorId).subscribe({
+      next: (seller) => this.seller.set(seller),
+      error: () => {}
     });
   }
 

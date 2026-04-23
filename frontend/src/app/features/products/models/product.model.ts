@@ -29,4 +29,14 @@ export interface Product {
   images: ProductImage[];
   createdAt: string;
   updatedAt: string;
+  sellerName?: string;
+  sellerDescription?: string;
+}
+
+export interface SellerSummary {
+  id: string;
+  businessName: string;
+  description: string | null;
+  logoUrl: string | null;
+  productsCount: number;
 }
