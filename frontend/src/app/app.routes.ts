@@ -17,7 +17,7 @@ import { AdminDashboardComponent } from './features/admin/pages/admin-dashboard.
 import { AdminProductsComponent } from './features/admin/pages/admin-products.component';
 import { AdminProductFormComponent } from './features/admin/pages/admin-product-form.component';
 import { SellerProductsComponent } from './features/seller/pages/seller-products.component';
-import { authGuard } from './core/guards/auth.guard';
+import { authGuard, adminGuard } from './core/guards/auth.guard';
 
 export const routes: Routes = [
   { path: '', component: HomeComponent, title: 'Home' },
@@ -33,7 +33,7 @@ export const routes: Routes = [
   { path: 'orders', component: OrdersComponent, canActivate: [authGuard], title: 'My Orders' },
   { path: 'orders/:id', component: OrderDetailsComponent, canActivate: [authGuard], title: 'Order Details' },
   
-  { path: 'admin', component: AdminLayoutComponent, children: [
+  { path: 'admin', component: AdminLayoutComponent, canActivate: [adminGuard], children: [
     { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
     { path: 'dashboard', component: AdminDashboardComponent, title: 'Admin Dashboard' },
     { path: 'products', component: AdminProductsComponent, title: 'Products' },

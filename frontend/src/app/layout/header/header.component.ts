@@ -27,10 +27,10 @@ export class HeaderComponent {
   );
   authUser$ = this.authService.authUser$;
   isAdmin$ = this.authService.authUser$.pipe(
-    map(user => user?.role === 'Admin')
+    map(user => user?.role?.toLowerCase() === 'admin')
   );
   isSeller$ = this.authService.authUser$.pipe(
-    map(user => user?.role === 'Seller')
+    map(user => user?.role?.toLowerCase() === 'seller')
   );
   wishlistCount$ = this.wishlistService.wishlistCount$;
 

@@ -42,7 +42,11 @@ export class AuthService {
   }
 
   get isAdmin(): boolean {
-    return this.currentUser?.role === 'Admin';
+    return this.currentUser?.role?.toLowerCase() === 'admin';
+  }
+
+  get isSeller(): boolean {
+    return this.currentUser?.role?.toLowerCase() === 'seller';
   }
 
   get currentUser(): AuthUser | null {
@@ -100,19 +104,38 @@ export class AuthService {
     return localStorage.getItem(this.TOKEN_KEY) || sessionStorage.getItem(this.TOKEN_KEY);
   }
 
+  getStoredToken(): string | null {
+    if (!isPlatformBrowser(this.platformId)) {
+      return null;
+    }
+    return localStorage.getItem(this.TOKEN_KEY) || sessionStorage.getItem(this.TOKEN_KEY);
+  }
+
   private handleAuthSuccess(data: AuthResponse, rememberMe: boolean): void {
     const storage = this.getStorage(rememberMe);
     storage.setItem(this.TOKEN_KEY, data.accessToken);
     storage.setItem(this.REFRESH_TOKEN_KEY, data.refreshToken);
-    
+
+    const userId = this.extractUserIdFromToken(data.accessToken);
     const user: AuthUser = {
-      id: data.email,
+      id: userId || data.email,
       email: data.email,
       fullName: data.fullName,
       role: data.role
     };
     storage.setItem(this.USER_KEY, JSON.stringify(user));
     this.authUserSubject.next(user);
+  }
+
+  private extractUserIdFromToken(token: string): string | null {
+    try {
+      const payload = token.split('.')[1];
+      if (!payload) return null;
+      const decoded = JSON.parse(atob(payload.replace(/-/g, '+').replace(/_/g, '/')));
+      return decoded.sub || decoded.nameidentifier || decoded.id || null;
+    } catch {
+      return null;
+    }
   }
 
   private getStoredUser(): AuthUser | null {

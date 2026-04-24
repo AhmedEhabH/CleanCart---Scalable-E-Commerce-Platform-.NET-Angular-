@@ -123,4 +123,50 @@ public class AuthIntegrationTests : IDisposable
         await act.Should().ThrowAsync<UnauthorizedAccessException>()
             .WithMessage("*Invalid*");
     }
+
+    [Fact]
+    public async Task Login_ShouldIncludeRoleClaim_WhenCredentialsAreValid()
+    {
+        var request = new LoginRequest("test@example.com", "TestPassword123!");
+
+        var result = await _authService.LoginAsync(request);
+
+        result.AccessToken.Should().NotBeNullOrEmpty();
+
+        var handler = new System.IdentityModel.Tokens.Jwt.JwtSecurityTokenHandler();
+        var token = handler.ReadJwtToken(result.AccessToken);
+
+        token.Claims.Should().Contain(c => c.Type == "role" && c.Value == "User");
+    }
+
+    [Fact]
+    public async Task Register_ShouldIncludeRoleClaim_WhenRegisteringNewUser()
+    {
+        var request = new RegisterRequest(
+            "newroleuser@test.com",
+            "SecurePass123!",
+            "Role",
+            "Test",
+            "+1111111111"
+        );
+
+        var result = await _authService.RegisterAsync(request);
+
+        result.AccessToken.Should().NotBeNullOrEmpty();
+
+        var handler = new System.IdentityModel.Tokens.Jwt.JwtSecurityTokenHandler();
+        var token = handler.ReadJwtToken(result.AccessToken);
+
+        token.Claims.Should().Contain(c => c.Type == "role" && c.Value == "User");
+    }
+
+    [Fact]
+    public async Task Login_ShouldReturnUserRole_WhenUserIsStandardUser()
+    {
+        var request = new LoginRequest("test@example.com", "TestPassword123!");
+
+        var result = await _authService.LoginAsync(request);
+
+        result.Role.Should().Be("User");
+    }
 }

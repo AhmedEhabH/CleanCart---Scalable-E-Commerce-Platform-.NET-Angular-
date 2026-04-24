@@ -1,4 +1,6 @@
 import { HttpInterceptorFn } from '@angular/common/http';
+import { inject } from '@angular/core';
+import { AuthService } from '../services/auth.service';
 
 export const authInterceptor: HttpInterceptorFn = (req, next) => {
   const excludedUrls = ['/auth/login', '/auth/register', '/auth/refresh-token'];
@@ -8,7 +10,8 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
     return next(req);
   }
 
-  const token = localStorage.getItem('access_token');
+  const authService = inject(AuthService);
+  const token = authService.getStoredToken();
 
   const authReq = token
     ? req.clone({
