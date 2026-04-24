@@ -49,8 +49,13 @@ export class WishlistService {
     if (stored) {
       try {
         const ids: string[] = JSON.parse(stored);
-        return this.filterValidGuids(ids);
+        const validIds = this.filterValidGuids(ids);
+        if (validIds.length !== ids.length) {
+          this.persistIds(validIds);
+        }
+        return validIds;
       } catch {
+        localStorage.removeItem(STORAGE_KEY);
         return [];
       }
     }

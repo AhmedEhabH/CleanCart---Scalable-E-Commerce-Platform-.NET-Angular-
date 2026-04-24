@@ -30,7 +30,7 @@ public class TokenService : ITokenService
         {
             new(ClaimTypes.NameIdentifier, userId.ToString()),
             new(ClaimTypes.Email, email),
-            new("role", role),
+            new(ClaimTypes.Role, role),
             new(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
         };
 

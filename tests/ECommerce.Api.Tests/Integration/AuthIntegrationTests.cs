@@ -1,3 +1,4 @@
+using System.Security.Claims;
 using ECommerce.Application.Auth.DTOs;
 using ECommerce.Application.Auth.Interfaces;
 using ECommerce.Application.Common.Interfaces;
@@ -136,7 +137,7 @@ public class AuthIntegrationTests : IDisposable
         var handler = new System.IdentityModel.Tokens.Jwt.JwtSecurityTokenHandler();
         var token = handler.ReadJwtToken(result.AccessToken);
 
-        token.Claims.Should().Contain(c => c.Type == "role" && c.Value == "User");
+        token.Claims.Should().Contain(c => c.Type == ClaimTypes.Role && c.Value == "User");
     }
 
     [Fact]
@@ -157,7 +158,7 @@ public class AuthIntegrationTests : IDisposable
         var handler = new System.IdentityModel.Tokens.Jwt.JwtSecurityTokenHandler();
         var token = handler.ReadJwtToken(result.AccessToken);
 
-        token.Claims.Should().Contain(c => c.Type == "role" && c.Value == "User");
+        token.Claims.Should().Contain(c => c.Type == ClaimTypes.Role && c.Value == "User");
     }
 
     [Fact]

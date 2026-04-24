@@ -1,6 +1,6 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
-import { Observable, BehaviorSubject, tap, of } from 'rxjs';
+import { Observable, BehaviorSubject, tap, EMPTY, catchError } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { CartResponse, AddToCartRequest } from '../../core/models/cart.model';
 import { AuthService } from './auth.service';
@@ -45,10 +45,9 @@ export class CartService {
           this.updateState(response.data);
         }
       },
-      error: (err: HttpErrorResponse) => {
-        if (err.status === 401) {
-          this.cartCountSubject.next(0);
-        }
+      error: () => {
+        this.cartCountSubject.next(0);
+        return EMPTY;
       }
     });
   }
@@ -62,12 +61,16 @@ export class CartService {
   }
 
   getCart(): Observable<CartResponse> {
+    if (!this.authService.isAuthenticated) {
+      return EMPTY;
+    }
     return this.http.get<CartResponse>(`${this.baseUrl}/Cart`).pipe(
       tap((response) => {
         if (response.success && response.data) {
           this.updateState(response.data);
         }
-      })
+      }),
+      catchError(() => EMPTY)
     );
   }
 
