@@ -48,12 +48,21 @@ export class WishlistService {
     const stored = localStorage.getItem(STORAGE_KEY);
     if (stored) {
       try {
-        return JSON.parse(stored);
+        const ids: string[] = JSON.parse(stored);
+        return this.filterValidGuids(ids);
       } catch {
         return [];
       }
     }
     return [];
+  }
+
+  private filterValidGuids(ids: string[]): string[] {
+    return ids.filter(id => {
+      if (!id || typeof id !== 'string') return false;
+      const guidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+      return guidRegex.test(id);
+    });
   }
 
   private persistIds(ids: string[]): void {

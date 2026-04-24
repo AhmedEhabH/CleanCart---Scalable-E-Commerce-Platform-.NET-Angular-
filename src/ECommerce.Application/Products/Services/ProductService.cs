@@ -174,12 +174,6 @@ public class ProductService : IProductService
             request.IsFeatured
         );
 
-        if (!string.IsNullOrWhiteSpace(request.ImageUrl))
-        {
-            product.Images.ToList().ForEach(img => product.RemoveImage(img.Id));
-            product.AddImage(request.ImageUrl);
-        }
-
         await _productRepository.UpdateAsync(product, cancellationToken);
 
         _logger.LogInformation("Product updated: {ProductId}, Name: {Name}", product.Id, product.Name);

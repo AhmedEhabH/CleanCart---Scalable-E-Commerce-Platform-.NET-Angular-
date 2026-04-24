@@ -1,8 +1,9 @@
 import { Injectable, inject } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { Observable, BehaviorSubject, tap } from 'rxjs';
+import { HttpClient, HttpErrorResponse } from '@angular/common/http';
+import { Observable, BehaviorSubject, tap, of } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { CartResponse, AddToCartRequest } from '../../core/models/cart.model';
+import { AuthService } from './auth.service';
 
 export interface CartState {
   items: any[];
@@ -16,6 +17,7 @@ export interface CartState {
 export class CartService {
   private readonly http = inject(HttpClient);
   private readonly baseUrl = environment.apiBaseUrl;
+  private readonly authService = inject(AuthService);
 
   private cartCountSubject = new BehaviorSubject<number>(0);
   cartCount$ = this.cartCountSubject.asObservable();
@@ -32,14 +34,21 @@ export class CartService {
   }
 
   private loadInitialCart(): void {
+    if (!this.authService.isAuthenticated) {
+      this.cartCountSubject.next(0);
+      return;
+    }
+
     this.http.get<CartResponse>(`${this.baseUrl}/Cart`).subscribe({
       next: (response) => {
         if (response.success && response.data) {
           this.updateState(response.data);
         }
       },
-      error: () => {
-        this.cartCountSubject.next(0);
+      error: (err: HttpErrorResponse) => {
+        if (err.status === 401) {
+          this.cartCountSubject.next(0);
+        }
       }
     });
   }
