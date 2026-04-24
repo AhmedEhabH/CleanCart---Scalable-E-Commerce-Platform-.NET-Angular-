@@ -24,8 +24,9 @@ This project demonstrates a complete e-commerce platform featuring a robust back
 - Order management
 - Admin Dashboard for business insights (orders, sales, inventory)
 - Seller/Merchant Profiles for multi-vendor marketplace
+- Seller product ownership linking
 - Payment processing integration
-- Role-based access control (Admin/User)
+- Role-based access control (Admin/Seller/User)
 - API documentation with Swagger/OpenAPI
 - Health checks and monitoring
 - Structured logging
@@ -116,7 +117,7 @@ Below are screenshots showcasing the platform's key features and user flows:
 ![Checkout - Dark](docs/screenshots/checkout-dark.png)
 ![User Orders - Dark](docs/screenshots/orders-dark.png)
 ![Wishlist - Dark](docs/screenshots/wishlist-dark.png)
-![Login Page - Dark](docs/screenshots/login-dark.png)
+![Login Page - Dark](docs/screenshots/login-light.png)
 ![Register Page - Dark](docs/screenshots/register-dark.png)
 
 ### Mobile View
@@ -198,6 +199,19 @@ The frontend uses environment files to configure the API base URL:
 
 Update these files if your backend runs on a different URL.
 
+## Demo Accounts
+
+### Admin Account
+- **Email:** `admin@ecommerce.com`
+- **Password:** `Admin@123`
+- **Role:** Admin
+
+### Seller Account
+- **Email:** `seller@ecommerce.com`
+- **Password:** `Seller@123`
+- **Role:** Seller
+- **Store:** Demo Seller Store (auto-linked to seller account)
+
 ## Access Routes
 
 ### Frontend Routes
@@ -235,7 +249,9 @@ See API Overview below for complete endpoint documentation.
 ### Products
 - `GET /api/products` - List products (with filtering/pagination)
 - `GET /api/products/{id}` - Get product details
-- `POST /api/products` - Create product (Admin only)
+- `POST /api/products` - Create product (Admin or Seller)
+  - **Seller:** Product is automatically linked to seller's vendor profile
+  - **Admin:** Product can be created without vendor or linked to any vendor
 - `PUT /api/products/{id}` - Update product (Admin only)
 - `DELETE /api/products/{id}` - Delete product (Admin only)
 
@@ -255,7 +271,7 @@ See API Overview below for complete endpoint documentation.
 ### Admin
 - `GET /api/admin/dashboard` - Dashboard summary (Admin only)
 - `GET /api/products` - List products (Admin)
-- `POST /api/products` - Create product (Admin)
+- `POST /api/products` - Create product (Admin or Seller)
 - `PUT /api/products/{id}` - Update product (Admin)
 - `DELETE /api/products/{id}` - Delete product (Admin)
 
@@ -309,11 +325,12 @@ Authorization: Bearer <access_token>
 4. **Quality Focus:** Comprehensive testing, structured logging, and API documentation demonstrate professional development practices.
 5. **Deployment Ready:** Docker support and CI/CD pipeline enable consistent deployments across environments.
 6. **Portfolio Quality:** Clean codebase, responsive design, and attention to UX details make it suitable for showcasing to employers or clients.
-7. **Extensible Foundation:** Modular architecture allows for easy addition of features like wishlist, reviews, or admin dashboards.
+7. **Extensible Foundation:** Modular architecture allows for easy addition of features like wishlist, reviews, or seller dashboards.
 
 ## Future Enhancements
 
 ### Planned Improvements
+- **Seller Dashboard:** Dedicated seller area for product management and sales analytics
 - **AI Shopping Assistant:** Integrate natural language search and product recommendations
 - **Payment Gateway Extensions:** Stripe, PayPal, and other popular payment processors
 - **Email Notifications:** Order confirmations, shipping updates, and promotional campaigns
@@ -353,4 +370,4 @@ Authorization: Bearer <access_token>
 ```
 
 ---
-*Built with ❤️ using modern .NET and Angular technologies. Designed for developers who value clean architecture, maintainable code, and beautiful user experiences.*
+*Built with modern .NET and Angular technologies. Designed for developers who value clean architecture, maintainable code, and beautiful user experiences.*

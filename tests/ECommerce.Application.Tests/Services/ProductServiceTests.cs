@@ -223,6 +223,28 @@ public class ProductServiceTests
     }
 
     [Fact]
+    public async Task CreateAsync_ShouldReturnSuccess_WhenVendorIdIsSet_ForSellerCreatedProduct()
+    {
+        var vendorId = Guid.NewGuid();
+        var categoryId = Guid.NewGuid();
+        var request = new CreateProductRequest(categoryId, "Seller Product", "seller-product", 10.00m, "SEL001", 100);
+        _categoryRepositoryMock.Setup(r => r.ExistsAsync(categoryId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(true);
+        _productRepositoryMock.Setup(r => r.GetBySKUAsync(request.SKU, It.IsAny<CancellationToken>()))
+            .ReturnsAsync((Product?)null);
+        _productRepositoryMock.Setup(r => r.GetBySlugAsync(request.Slug, It.IsAny<CancellationToken>()))
+            .ReturnsAsync((Product?)null);
+        _productRepositoryMock.Setup(r => r.AddAsync(It.IsAny<Product>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync((Product p, CancellationToken _) => p);
+
+        var result = await _sut.CreateAsync(vendorId, request);
+
+        result.IsSuccess.Should().BeTrue();
+        result.Value.Name.Should().Be("Seller Product");
+        result.Value.VendorId.Should().Be(vendorId);
+    }
+
+    [Fact]
     public async Task CreateAsync_ShouldReturnFailure_WhenCategoryDoesNotExist()
     {
         var request = new CreateProductRequest(Guid.NewGuid(), "Test", "test", 10.00m, "SKU001", 100);

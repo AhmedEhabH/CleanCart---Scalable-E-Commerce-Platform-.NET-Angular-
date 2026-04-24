@@ -10,7 +10,9 @@ public static class DatabaseSeeder
     public static async Task SeedAsync(ApplicationDbContext context)
     {
         await SeedAdminUserAsync(context);
+        await SeedSellerUserAsync(context);
         await SeedCategoriesAsync(context);
+        await SeedSellerVendorAsync(context);
         await SeedProductsAsync(context);
         await context.SaveChangesAsync();
     }
@@ -31,6 +33,46 @@ public static class DatabaseSeeder
         admin.Activate();
 
         context.Users.Add(admin);
+        await context.SaveChangesAsync();
+    }
+
+    private static async Task SeedSellerUserAsync(ApplicationDbContext context)
+    {
+        if (await context.Users.AnyAsync(u => u.Email == "seller@ecommerce.com"))
+            return;
+
+        var seller = User.Create(
+            email: "seller@ecommerce.com",
+            passwordHash: BCrypt.Net.BCrypt.HashPassword("Seller@123", 12),
+            firstName: "Demo",
+            lastName: "Seller",
+            role: Role.Seller
+        );
+        seller.ConfirmEmail();
+        seller.Activate();
+
+        context.Users.Add(seller);
+        await context.SaveChangesAsync();
+    }
+
+    private static async Task SeedSellerVendorAsync(ApplicationDbContext context)
+    {
+        var sellerUser = await context.Users.FirstOrDefaultAsync(u => u.Email == "seller@ecommerce.com");
+        if (sellerUser == null)
+            return;
+
+        if (await context.Vendors.AnyAsync(v => v.UserId == sellerUser.Id))
+            return;
+
+        var vendor = Vendor.Create(
+            userId: sellerUser.Id,
+            businessName: "Demo Seller Store",
+            description: "Official demo seller store for testing",
+            contactEmail: "seller@ecommerce.com"
+        );
+        vendor.Approve();
+
+        context.Vendors.Add(vendor);
         await context.SaveChangesAsync();
     }
 

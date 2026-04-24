@@ -97,7 +97,7 @@ public class ProductsController : BaseApiController
     }
 
     /// <summary>
-    /// Create a new product (Admin only)
+    /// Create a new product (Admin or Seller)
     /// </summary>
     /// <remarks>
     /// Sample request:
@@ -122,7 +122,7 @@ public class ProductsController : BaseApiController
     /// <response code="401">User not authenticated</response>
     /// <response code="403">Insufficient permissions</response>
     [HttpPost]
-    [Authorize(Roles = "Admin")]
+    [Authorize(Roles = "Admin,Seller")]
     [ProducesResponseType(typeof(ApiResponse<ProductDto>), 201)]
     [ProducesResponseType(typeof(ApiResponse<object>), 400)]
     [ProducesResponseType(typeof(ApiResponse<object>), 401)]
@@ -133,7 +133,13 @@ public class ProductsController : BaseApiController
         
         if (_currentUserService.IsSeller && _currentUserService.UserId != null)
         {
-            vendorId = _currentUserService.UserId;
+            var vendor = await _context.Vendors
+                .FirstOrDefaultAsync(v => v.UserId == _currentUserService.UserId, cancellationToken);
+            
+            if (vendor == null)
+                return HandleBadRequest("Seller vendor profile not found. Please contact admin.");
+            
+            vendorId = vendor.Id;
         }
 
         var result = await _productService.CreateAsync(vendorId, request, cancellationToken);
