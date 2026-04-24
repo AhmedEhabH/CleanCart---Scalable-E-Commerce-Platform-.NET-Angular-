@@ -1,6 +1,6 @@
 <a [routerLink]="['/products', product.id]" class="product-card">
   <div class="product-card__image-wrapper">
-    <img [src]="product.mainImageUrl | productImage: product.slug" [alt]="product.name" class="product-card__image" />
+    <img [src]="product.mainImageUrl | productImage: product.slug" [alt]="product.name" class="product-card__image" (error)="onImageError($event)" />
     <button 
       class="product-card__wishlist-btn" 
       [class.product-card__wishlist-btn--active]="isFavorite"

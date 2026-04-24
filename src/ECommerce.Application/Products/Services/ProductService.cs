@@ -263,6 +263,12 @@ public class ProductService : IProductService
             .Select(i => new ProductImageDto(i.Id, i.ImageUrl, i.AltText, i.DisplayOrder))
             .ToList();
 
+        var mainImageUrl = product.Images
+            .Where(i => i.IsActive)
+            .OrderBy(i => i.DisplayOrder)
+            .Select(i => i.ImageUrl)
+            .FirstOrDefault();
+
         return new ProductDto(
             product.Id,
             product.VendorId,
@@ -283,7 +289,7 @@ public class ProductService : IProductService
             product.IsLowStock,
             product.HasDiscount,
             product.DiscountPercentage,
-            product.MainImageUrl,
+            mainImageUrl,
             images,
             product.CreatedAt,
             product.UpdatedAt ?? product.CreatedAt

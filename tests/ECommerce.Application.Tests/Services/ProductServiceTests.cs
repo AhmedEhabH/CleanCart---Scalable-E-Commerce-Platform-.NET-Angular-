@@ -496,6 +496,46 @@ public class ProductServiceTests
 
     #endregion
 
+    #region MainImageUrl Mapping
+
+    [Fact]
+    public async Task GetByIdAsync_ShouldReturnMainImageUrl_FromFirstActiveImage()
+    {
+        var product = CreateProduct();
+        product.AddImage("https://example.com/first.jpg", "First", 1);
+        product.AddImage("https://example.com/second.jpg", "Second", 2);
+        product.AddImage("https://example.com/third.jpg", "Third", 3);
+        var firstImage = product.Images.First();
+        typeof(BaseEntity).GetProperty("IsActive")?.SetValue(firstImage, false);
+
+        _productRepositoryMock.Setup(r => r.GetWithImagesAsync(product.Id, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(product);
+
+        var result = await _sut.GetByIdAsync(product.Id);
+
+        result.IsSuccess.Should().BeTrue();
+        result.Value.MainImageUrl.Should().Be("https://example.com/second.jpg");
+    }
+
+    [Fact]
+    public async Task GetByIdAsync_ShouldReturnNullMainImageUrl_WhenNoActiveImages()
+    {
+        var product = CreateProduct();
+        product.AddImage("https://example.com/inactive.jpg", "Inactive", 1);
+        var image = product.Images.First();
+        typeof(BaseEntity).GetProperty("IsActive")?.SetValue(image, false);
+
+        _productRepositoryMock.Setup(r => r.GetWithImagesAsync(product.Id, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(product);
+
+        var result = await _sut.GetByIdAsync(product.Id);
+
+        result.IsSuccess.Should().BeTrue();
+        result.Value.MainImageUrl.Should().BeNull();
+    }
+
+    #endregion
+
     #region RemoveImageAsync
 
     [Fact]

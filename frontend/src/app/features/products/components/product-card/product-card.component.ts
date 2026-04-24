@@ -70,4 +70,9 @@ export class ProductCardComponent {
       this.toastService.success(`${this.product.name} added to wishlist`);
     }
   }
+
+  onImageError(event: Event): void {
+    const img = event.target as HTMLImageElement;
+    img.src = '/assets/images/product-placeholder.svg';
+  }
 }
