@@ -9,7 +9,8 @@ This project demonstrates a complete e-commerce platform featuring a robust back
 ## Key Features
 
 ### Customer Features
-- Product browsing and search
+- Product browsing and search with image thumbnails
+- Product image URL support (set via admin or API)
 - Detailed product pages with images, ratings, and reviews
 - Shopping cart with quantity adjustments
 - Secure checkout process
@@ -230,6 +231,8 @@ Update these files if your backend runs on a different URL.
 - `/admin/products` - Product management
 - `/admin/products/new` - Add product
 - `/admin/products/:id/edit` - Edit product
+- `/seller` - Seller dashboard (redirects to products)
+- `/seller/products` - Seller product management
 
 ### Backend API Endpoints
 - `GET /api/sellers` - List sellers

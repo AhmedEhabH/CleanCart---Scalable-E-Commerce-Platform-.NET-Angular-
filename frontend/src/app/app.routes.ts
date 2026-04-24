@@ -16,6 +16,7 @@ import { AdminLayoutComponent } from './features/admin/pages/admin-layout.compon
 import { AdminDashboardComponent } from './features/admin/pages/admin-dashboard.component';
 import { AdminProductsComponent } from './features/admin/pages/admin-products.component';
 import { AdminProductFormComponent } from './features/admin/pages/admin-product-form.component';
+import { SellerProductsComponent } from './features/seller/pages/seller-products.component';
 import { authGuard } from './core/guards/auth.guard';
 
 export const routes: Routes = [
@@ -39,6 +40,9 @@ export const routes: Routes = [
     { path: 'products/new', component: AdminProductFormComponent, title: 'Add Product' },
     { path: 'products/:id/edit', component: AdminProductFormComponent, title: 'Edit Product' }
   ]},
+  
+  { path: 'seller', redirectTo: 'seller/products', pathMatch: 'full' },
+  { path: 'seller/products', component: SellerProductsComponent, canActivate: [authGuard], title: 'Seller Dashboard' },
   
   { path: '**', component: NotFoundComponent, title: 'Not Found' }
 ];

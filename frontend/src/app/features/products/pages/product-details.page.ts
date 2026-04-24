@@ -93,10 +93,14 @@ export class ProductDetailsPage implements OnInit {
     });
   }
 
-  private loadSeller(vendorId: string): void {
+  private loadSeller(vendorId: string | null | undefined): void {
+    if (!vendorId) {
+      this.seller.set(null);
+      return;
+    }
     this.sellersService.getSeller(vendorId).subscribe({
       next: (seller) => this.seller.set(seller),
-      error: () => {}
+      error: () => this.seller.set(null)
     });
   }
 
