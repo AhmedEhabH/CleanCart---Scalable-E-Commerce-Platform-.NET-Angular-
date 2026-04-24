@@ -56,6 +56,16 @@ import { ToastService } from '../../../shared/components/toast/toast.service';
           <textarea id="description" [(ngModel)]="product.description" name="description" rows="4"></textarea>
         </div>
 
+        <div class="form-group">
+          <label for="imageUrl">Image URL</label>
+          <input id="imageUrl" type="url" [(ngModel)]="product.imageUrl" name="imageUrl" placeholder="https://example.com/image.jpg" />
+          @if (product.imageUrl) {
+            <div class="image-preview">
+              <img [src]="product.imageUrl" alt="Product preview" />
+            </div>
+          }
+        </div>
+
         <div class="form-group checkbox">
           <input id="isFeatured" type="checkbox" [(ngModel)]="product.isFeatured" name="isFeatured" />
           <label for="isFeatured">Featured product</label>
@@ -116,6 +126,9 @@ import { ToastService } from '../../../shared/components/toast/toast.service';
     .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
     .form-actions { display: flex; gap: 1rem; margin-top: 1.5rem; }
     
+    .image-preview { margin-top: 0.5rem; }
+    .image-preview img { max-width: 200px; max-height: 200px; border-radius: 6px; border: 1px solid var(--border-color); }
+    
     .btn-primary, .btn-secondary {
       padding: 0.75rem 1.5rem;
       border-radius: 6px;
@@ -150,6 +163,8 @@ export class AdminProductFormComponent implements OnInit {
       stockQuantity: 0,
       categoryId: '',
       description: null as string | null,
+      compareAtPrice: null as number | null,
+      imageUrl: null as string | null,
       isFeatured: false,
       isActive: true
     };
@@ -186,6 +201,8 @@ export class AdminProductFormComponent implements OnInit {
           stockQuantity: p.stockQuantity,
           categoryId: p.categoryId,
           description: p.description || null,
+          compareAtPrice: p.compareAtPrice || null,
+          imageUrl: p.mainImageUrl || null,
           isFeatured: p.isFeatured,
           isActive: p.isActive
         };
@@ -209,7 +226,8 @@ private buildRequestPayload(): any {
       Description: this.product.description || null,
       CompareAtPrice: this.product.compareAtPrice ? Number(this.product.compareAtPrice) : null,
       LowStockThreshold: 10,
-      IsFeatured: Boolean(this.product.isFeatured)
+      IsFeatured: Boolean(this.product.isFeatured),
+      ImageUrl: this.product.imageUrl || null
     };
     return payload;
   }

@@ -17,5 +17,5 @@ public record UpdateProductRequest(
     decimal? CompareAtPrice = null,
     int? LowStockThreshold = null,
     bool? IsFeatured = null,
-    IFormFile? Image = null
+    string? ImageUrl = null
 );

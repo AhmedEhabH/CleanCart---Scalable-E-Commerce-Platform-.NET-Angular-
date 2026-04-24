@@ -25,5 +25,5 @@ public record CreateProductRequest(
     decimal? CompareAtPrice = null,
     int LowStockThreshold = 10,
     bool IsFeatured = false,
-    IFormFile? Image = null
+    string? ImageUrl = null
 );

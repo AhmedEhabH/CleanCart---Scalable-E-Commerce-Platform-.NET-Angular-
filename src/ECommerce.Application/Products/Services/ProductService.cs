@@ -144,6 +144,11 @@ public class ProductService : IProductService
             request.IsFeatured
         );
 
+        if (!string.IsNullOrWhiteSpace(request.ImageUrl))
+        {
+            product.AddImage(request.ImageUrl);
+        }
+
         await _productRepository.AddAsync(product, cancellationToken);
 
         _logger.LogInformation("Product created: {ProductId}, Name: {Name}, VendorId: {VendorId}", product.Id, product.Name, vendorId);
@@ -168,6 +173,12 @@ public class ProductService : IProductService
             request.LowStockThreshold,
             request.IsFeatured
         );
+
+        if (!string.IsNullOrWhiteSpace(request.ImageUrl))
+        {
+            product.Images.ToList().ForEach(img => product.RemoveImage(img.Id));
+            product.AddImage(request.ImageUrl);
+        }
 
         await _productRepository.UpdateAsync(product, cancellationToken);
 
