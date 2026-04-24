@@ -174,7 +174,7 @@ public class ProductService : IProductService
             request.IsFeatured
         );
 
-        await _productRepository.UpdateAsync(product, cancellationToken);
+        await _productRepository.UpdateWithImagesAsync(product, request.ImageUrl, cancellationToken);
 
         _logger.LogInformation("Product updated: {ProductId}, Name: {Name}", product.Id, product.Name);
 

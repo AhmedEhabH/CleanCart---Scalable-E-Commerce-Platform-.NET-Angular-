@@ -18,6 +18,7 @@ public interface IProductRepository : IRepository<Product>
     Task<IReadOnlyList<Product>> GetByCategoryAsync(Guid categoryId, CancellationToken cancellationToken = default);
     Task<IReadOnlyList<Product>> GetFeaturedAsync(int count = 10, CancellationToken cancellationToken = default);
     Task<IReadOnlyList<Product>> SearchAsync(string searchTerm, CancellationToken cancellationToken = default);
+    Task UpdateWithImagesAsync(Product product, string? imageUrl, CancellationToken cancellationToken = default);
 }
 
 public interface ICategoryRepository : IRepository<Category>

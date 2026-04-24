@@ -46,6 +46,24 @@ public class ProductRepository : IProductRepository
         await _context.SaveChangesAsync(cancellationToken);
     }
 
+    public async Task UpdateWithImagesAsync(Product product, string? imageUrl, CancellationToken cancellationToken = default)
+    {
+        var existingImages = await _context.ProductImages
+            .Where(i => i.ProductId == product.Id)
+            .ToListAsync(cancellationToken);
+        
+        _context.ProductImages.RemoveRange(existingImages);
+        
+        if (!string.IsNullOrWhiteSpace(imageUrl))
+        {
+            var newImage = Domain.Entities.ProductImage.Create(product.Id, imageUrl, null, 0);
+            _context.ProductImages.Add(newImage);
+        }
+        
+        _context.Products.Update(product);
+        await _context.SaveChangesAsync(cancellationToken);
+    }
+
     public async Task DeleteAsync(Product entity, CancellationToken cancellationToken = default)
     {
         _context.Products.Remove(entity);
