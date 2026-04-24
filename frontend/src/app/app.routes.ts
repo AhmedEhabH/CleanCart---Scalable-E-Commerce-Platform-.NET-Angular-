@@ -43,6 +43,8 @@ export const routes: Routes = [
   
   { path: 'seller', redirectTo: 'seller/products', pathMatch: 'full' },
   { path: 'seller/products', component: SellerProductsComponent, canActivate: [authGuard], title: 'Seller Dashboard' },
+  { path: 'seller/products/new', component: AdminProductFormComponent, canActivate: [authGuard], title: 'Add Product' },
+  { path: 'seller/products/:id/edit', component: AdminProductFormComponent, canActivate: [authGuard], title: 'Edit Product' },
   
   { path: '**', component: NotFoundComponent, title: 'Not Found' }
 ];
