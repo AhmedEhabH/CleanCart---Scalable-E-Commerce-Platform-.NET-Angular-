@@ -13,6 +13,7 @@ namespace ECommerce.Application.Products.DTOs;
 /// <param name="CompareAtPrice">Optional original price for showing discounts</param>
 /// <param name="LowStockThreshold">Threshold for low stock alerts (default: 10)</param>
 /// <param name="IsFeatured">Whether the product is featured (default: false)</param>
+/// <param name="Image">Product image file</param>
 public record CreateProductRequest(
     Guid CategoryId,
     string Name,
@@ -23,5 +24,6 @@ public record CreateProductRequest(
     string? Description = null,
     decimal? CompareAtPrice = null,
     int LowStockThreshold = 10,
-    bool IsFeatured = false
+    bool IsFeatured = false,
+    IFormFile? Image = null
 );
