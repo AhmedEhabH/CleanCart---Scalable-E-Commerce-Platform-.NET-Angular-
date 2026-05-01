@@ -21,6 +21,7 @@ This project demonstrates a complete e-commerce platform featuring a robust back
 
 ### Admin & Business Features
 - Admin Area with dashboard and product management
+- **Admin Categories Management** - Full CRUD with deactivate support
 - Product and category management
 - Order management
 - Admin Dashboard for business insights (orders, sales, inventory)
@@ -273,11 +274,12 @@ See API Overview below for complete endpoint documentation.
 - `DELETE /api/products/{id}` - Delete product (Admin only)
 
 ### Categories
-- `GET /api/categories` - List categories
+- `GET /api/categories` - List categories (hierarchical tree)
 - `GET /api/categories/{id}` - Get category details
 - `POST /api/categories` - Create category (Admin)
 - `PUT /api/categories/{id}` - Update category (Admin)
-- `DELETE /api/categories/{id}` - Delete category (Admin)
+- `DELETE /api/categories/{id}` - Delete category (Admin) - requires no products or subcategories
+- `PATCH /api/categories/{id}/deactivate` - Soft delete (Admin) - sets IsActive to false
 
 ### Sellers
 - `GET /api/sellers` - List sellers

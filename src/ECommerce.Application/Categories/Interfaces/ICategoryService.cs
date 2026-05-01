@@ -13,4 +13,5 @@ public interface ICategoryService
     Task<Result<CategoryDto>> CreateAsync(CreateCategoryRequest request, CancellationToken cancellationToken = default);
     Task<Result<CategoryDto>> UpdateAsync(Guid id, UpdateCategoryRequest request, CancellationToken cancellationToken = default);
     Task<Result> DeleteAsync(Guid id, CancellationToken cancellationToken = default);
+    Task<Result> DeactivateAsync(Guid id, CancellationToken cancellationToken = default);
 }

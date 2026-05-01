@@ -71,4 +71,8 @@ export class AdminService {
   deleteCategory(id: string): Observable<any> {
     return this.http.delete<any>(`${environment.apiBaseUrl}/categories/${id}`);
   }
+
+  deactivateCategory(id: string): Observable<any> {
+    return this.http.patch<any>(`${environment.apiBaseUrl}/categories/${id}/deactivate`, {});
+  }
 }

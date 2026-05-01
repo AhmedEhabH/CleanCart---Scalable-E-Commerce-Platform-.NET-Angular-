@@ -109,4 +109,12 @@ public class CachedCategoryService : ICategoryService
             await _cache.RemoveByPrefixAsync("category:", cancellationToken);
         return result;
     }
+
+    public async Task<Result> DeactivateAsync(Guid id, CancellationToken cancellationToken = default)
+    {
+        var result = await _inner.DeactivateAsync(id, cancellationToken);
+        if (result.IsSuccess)
+            await _cache.RemoveByPrefixAsync("category:", cancellationToken);
+        return result;
+    }
 }

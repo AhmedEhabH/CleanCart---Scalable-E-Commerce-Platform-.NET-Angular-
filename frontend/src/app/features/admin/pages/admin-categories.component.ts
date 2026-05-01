@@ -229,12 +229,12 @@ export class AdminCategoriesComponent implements OnInit {
   }
 
   deleteCategory(category: CategoryItem): void {
-    if (category.productCount > 0) {
-      this.toastService.error('Cannot delete category with products');
+    if (category.productCount > 0 || category.parentId) {
+      this.deactivateCategory(category);
       return;
     }
 
-    if (!confirm(`Are you sure you want to delete "${category.name}"?`)) {
+    if (!confirm(`Are you sure you want to delete "${category.name}"? This action cannot be undone.`)) {
       return;
     }
 
@@ -248,6 +248,26 @@ export class AdminCategoriesComponent implements OnInit {
       error: (err: any) => {
         this.deleting.set(null);
         const msg = err?.error?.message || 'Failed to delete category';
+        this.toastService.error(msg);
+      }
+    });
+  }
+
+  deactivateCategory(category: CategoryItem): void {
+    if (!confirm(`Are you sure you want to deactivate "${category.name}"? Products in this category will remain but the category will be hidden.`)) {
+      return;
+    }
+
+    this.deleting.set(category.id);
+    this.adminService.deactivateCategory(category.id).subscribe({
+      next: () => {
+        this.toastService.success('Category deactivated successfully');
+        this.deleting.set(null);
+        this.loadCategories();
+      },
+      error: (err: any) => {
+        this.deleting.set(null);
+        const msg = err?.error?.message || 'Failed to deactivate category';
         this.toastService.error(msg);
       }
     });

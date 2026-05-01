@@ -231,6 +231,23 @@ public class CategoryService : ICategoryService
         return Result.Success();
     }
 
+    public async Task<Result> DeactivateAsync(Guid id, CancellationToken cancellationToken = default)
+    {
+        var category = await _categoryRepository.GetByIdAsync(id, cancellationToken);
+        if (category == null)
+        {
+            _logger.LogWarning("Failed to deactivate category: {CategoryId} not found", id);
+            return Result.Failure("Category not found", "CATEGORY_NOT_FOUND");
+        }
+
+        category.Deactivate();
+        await _categoryRepository.UpdateAsync(category, cancellationToken);
+
+        _logger.LogInformation("Category deactivated: {CategoryId}, Name: {Name}", category.Id, category.Name);
+
+        return Result.Success();
+    }
+
     private CategoryDto MapToSimpleDto(Category category, Dictionary<Guid, int> productCounts)
     {
         var count = productCounts.TryGetValue(category.Id, out var value) ? value : 0;

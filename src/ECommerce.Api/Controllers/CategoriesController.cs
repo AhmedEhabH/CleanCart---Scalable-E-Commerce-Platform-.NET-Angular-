@@ -142,4 +142,26 @@ public class CategoriesController : BaseApiController
             return HandleNotFound(result.Error ?? "Resource not found");
         return HandleOkWithMessage("Category deleted successfully");
     }
+
+    /// <summary>
+    /// Deactivate a category by its ID (Admin only) - soft delete
+    /// </summary>
+    /// <param name="id">Category unique identifier</param>
+    /// <param name="cancellationToken">Cancellation token</param>
+    /// <returns>No content on success</returns>
+    /// <response code="200">Category deactivated successfully</response>
+    /// <response code="403">Insufficient permissions</response>
+    /// <response code="404">Category not found</response>
+    [HttpPatch("{id:guid}/deactivate")]
+    [Authorize(Roles = "Admin")]
+    [ProducesResponseType(typeof(ApiResponse<object>), 200)]
+    [ProducesResponseType(typeof(ApiResponse<object>), 403)]
+    [ProducesResponseType(typeof(ApiResponse<object>), 404)]
+    public async Task<IActionResult> Deactivate(Guid id, CancellationToken cancellationToken)
+    {
+        var result = await _categoryService.DeactivateAsync(id, cancellationToken);
+        if (result.IsFailure)
+            return HandleNotFound(result.Error ?? "Resource not found");
+        return HandleOkWithMessage("Category deactivated successfully");
+    }
 }

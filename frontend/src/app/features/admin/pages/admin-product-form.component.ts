@@ -102,17 +102,24 @@ import { ToastService } from '../../../shared/components/toast/toast.service';
     }
     .form-group select {
       appearance: none;
-      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23888' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23ffffff' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
       background-repeat: no-repeat;
       background-position: right 0.75rem center;
       padding-right: 2.5rem;
       cursor: pointer;
-      background-color: var(--card-bg, #1f2937);
+      background-color: var(--input-bg, #374151);
       color: var(--text-primary, #f3f4f6);
+      border-color: var(--border-color, #4b5563);
     }
     .form-group select option {
       background: var(--card-bg, #1f2937);
       color: var(--text-primary, #f3f4f6);
+      padding: 0.5rem;
+    }
+    .form-group select:focus {
+      outline: none;
+      border-color: var(--primary, #3b82f6);
+      box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
     }
     
     .form-group.checkbox {
@@ -187,6 +194,10 @@ export class AdminProductFormComponent implements OnInit {
       next: (response: any) => this.categories.set(response?.data || response || []),
       error: () => this.categories.set([])
     });
+  }
+
+  reloadCategories(): void {
+    this.loadCategories();
   }
 
   private loadProduct(): void {
