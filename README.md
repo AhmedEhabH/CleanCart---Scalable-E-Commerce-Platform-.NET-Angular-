@@ -70,7 +70,7 @@ This project demonstrates a complete e-commerce platform featuring a robust back
 - **Routing:** Angular Router with lazy-loading capabilities
 - **Forms:** Reactive Forms with validation
 - **Build:** Angular CLI with production optimizations
-- **Testing:** Jasmine & Karma
+- **Testing:** Vitest with Angular TestBed
 
 ### Infrastructure
 - **Database:** SQL Server (local or Docker)
@@ -234,7 +234,16 @@ Update these files if your backend runs on a different URL.
 - `/seller` - Seller dashboard (redirects to products)
 - `/seller/products` - Seller product management
 
-### Backend API Endpoints
+### Route Protection
+
+Routes are protected by role-based guards:
+- **AuthGuard:** `/checkout`, `/orders`, `/orders/:id` -- requires any authenticated user
+- **AdminGuard:** `/admin/**` -- requires Admin role (Seller/Customer blocked)
+- **SellerGuard:** `/seller/**` -- requires Seller or Admin role (Customer blocked)
+- Unauthenticated users are redirected to `/login?returnUrl=...`
+- Unauthorized role access redirects to `/unauthorized`
+
+## Backend API Endpoints
 - `GET /api/sellers` - List sellers
 - `GET /api/sellers/{id}` - Seller details
 - `GET /api/sellers/{id}/products` - Seller's products

@@ -45,9 +45,11 @@ export class CartService {
           this.updateState(response.data);
         }
       },
-      error: () => {
+      error: (err) => {
+        if (err?.status === 401) {
+          this.authService.logout();
+        }
         this.cartCountSubject.next(0);
-        return EMPTY;
       }
     });
   }

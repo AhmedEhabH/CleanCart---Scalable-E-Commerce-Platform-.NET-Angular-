@@ -1,15 +1,51 @@
-import { CanActivateFn } from '@angular/router';
+import { CanActivateFn, Router } from '@angular/router';
 import { inject } from '@angular/core';
 import { AuthService } from '../services/auth.service';
 
-export const authGuard: CanActivateFn = (_route, _state) => {
+export const authGuard: CanActivateFn = (route, state) => {
   const authService = inject(AuthService);
-  return !!authService.getStoredToken();
+  const router = inject(Router);
+
+  if (authService.getStoredToken()) {
+    return true;
+  }
+
+  router.navigate(['/login'], { queryParams: { returnUrl: state.url } });
+  return false;
 };
 
-export const adminGuard: CanActivateFn = (_route, _state) => {
+export const adminGuard: CanActivateFn = (_route, state) => {
   const authService = inject(AuthService);
+  const router = inject(Router);
+
   const token = authService.getStoredToken();
-  if (!token) return false;
-  return authService.isAdmin;
+  if (!token) {
+    router.navigate(['/login'], { queryParams: { returnUrl: state.url } });
+    return false;
+  }
+
+  if (authService.isAdmin) {
+    return true;
+  }
+
+  router.navigate(['/unauthorized']);
+  return false;
+};
+
+export const sellerGuard: CanActivateFn = (_route, state) => {
+  const authService = inject(AuthService);
+  const router = inject(Router);
+
+  const token = authService.getStoredToken();
+  if (!token) {
+    router.navigate(['/login'], { queryParams: { returnUrl: state.url } });
+    return false;
+  }
+
+  if (authService.isSeller || authService.isAdmin) {
+    return true;
+  }
+
+  router.navigate(['/unauthorized']);
+  return false;
 };

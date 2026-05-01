@@ -1,0 +1,192 @@
+import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { TestBed } from '@angular/core/testing';
+import { provideHttpClient } from '@angular/common/http';
+import { provideHttpClientTesting, HttpTestingController } from '@angular/common/http/testing';
+import { AuthService } from './auth.service';
+import { AuthResponse, AuthUser } from '../models';
+
+describe('AuthService', () => {
+  let service: AuthService;
+  let httpMock: HttpTestingController;
+
+  beforeEach(() => {
+    localStorage.clear();
+    sessionStorage.clear();
+
+    TestBed.configureTestingModule({
+      providers: [
+        AuthService,
+        provideHttpClient(),
+        provideHttpClientTesting()
+      ]
+    });
+
+    service = TestBed.inject(AuthService);
+    httpMock = TestBed.inject(HttpTestingController);
+  });
+
+  it('should be created', () => {
+    expect(service).toBeTruthy();
+  });
+
+  it('should store token and user after successful login', () => {
+    const mockResponse = {
+      success: true,
+      data: {
+        accessToken: 'test-access-token',
+        refreshToken: 'test-refresh-token',
+        expiresAt: '2026-01-01T00:00:00Z',
+        email: 'admin@test.com',
+        fullName: 'Admin User',
+        role: 'Admin'
+      } as AuthResponse
+    };
+
+    service.login({ email: 'admin@test.com', password: 'Admin@123' }, true).subscribe();
+
+    const req = httpMock.expectOne('http://localhost:5000/api/auth/login');
+    expect(req.request.method).toBe('POST');
+    req.flush(mockResponse);
+
+    expect(localStorage.getItem('access_token')).toBe('test-access-token');
+    expect(localStorage.getItem('refresh_token')).toBe('test-refresh-token');
+
+    const storedUser = JSON.parse(localStorage.getItem('auth_user') || '{}');
+    expect(storedUser.email).toBe('admin@test.com');
+    expect(storedUser.role).toBe('Admin');
+    expect(storedUser.fullName).toBe('Admin User');
+  });
+
+  it('should restore auth state from storage on initialization', () => {
+    const user: AuthUser = { id: 'user-id', email: 'test@test.com', fullName: 'Test User', role: 'Seller' };
+    localStorage.setItem('access_token', 'stored-token');
+    localStorage.setItem('auth_user', JSON.stringify(user));
+
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({
+      providers: [
+        AuthService,
+        provideHttpClient(),
+        provideHttpClientTesting()
+      ]
+    });
+
+    const restoredService = TestBed.inject(AuthService);
+
+    expect(restoredService.isAuthenticated).toBe(true);
+    expect(restoredService.currentUser).not.toBeNull();
+    expect(restoredService.currentUser?.email).toBe('test@test.com');
+    expect(restoredService.isSeller).toBe(true);
+  });
+
+  it('hasRole should return true for matching role', () => {
+    const user: AuthUser = { id: '1', email: 'a@b.com', fullName: 'A', role: 'Admin' };
+    localStorage.setItem('access_token', 'token');
+    localStorage.setItem('auth_user', JSON.stringify(user));
+
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({
+      providers: [AuthService, provideHttpClient(), provideHttpClientTesting()]
+    });
+
+    const svc = TestBed.inject(AuthService);
+    expect(svc.hasRole('Admin')).toBe(true);
+    expect(svc.hasRole('admin')).toBe(true);
+    expect(svc.hasRole('ADMIN')).toBe(true);
+  });
+
+  it('hasRole should return false for non-matching role', () => {
+    const user: AuthUser = { id: '1', email: 'a@b.com', fullName: 'A', role: 'Customer' };
+    localStorage.setItem('access_token', 'token');
+    localStorage.setItem('auth_user', JSON.stringify(user));
+
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({
+      providers: [AuthService, provideHttpClient(), provideHttpClientTesting()]
+    });
+
+    const svc = TestBed.inject(AuthService);
+    expect(svc.hasRole('Admin')).toBe(false);
+    expect(svc.hasRole('Seller')).toBe(false);
+  });
+
+  it('isAdmin should return true only for Admin role', () => {
+    const adminUser: AuthUser = { id: '1', email: 'a@b.com', fullName: 'A', role: 'Admin' };
+    localStorage.setItem('access_token', 'token');
+    localStorage.setItem('auth_user', JSON.stringify(adminUser));
+
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({
+      providers: [AuthService, provideHttpClient(), provideHttpClientTesting()]
+    });
+
+    const svc = TestBed.inject(AuthService);
+    expect(svc.isAdmin).toBe(true);
+    expect(svc.isSeller).toBe(false);
+  });
+
+  it('isSeller should return true only for Seller role', () => {
+    const sellerUser: AuthUser = { id: '1', email: 'a@b.com', fullName: 'A', role: 'Seller' };
+    localStorage.setItem('access_token', 'token');
+    localStorage.setItem('auth_user', JSON.stringify(sellerUser));
+
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({
+      providers: [AuthService, provideHttpClient(), provideHttpClientTesting()]
+    });
+
+    const svc = TestBed.inject(AuthService);
+    expect(svc.isSeller).toBe(true);
+    expect(svc.isAdmin).toBe(false);
+  });
+
+  it('isAuthenticated should return false when no token exists', () => {
+    localStorage.clear();
+    sessionStorage.clear();
+
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({
+      providers: [AuthService, provideHttpClient(), provideHttpClientTesting()]
+    });
+
+    const svc = TestBed.inject(AuthService);
+    expect(svc.isAuthenticated).toBe(false);
+  });
+
+  it('logout should clear all storage and reset user', () => {
+    const user: AuthUser = { id: '1', email: 'a@b.com', fullName: 'A', role: 'Admin' };
+    localStorage.setItem('access_token', 'token');
+    localStorage.setItem('auth_user', JSON.stringify(user));
+    sessionStorage.setItem('access_token', 'session-token');
+
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({
+      providers: [AuthService, provideHttpClient(), provideHttpClientTesting()]
+    });
+
+    const svc = TestBed.inject(AuthService);
+    expect(svc.isAuthenticated).toBe(true);
+
+    svc.logout();
+
+    expect(svc.isAuthenticated).toBe(false);
+    expect(svc.currentUser).toBeNull();
+    expect(localStorage.getItem('access_token')).toBeNull();
+    expect(sessionStorage.getItem('access_token')).toBeNull();
+  });
+
+  it('restoreAuthState should call logout when token is missing', () => {
+    const user: AuthUser = { id: '1', email: 'a@b.com', fullName: 'A', role: 'Admin' };
+    localStorage.setItem('auth_user', JSON.stringify(user));
+
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({
+      providers: [AuthService, provideHttpClient(), provideHttpClientTesting()]
+    });
+
+    const svc = TestBed.inject(AuthService);
+    svc.restoreAuthState();
+
+    expect(svc.currentUser).toBeNull();
+  });
+});

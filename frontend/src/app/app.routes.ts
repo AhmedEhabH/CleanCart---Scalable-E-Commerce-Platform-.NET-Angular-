@@ -9,6 +9,7 @@ import { OrdersComponent } from './features/orders/orders.component';
 import { OrderDetailsComponent } from './features/orders/order-details.component';
 import { WishlistComponent } from './features/wishlist/wishlist.component';
 import { NotFoundComponent } from './features/not-found/not-found.component';
+import { UnauthorizedComponent } from './features/unauthorized/unauthorized.component';
 import { ProductListPage } from './features/products/pages/product-list.page';
 import { ProductDetailsPage } from './features/products/pages/product-details.page';
 import { SellerPage } from './features/sellers/pages/seller-page.component';
@@ -17,7 +18,7 @@ import { AdminDashboardComponent } from './features/admin/pages/admin-dashboard.
 import { AdminProductsComponent } from './features/admin/pages/admin-products.component';
 import { AdminProductFormComponent } from './features/admin/pages/admin-product-form.component';
 import { SellerProductsComponent } from './features/seller/pages/seller-products.component';
-import { authGuard, adminGuard } from './core/guards/auth.guard';
+import { authGuard, adminGuard, sellerGuard } from './core/guards/auth.guard';
 
 export const routes: Routes = [
   { path: '', component: HomeComponent, title: 'Home' },
@@ -42,9 +43,11 @@ export const routes: Routes = [
   ]},
   
   { path: 'seller', redirectTo: 'seller/products', pathMatch: 'full' },
-  { path: 'seller/products', component: SellerProductsComponent, canActivate: [authGuard], title: 'Seller Dashboard' },
-  { path: 'seller/products/new', component: AdminProductFormComponent, canActivate: [authGuard], title: 'Add Product' },
-  { path: 'seller/products/:id/edit', component: AdminProductFormComponent, canActivate: [authGuard], title: 'Edit Product' },
+  { path: 'seller/products', component: SellerProductsComponent, canActivate: [sellerGuard], title: 'Seller Dashboard' },
+  { path: 'seller/products/new', component: AdminProductFormComponent, canActivate: [sellerGuard], title: 'Add Product' },
+  { path: 'seller/products/:id/edit', component: AdminProductFormComponent, canActivate: [sellerGuard], title: 'Edit Product' },
+  
+  { path: 'unauthorized', component: UnauthorizedComponent, title: 'Access Denied' },
   
   { path: '**', component: NotFoundComponent, title: 'Not Found' }
 ];

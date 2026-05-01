@@ -38,19 +38,33 @@ export class AuthService {
   }
 
   get isAuthenticated(): boolean {
-    return !!this.getToken();
+    return !!this.getStoredToken();
+  }
+
+  hasRole(role: string): boolean {
+    return this.currentUser?.role?.toLowerCase() === role.toLowerCase();
   }
 
   get isAdmin(): boolean {
-    return this.currentUser?.role?.toLowerCase() === 'admin';
+    return this.hasRole('Admin');
   }
 
   get isSeller(): boolean {
-    return this.currentUser?.role?.toLowerCase() === 'seller';
+    return this.hasRole('Seller');
   }
 
   get currentUser(): AuthUser | null {
     return this.authUserSubject.value;
+  }
+
+  restoreAuthState(): void {
+    const storedUser = this.getStoredUser();
+    const token = this.getStoredToken();
+    if (storedUser && token) {
+      this.authUserSubject.next(storedUser);
+    } else {
+      this.logout();
+    }
   }
 
   login(request: LoginRequest, rememberMe: boolean = false): Observable<AuthResponse> {
