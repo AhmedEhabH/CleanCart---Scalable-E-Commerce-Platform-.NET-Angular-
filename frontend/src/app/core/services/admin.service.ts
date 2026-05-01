@@ -55,4 +55,20 @@ export class AdminService {
   getCategories(): Observable<any[]> {
     return this.http.get<any[]>(`${environment.apiBaseUrl}/categories`);
   }
+
+  getCategory(id: string): Observable<any> {
+    return this.http.get<any>(`${environment.apiBaseUrl}/categories/${id}`);
+  }
+
+  createCategory(category: any): Observable<any> {
+    return this.http.post<any>(`${environment.apiBaseUrl}/categories`, category);
+  }
+
+  updateCategory(id: string, category: any): Observable<any> {
+    return this.http.put<any>(`${environment.apiBaseUrl}/categories/${id}`, category);
+  }
+
+  deleteCategory(id: string): Observable<any> {
+    return this.http.delete<any>(`${environment.apiBaseUrl}/categories/${id}`);
+  }
 }

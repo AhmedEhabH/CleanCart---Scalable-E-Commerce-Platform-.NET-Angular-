@@ -107,12 +107,12 @@ import { ToastService } from '../../../shared/components/toast/toast.service';
       background-position: right 0.75rem center;
       padding-right: 2.5rem;
       cursor: pointer;
-      color: var(--color-text, var(--text-primary));
-      background-color: var(--color-surface, var(--card-bg));
+      background-color: var(--card-bg, #1f2937);
+      color: var(--text-primary, #f3f4f6);
     }
     .form-group select option {
-      background: var(--color-surface, #ffffff);
-      color: var(--color-text, #111827);
+      background: var(--card-bg, #1f2937);
+      color: var(--text-primary, #f3f4f6);
     }
     
     .form-group.checkbox {

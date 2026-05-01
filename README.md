@@ -24,6 +24,8 @@ This project demonstrates a complete e-commerce platform featuring a robust back
 - Product and category management
 - Order management
 - Admin Dashboard for business insights (orders, sales, inventory)
+- Order management
+- Admin Dashboard for business insights (orders, sales, inventory)
 - Seller/Merchant Profiles for multi-vendor marketplace
 - Seller product ownership linking
 - Payment processing integration
@@ -231,6 +233,9 @@ Update these files if your backend runs on a different URL.
 - `/admin/products` - Product management
 - `/admin/products/new` - Add product
 - `/admin/products/:id/edit` - Edit product
+- `/admin/categories` - Category management
+- `/admin/categories/new` - Add category
+- `/admin/categories/:id/edit` - Edit category
 - `/seller` - Seller dashboard (redirects to products)
 - `/seller/products` - Seller product management
 

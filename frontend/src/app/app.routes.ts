@@ -17,6 +17,8 @@ import { AdminLayoutComponent } from './features/admin/pages/admin-layout.compon
 import { AdminDashboardComponent } from './features/admin/pages/admin-dashboard.component';
 import { AdminProductsComponent } from './features/admin/pages/admin-products.component';
 import { AdminProductFormComponent } from './features/admin/pages/admin-product-form.component';
+import { AdminCategoriesComponent } from './features/admin/pages/admin-categories.component';
+import { AdminCategoryFormComponent } from './features/admin/pages/admin-category-form.component';
 import { SellerProductsComponent } from './features/seller/pages/seller-products.component';
 import { authGuard, adminGuard, sellerGuard } from './core/guards/auth.guard';
 
@@ -39,7 +41,10 @@ export const routes: Routes = [
     { path: 'dashboard', component: AdminDashboardComponent, title: 'Admin Dashboard' },
     { path: 'products', component: AdminProductsComponent, title: 'Products' },
     { path: 'products/new', component: AdminProductFormComponent, title: 'Add Product' },
-    { path: 'products/:id/edit', component: AdminProductFormComponent, title: 'Edit Product' }
+    { path: 'products/:id/edit', component: AdminProductFormComponent, title: 'Edit Product' },
+    { path: 'categories', component: AdminCategoriesComponent, title: 'Categories' },
+    { path: 'categories/new', component: AdminCategoryFormComponent, title: 'Add Category' },
+    { path: 'categories/:id/edit', component: AdminCategoryFormComponent, title: 'Edit Category' }
   ]},
   
   { path: 'seller', redirectTo: 'seller/products', pathMatch: 'full' },
