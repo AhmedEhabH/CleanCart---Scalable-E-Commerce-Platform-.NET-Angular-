@@ -1,28 +1,51 @@
 using ECommerce.Application.Common.Interfaces;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.Extensions.Logging;
 
 namespace ECommerce.Infrastructure.Services;
 
 public class LocalFileService : IFileService
 {
     private readonly string _rootPath;
+    private readonly ILogger<LocalFileService> _logger;
 
-    public LocalFileService(IWebHostEnvironment environment)
+    public LocalFileService(IWebHostEnvironment environment, ILogger<LocalFileService> logger)
     {
-        _rootPath = Path.Combine(environment.WebRootPath ?? Path.Combine(environment.ContentRootPath, "wwwroot"), "images");
+        var basePath = environment.WebRootPath ?? Path.Combine(environment.ContentRootPath, "wwwroot");
+        _rootPath = Path.Combine(basePath, "images");
+        _logger = logger;
     }
 
     public async Task<string> SaveFileAsync(Stream fileStream, string fileName, string subfolder, CancellationToken cancellationToken = default)
     {
         var dir = Path.Combine(_rootPath, subfolder);
-        Directory.CreateDirectory(dir);
+
+        if (!Directory.Exists(dir))
+        {
+            Directory.CreateDirectory(dir);
+            _logger.LogInformation("Created directory: {Directory}", dir);
+        }
 
         var ext = Path.GetExtension(fileName);
         var uniqueName = $"{Guid.NewGuid()}{ext}";
         var filePath = Path.Combine(dir, uniqueName);
 
-        await using var fs = new FileStream(filePath, FileMode.Create);
-        await fileStream.CopyToAsync(fs, cancellationToken);
+        try
+        {
+            await using var fs = new FileStream(filePath, FileMode.Create, FileAccess.Write, FileShare.None, 4096, FileOptions.Asynchronous);
+            await fileStream.CopyToAsync(fs, cancellationToken);
+            _logger.LogInformation("File saved successfully: {FilePath}", filePath);
+        }
+        catch (IOException ex)
+        {
+            _logger.LogError(ex, "IO error saving file: {Message}", ex.Message);
+            throw;
+        }
+        catch (UnauthorizedAccessException ex)
+        {
+            _logger.LogError(ex, "Unauthorized access error saving file: {Message}", ex.Message);
+            throw;
+        }
 
         return $"/images/{subfolder}/{uniqueName}";
     }
