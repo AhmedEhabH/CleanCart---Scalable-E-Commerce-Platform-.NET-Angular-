@@ -12,7 +12,7 @@ import { ToastService } from '../../../shared/components/toast/toast.service';
   template: `
     <div class="product-form">
       <h1>{{ isEdit() ? 'Edit' : 'Add' }} Product</h1>
-      
+
       <form (ngSubmit)="onSubmit()">
         <div class="form-group">
           <label for="name">Name *</label>
@@ -57,11 +57,16 @@ import { ToastService } from '../../../shared/components/toast/toast.service';
         </div>
 
         <div class="form-group">
-          <label for="imageUrl">Image URL</label>
-          <input id="imageUrl" type="url" [(ngModel)]="product.imageUrl" name="imageUrl" placeholder="https://example.com/image.jpg" />
-          @if (product.imageUrl) {
+          <label for="image">Product Image</label>
+          <input id="image" type="file" accept="image/*" (change)="onFileSelected($event)" />
+          @if (imagePreview()) {
             <div class="image-preview">
-              <img [src]="product.imageUrl" alt="Product preview" />
+              <img [src]="imagePreview()" alt="Product preview" />
+            </div>
+          } @else if (existingImageUrl()) {
+            <div class="image-preview">
+              <img [src]="existingImageUrl()" alt="Current product image" />
+              <span class="image-hint">Current image (select a new file to replace)</span>
             </div>
           }
         </div>
@@ -79,6 +84,9 @@ import { ToastService } from '../../../shared/components/toast/toast.service';
         <div class="form-actions">
           <button type="button" class="btn-secondary" (click)="cancel()">Cancel</button>
           <button type="submit" class="btn-primary" [disabled]="saving()">
+            @if (saving()) {
+              <span class="spinner"></span>
+            }
             {{ saving() ? 'Saving...' : 'Save' }}
           </button>
         </div>
@@ -88,7 +96,7 @@ import { ToastService } from '../../../shared/components/toast/toast.service';
   styles: [`
     .product-form { max-width: 600px; }
     h1 { margin: 0 0 1.5rem; }
-    
+
     .form-group { margin-bottom: 1rem; }
     .form-group label { display: block; margin-bottom: 0.5rem; font-weight: 500; }
     .form-group input, .form-group select, .form-group textarea {
@@ -99,6 +107,10 @@ import { ToastService } from '../../../shared/components/toast/toast.service';
       background: var(--input-bg);
       color: var(--text-primary);
       font-size: 1rem;
+    }
+    .form-group input[type="file"] {
+      padding: 0.5rem;
+      cursor: pointer;
     }
     .form-group select {
       appearance: none;
@@ -121,7 +133,7 @@ import { ToastService } from '../../../shared/components/toast/toast.service';
       border-color: var(--primary, #3b82f6);
       box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
     }
-    
+
     .form-group.checkbox {
       display: flex;
       align-items: center;
@@ -129,23 +141,37 @@ import { ToastService } from '../../../shared/components/toast/toast.service';
     }
     .form-group.checkbox label { margin: 0; }
     .form-group.checkbox input { width: auto; }
-    
+
     .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
-    .form-actions { display: flex; gap: 1rem; margin-top: 1.5rem; }
-    
+    .form-actions { display: flex; gap: 1rem; margin-top: 1.5rem; align-items: center; }
+
     .image-preview { margin-top: 0.5rem; }
-    .image-preview img { max-width: 200px; max-height: 200px; border-radius: 6px; border: 1px solid var(--border-color); }
-    
+    .image-preview img { max-width: 200px; max-height: 200px; border-radius: 6px; border: 1px solid var(--border-color); object-fit: cover; }
+    .image-hint { display: block; font-size: 0.75rem; color: var(--text-secondary); margin-top: 0.25rem; }
+
     .btn-primary, .btn-secondary {
       padding: 0.75rem 1.5rem;
       border-radius: 6px;
       font-size: 1rem;
       cursor: pointer;
       border: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
     }
     .btn-primary { background: var(--primary); color: white; }
-    .btn-primary:disabled { opacity: 0.5; }
+    .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
     .btn-secondary { background: var(--text-muted); color: white; }
+
+    .spinner {
+      width: 1rem;
+      height: 1rem;
+      border: 2px solid rgba(255,255,255,0.3);
+      border-top-color: white;
+      border-radius: 50%;
+      animation: spin 0.6s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
   `]
 })
 export class AdminProductFormComponent implements OnInit {
@@ -153,12 +179,15 @@ export class AdminProductFormComponent implements OnInit {
   private router = inject(Router);
   private adminService = inject(AdminService);
   private toastService = inject(ToastService);
-  
+
   product: any = this.getEmptyProduct();
   categories = signal<any[]>([]);
   loading = signal(true);
   saving = signal(false);
   isEdit = signal(false);
+  selectedFile: File | null = null;
+  imagePreview = signal<string | null>(null);
+  existingImageUrl = signal<string | null>(null);
   private productId = '';
 
   private getEmptyProduct() {
@@ -171,7 +200,6 @@ export class AdminProductFormComponent implements OnInit {
       categoryId: '',
       description: null as string | null,
       compareAtPrice: null as number | null,
-      imageUrl: null as string | null,
       isFeatured: false,
       isActive: true
     };
@@ -181,7 +209,7 @@ export class AdminProductFormComponent implements OnInit {
     this.productId = this.route.snapshot.paramMap.get('id') || '';
     this.isEdit.set(!!this.productId);
     this.loadCategories();
-    
+
     if (this.productId) {
       this.loadProduct();
     } else {
@@ -213,10 +241,12 @@ export class AdminProductFormComponent implements OnInit {
           categoryId: p.categoryId,
           description: p.description || null,
           compareAtPrice: p.compareAtPrice || null,
-          imageUrl: p.mainImageUrl || null,
           isFeatured: p.isFeatured,
           isActive: p.isActive
         };
+        if (p.mainImageUrl) {
+          this.existingImageUrl.set(p.mainImageUrl);
+        }
         this.loading.set(false);
       },
       error: () => {
@@ -226,8 +256,21 @@ export class AdminProductFormComponent implements OnInit {
     });
   }
 
-private buildRequestPayload(): any {
-    const payload = {
+  onFileSelected(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    if (!input.files?.length) return;
+
+    this.selectedFile = input.files[0];
+
+    const reader = new FileReader();
+    reader.onload = () => {
+      this.imagePreview.set(reader.result as string);
+    };
+    reader.readAsDataURL(this.selectedFile);
+  }
+
+  private buildRequestPayload(): any {
+    return {
       CategoryId: this.product.categoryId,
       Name: this.product.name,
       Slug: this.product.slug,
@@ -238,12 +281,11 @@ private buildRequestPayload(): any {
       CompareAtPrice: this.product.compareAtPrice ? Number(this.product.compareAtPrice) : null,
       LowStockThreshold: 10,
       IsFeatured: Boolean(this.product.isFeatured),
-      ImageUrl: this.product.imageUrl || null
+      IsActive: Boolean(this.product.isActive)
     };
-    return payload;
   }
 
-onSubmit(): void {
+  onSubmit(): void {
     if (!this.product.name || !this.product.slug || !this.product.categoryId || !this.product.sku || !this.product.price || !this.product.stockQuantity) {
       this.toastService.error('Please fill in all required fields');
       return;
@@ -260,8 +302,12 @@ onSubmit(): void {
     if (this.isEdit()) {
       this.adminService.updateProduct(this.productId, payload).subscribe({
         next: () => {
-          this.toastService.success('Product updated successfully');
-          this.router.navigate(['/admin/products']);
+          if (this.selectedFile) {
+            this.uploadImage(this.productId);
+          } else {
+            this.toastService.success('Product updated successfully');
+            this.router.navigate(['/admin/products']);
+          }
         },
         error: (err: any) => {
           this.saving.set(false);
@@ -271,9 +317,14 @@ onSubmit(): void {
       });
     } else {
       this.adminService.createProduct(payload).subscribe({
-        next: () => {
-          this.toastService.success('Product created successfully');
-          this.router.navigate(['/admin/products']);
+        next: (response: any) => {
+          const newId = response?.data?.id || response?.id;
+          if (this.selectedFile && newId) {
+            this.uploadImage(newId);
+          } else {
+            this.toastService.success('Product created successfully');
+            this.router.navigate(['/admin/products']);
+          }
         },
         error: (err: any) => {
           this.saving.set(false);
@@ -281,6 +332,19 @@ onSubmit(): void {
         }
       });
     }
+  }
+
+  private uploadImage(productId: string): void {
+    this.adminService.uploadImage(productId, this.selectedFile!).subscribe({
+      next: () => {
+        this.toastService.success('Product saved with image');
+        this.router.navigate([this.isEdit() ? '/admin/products' : '/admin/products']);
+      },
+      error: () => {
+        this.toastService.error('Product saved but image upload failed');
+        this.router.navigate(['/admin/products']);
+      }
+    });
   }
 
   private extractErrorMessage(error: any): string {

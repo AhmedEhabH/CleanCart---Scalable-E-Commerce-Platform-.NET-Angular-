@@ -52,6 +52,12 @@ export class AdminService {
     return this.http.delete<any>(`${environment.apiBaseUrl}/products/${id}`);
   }
 
+  uploadImage(productId: string, file: File): Observable<any> {
+    const formData = new FormData();
+    formData.append('file', file);
+    return this.http.post<any>(`${environment.apiBaseUrl}/products/${productId}/images`, formData);
+  }
+
   getCategories(): Observable<any[]> {
     return this.http.get<any[]>(`${environment.apiBaseUrl}/categories`);
   }

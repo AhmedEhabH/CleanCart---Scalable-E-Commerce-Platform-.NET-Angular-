@@ -40,6 +40,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IOrderService, OrderService>();
         services.AddScoped<IPaymentService, PaymentService>();
         services.AddScoped<IReviewService, ReviewService>();
+        services.AddScoped<IFileService, LocalFileService>();
         
         return services;
     }

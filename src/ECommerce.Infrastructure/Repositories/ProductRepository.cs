@@ -48,18 +48,18 @@ public class ProductRepository : IProductRepository
 
     public async Task UpdateWithImagesAsync(Product product, string? imageUrl, CancellationToken cancellationToken = default)
     {
-        var existingImages = await _context.ProductImages
-            .Where(i => i.ProductId == product.Id)
-            .ToListAsync(cancellationToken);
-        
-        _context.ProductImages.RemoveRange(existingImages);
-        
         if (!string.IsNullOrWhiteSpace(imageUrl))
         {
+            var existingImages = await _context.ProductImages
+                .Where(i => i.ProductId == product.Id)
+                .ToListAsync(cancellationToken);
+
+            _context.ProductImages.RemoveRange(existingImages);
+
             var newImage = Domain.Entities.ProductImage.Create(product.Id, imageUrl, null, 0);
             _context.ProductImages.Add(newImage);
         }
-        
+
         _context.Products.Update(product);
         await _context.SaveChangesAsync(cancellationToken);
     }

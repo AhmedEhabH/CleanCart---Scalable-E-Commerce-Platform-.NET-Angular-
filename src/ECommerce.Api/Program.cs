@@ -186,6 +186,8 @@ if (app.Environment.IsDevelopment())
 
 app.UseMiddleware<ExceptionHandlingMiddleware>();
 
+app.UseStaticFiles();
+
 app.UseCors("AllowAngular");
 
 app.UseRateLimiter();

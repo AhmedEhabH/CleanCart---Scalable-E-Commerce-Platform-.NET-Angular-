@@ -21,15 +21,18 @@ public class ProductsController : BaseApiController
     private readonly IProductService _productService;
     private readonly ICurrentUserService _currentUserService;
     private readonly IApplicationDbContext _context;
+    private readonly IFileService _fileService;
 
     public ProductsController(
         IProductService productService, 
         ICurrentUserService currentUserService,
-        IApplicationDbContext context)
+        IApplicationDbContext context,
+        IFileService fileService)
     {
         _productService = productService;
         _currentUserService = currentUserService;
         _context = context;
+        _fileService = fileService;
     }
 
     /// <summary>
@@ -96,6 +99,36 @@ public class ProductsController : BaseApiController
 
         if (result.IsFailure)
             return HandleBadRequest(result.Error ?? "Failed to load products");
+
+        return HandleSuccess(result.Value);
+    }
+
+    /// <summary>
+    /// Upload a product image (Admin or Seller). Replaces existing images.
+    /// </summary>
+    [HttpPost("{id:guid}/images")]
+    [Authorize(Roles = "Admin,Seller")]
+    [ProducesResponseType(typeof(ApiResponse<ProductDto>), 200)]
+    [ProducesResponseType(typeof(ApiResponse<object>), 400)]
+    public async Task<IActionResult> UploadImage(Guid id, IFormFile file, CancellationToken cancellationToken)
+    {
+        if (file == null || file.Length == 0)
+            return HandleBadRequest("No file provided");
+
+        var allowedExtensions = new[] { ".jpg", ".jpeg", ".png", ".gif", ".webp" };
+        var ext = Path.GetExtension(file.FileName).ToLowerInvariant();
+        if (!allowedExtensions.Contains(ext))
+            return HandleBadRequest($"Invalid file type. Allowed: {string.Join(", ", allowedExtensions)}");
+
+        if (file.Length > 5 * 1024 * 1024)
+            return HandleBadRequest("File size must be less than 5MB");
+
+        await using var stream = file.OpenReadStream();
+        var url = await _fileService.SaveFileAsync(stream, file.FileName, "products", cancellationToken);
+
+        var result = await _productService.AddImageAsync(id, url, file.FileName, 0, cancellationToken);
+        if (result.IsFailure)
+            return HandleBadRequest(result.Error ?? "Failed to save image");
 
         return HandleSuccess(result.Value);
     }
