@@ -42,7 +42,7 @@ public class ProductRepository : IProductRepository
 
     public async Task UpdateAsync(Product entity, CancellationToken cancellationToken = default)
     {
-        _context.Products.Update(entity);
+        _context.Entry(entity).State = EntityState.Modified;
         await _context.SaveChangesAsync(cancellationToken);
     }
 
@@ -60,7 +60,7 @@ public class ProductRepository : IProductRepository
             _context.ProductImages.Add(newImage);
         }
 
-        _context.Products.Update(product);
+        _context.Entry(product).State = EntityState.Modified;
         await _context.SaveChangesAsync(cancellationToken);
     }
 
