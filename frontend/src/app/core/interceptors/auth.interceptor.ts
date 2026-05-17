@@ -5,6 +5,8 @@ import { AuthService } from '../services/auth.service';
 import { catchError, throwError } from 'rxjs';
 
 export const authInterceptor: HttpInterceptorFn = (req, next) => {
+  const router = inject(Router);
+  const authService = inject(AuthService);
   const excludedUrls = ['/auth/login', '/auth/register', '/auth/refresh-token'];
   const isExcluded = excludedUrls.some(url => req.url.includes(url));
 
@@ -12,12 +14,11 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
     return next(req);
   }
 
-  const authService = inject(AuthService);
   const token = authService.getStoredToken();
 
   if (!token) {
     return next(req).pipe(
-      catchError((error: HttpErrorResponse) => handleHttpError(error))
+      catchError((error: HttpErrorResponse) => handleHttpError(error, router, authService))
     );
   }
 
@@ -28,14 +29,11 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
   });
 
   return next(authReq).pipe(
-    catchError((error: HttpErrorResponse) => handleHttpError(error))
+    catchError((error: HttpErrorResponse) => handleHttpError(error, router, authService))
   );
 };
 
-function handleHttpError(error: HttpErrorResponse) {
-  const router = inject(Router);
-  const authService = inject(AuthService);
-
+function handleHttpError(error: HttpErrorResponse, router: Router, authService: AuthService) {
   if (error.status === 401) {
     authService.logout();
     const currentUrl = router.url;

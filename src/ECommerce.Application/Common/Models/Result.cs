@@ -1,3 +1,5 @@
+using System.Text.Json.Serialization;
+
 namespace ECommerce.Application.Common.Models;
 
 public class Result<T>
@@ -7,6 +9,9 @@ public class Result<T>
     public string? Error { get; }
     public string? ErrorCode { get; }
     public bool IsFailure => !IsSuccess;
+
+    [JsonConstructor]
+    protected Result() { }
 
     protected Result(bool isSuccess, T? value, string? error, string? errorCode)
     {
@@ -26,6 +31,9 @@ public class Result
     public string? Error { get; }
     public string? ErrorCode { get; }
     public bool IsFailure => !IsSuccess;
+
+    [JsonConstructor]
+    protected Result() { }
 
     protected Result(bool isSuccess, string? error, string? errorCode)
     {
