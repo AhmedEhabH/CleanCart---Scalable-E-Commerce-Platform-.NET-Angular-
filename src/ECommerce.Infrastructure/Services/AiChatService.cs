@@ -1,5 +1,4 @@
 using System.Net.Http.Json;
-using System.Text;
 using System.Text.Json;
 using ECommerce.Application.Common.Interfaces;
 using Microsoft.Extensions.Configuration;
@@ -47,12 +46,12 @@ public class AiChatService : IAiService
     {
         try
         {
-            var provider = _configuration["Ai:Provider"]?.ToLowerInvariant() ?? "generic";
+            var provider = _configuration["Ai:Provider"]?.ToLowerInvariant() ?? "gemini";
             var apiKey = _configuration["Ai:ApiKey"];
 
             if (string.IsNullOrEmpty(apiKey))
             {
-                _logger.LogWarning("AI API key not configured. Returning fallback message.");
+                _logger.LogWarning("AI API key not configured. Set Ai:ApiKey in appsettings.json. Returning fallback message.");
                 return FallbackMessage;
             }
 
@@ -61,11 +60,13 @@ public class AiChatService : IAiService
             {
                 endpoint = provider switch
                 {
-                    "gemini" => "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent",
+                    "gemini" => "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent",
                     "openai" => "https://api.openai.com/v1/chat/completions",
                     _ => throw new InvalidOperationException($"Unknown AI provider: {provider}")
                 };
             }
+
+            _logger.LogInformation("Sending AI request to provider: {Provider}, endpoint: {Endpoint}", provider, endpoint);
 
             _httpClient.Timeout = TimeSpan.FromSeconds(30);
 
@@ -78,19 +79,19 @@ public class AiChatService : IAiService
 
             return response ?? FallbackMessage;
         }
-        catch (TaskCanceledException ex) when (ex.InnerException is TimeoutException)
+        catch (TaskCanceledException ex)
         {
-            _logger.LogWarning(ex, "AI request timed out");
+            _logger.LogError(ex, "AI Shopping Assistant API call timed out after 30 seconds");
             return "The request took too long to process. Please try again with a shorter message.";
         }
         catch (HttpRequestException ex)
         {
-            _logger.LogWarning(ex, "AI service HTTP error");
+            _logger.LogError(ex, "AI Shopping Assistant API HTTP error: {StatusCode}, {Message}", ex.StatusCode, ex.Message);
             return FallbackMessage;
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Unexpected error in AI service");
+            _logger.LogError(ex, "AI Shopping Assistant API call failed uniquely.");
             return FallbackMessage;
         }
     }
@@ -115,21 +116,53 @@ public class AiChatService : IAiService
             systemInstruction = systemInstruction != null ? new { parts = new[] { new { text = systemInstruction.Content } } } : null
         };
 
-        var response = await _httpClient.PostAsJsonAsync(url, requestBody, cancellationToken);
-        response.EnsureSuccessStatusCode();
+        _logger.LogDebug("Gemini request body: {RequestBody}", JsonSerializer.Serialize(requestBody));
 
-        var json = await response.Content.ReadFromJsonAsync<JsonElement>(cancellationToken);
-        if (json.TryGetProperty("candidates", out var candidates) && candidates.GetArrayLength() > 0)
+        var response = await _httpClient.PostAsJsonAsync(url, requestBody, cancellationToken);
+
+        if (!response.IsSuccessStatusCode)
         {
-            var candidate = candidates[0];
-            if (candidate.TryGetProperty("content", out var content) &&
-                content.TryGetProperty("parts", out var parts) && parts.GetArrayLength() > 0)
-            {
-                return parts[0].GetProperty("text").GetString();
-            }
+            var errorContent = await response.Content.ReadAsStringAsync(cancellationToken);
+            _logger.LogError("Gemini API returned status {StatusCode}: {ErrorContent}", response.StatusCode, errorContent);
+            response.EnsureSuccessStatusCode();
         }
 
-        return null;
+        var rawContent = await response.Content.ReadAsStringAsync(cancellationToken);
+        _logger.LogDebug("Gemini raw response: {Response}", rawContent);
+
+        JsonElement json;
+        try
+        {
+            json = JsonDocument.Parse(rawContent).RootElement;
+        }
+        catch (JsonException ex)
+        {
+            _logger.LogError(ex, "Failed to parse Gemini API response as JSON. Raw content: {RawContent}", rawContent);
+            return null;
+        }
+
+        if (!json.TryGetProperty("candidates", out var candidates) || candidates.GetArrayLength() == 0)
+        {
+            _logger.LogWarning("Gemini API response contains no candidates. Full response: {Response}", rawContent);
+            return null;
+        }
+
+        var candidate = candidates[0];
+
+        if (!candidate.TryGetProperty("content", out var content))
+        {
+            _logger.LogWarning("Gemini candidate has no content property. Candidate: {Candidate}", candidate.GetRawText());
+            return null;
+        }
+
+        if (!content.TryGetProperty("parts", out var parts) || parts.GetArrayLength() == 0)
+        {
+            _logger.LogWarning("Gemini content has no parts. Content: {Content}", content.GetRawText());
+            return null;
+        }
+
+        var textProperty = parts[0].GetProperty("text");
+        return textProperty.GetString();
     }
 
     private async Task<string?> SendOpenAiRequestAsync(string endpoint, string apiKey, List<ChatMessage> messages, CancellationToken cancellationToken)
@@ -145,15 +178,47 @@ public class AiChatService : IAiService
         };
 
         var response = await _httpClient.PostAsJsonAsync(endpoint, requestBody, cancellationToken);
-        response.EnsureSuccessStatusCode();
 
-        var json = await response.Content.ReadFromJsonAsync<JsonElement>(cancellationToken);
-        if (json.TryGetProperty("choices", out var choices) && choices.GetArrayLength() > 0)
+        if (!response.IsSuccessStatusCode)
         {
-            return choices[0].GetProperty("message").GetProperty("content").GetString();
+            var errorContent = await response.Content.ReadAsStringAsync(cancellationToken);
+            _logger.LogError("OpenAI API returned status {StatusCode}: {ErrorContent}", response.StatusCode, errorContent);
+            response.EnsureSuccessStatusCode();
         }
 
-        return null;
+        var rawContent = await response.Content.ReadAsStringAsync(cancellationToken);
+
+        JsonElement json;
+        try
+        {
+            json = JsonDocument.Parse(rawContent).RootElement;
+        }
+        catch (JsonException ex)
+        {
+            _logger.LogError(ex, "Failed to parse OpenAI API response as JSON");
+            return null;
+        }
+
+        if (!json.TryGetProperty("choices", out var choices) || choices.GetArrayLength() == 0)
+        {
+            _logger.LogWarning("OpenAI API response contains no choices");
+            return null;
+        }
+
+        var choice = choices[0];
+        if (!choice.TryGetProperty("message", out var message))
+        {
+            _logger.LogWarning("OpenAI choice has no message property");
+            return null;
+        }
+
+        if (!message.TryGetProperty("content", out var content))
+        {
+            _logger.LogWarning("OpenAI message has no content property");
+            return null;
+        }
+
+        return content.GetString();
     }
 
     private async Task<string?> SendGenericRequestAsync(string endpoint, string apiKey, List<ChatMessage> messages, CancellationToken cancellationToken)
@@ -168,10 +233,15 @@ public class AiChatService : IAiService
         _httpClient.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", apiKey);
 
         var response = await _httpClient.PostAsJsonAsync(endpoint, requestBody, cancellationToken);
-        response.EnsureSuccessStatusCode();
 
-        var content = await response.Content.ReadAsStringAsync(cancellationToken);
-        return content;
+        if (!response.IsSuccessStatusCode)
+        {
+            var errorContent = await response.Content.ReadAsStringAsync(cancellationToken);
+            _logger.LogError("Generic AI API returned status {StatusCode}: {ErrorContent}", response.StatusCode, errorContent);
+            response.EnsureSuccessStatusCode();
+        }
+
+        return await response.Content.ReadAsStringAsync(cancellationToken);
     }
 
     private static string GetDefaultSystemPrompt() =>
