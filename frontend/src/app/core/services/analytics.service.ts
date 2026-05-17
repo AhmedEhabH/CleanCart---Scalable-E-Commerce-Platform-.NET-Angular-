@@ -13,7 +13,8 @@ export class AnalyticsService {
   private readonly baseUrl = environment.apiBaseUrl;
 
   getAnalytics(year: number = new Date().getFullYear()): Observable<ApiResponse<AnalyticsData>> {
-    return this.http.get<ApiResponse<AnalyticsData>>(`${this.baseUrl}/analytics`, { params: { year: year.toString() } });
+    const params = new HttpParams().set('year', year.toString());
+    return this.http.get<ApiResponse<AnalyticsData>>(`${this.baseUrl}/analytics`, { params });
   }
 
   getSummary(): Observable<ApiResponse<AnalyticsSummary>> {

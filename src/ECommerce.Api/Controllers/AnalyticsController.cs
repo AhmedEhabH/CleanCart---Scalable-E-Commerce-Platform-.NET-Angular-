@@ -19,9 +19,10 @@ public class AnalyticsController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<IActionResult> GetAll([FromQuery] int year = 2026, CancellationToken cancellationToken = default)
+    public async Task<IActionResult> GetAll([FromQuery] int? year = null, CancellationToken cancellationToken = default)
     {
-        var analytics = await _analyticsService.GetAnalyticsAsync(cancellationToken);
+        int targetYear = year ?? DateTime.UtcNow.Year;
+        var analytics = await _analyticsService.GetAnalyticsAsync(targetYear, cancellationToken);
         return Ok(ApiResponse<AnalyticsDto>.SuccessResponse(analytics));
     }
 

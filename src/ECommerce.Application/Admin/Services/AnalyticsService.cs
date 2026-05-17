@@ -17,11 +17,11 @@ public class AnalyticsService : IAnalyticsService
         _userService = userService;
     }
 
-    public async Task<AnalyticsDto> GetAnalyticsAsync(CancellationToken cancellationToken = default)
+    public async Task<AnalyticsDto> GetAnalyticsAsync(int year, CancellationToken cancellationToken = default)
     {
         var summary = await GetSummaryAsync(cancellationToken);
         var topProducts = await GetTopProductsAsync(5, cancellationToken);
-        var salesTrend = await GetSalesTrendAsync(DateTime.UtcNow.Year, cancellationToken);
+        var salesTrend = await GetSalesTrendAsync(year, cancellationToken);
 
         return new AnalyticsDto(summary, topProducts, salesTrend);
     }
