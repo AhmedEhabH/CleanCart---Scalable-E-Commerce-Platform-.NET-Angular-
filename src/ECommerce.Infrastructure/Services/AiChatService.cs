@@ -47,15 +47,15 @@ public class AiChatService : IAiService
         try
         {
             var provider = _configuration["Ai:Provider"]?.ToLowerInvariant() ?? "gemini";
-            var apiKey = _configuration["Ai:ApiKey"];
+            var apiKey = _configuration["Gemini:ApiKey"] ?? _configuration["Ai:ApiKey"];
 
             if (string.IsNullOrEmpty(apiKey))
             {
-                _logger.LogWarning("AI API key not configured. Set Ai:ApiKey in appsettings.json. Returning fallback message.");
+                _logger.LogWarning("AI API key not configured. Set Gemini:ApiKey in appsettings.json. Returning fallback message.");
                 return FallbackMessage;
             }
 
-            var endpoint = _configuration["Ai:Endpoint"];
+            var endpoint = _configuration["Gemini:Endpoint"];
             if (string.IsNullOrEmpty(endpoint))
             {
                 endpoint = provider switch
@@ -66,13 +66,14 @@ public class AiChatService : IAiService
                 };
             }
 
-            _logger.LogInformation("Sending AI request to provider: {Provider}, endpoint: {Endpoint}", provider, endpoint);
+            var requestUrl = $"{endpoint}?key={apiKey}";
+            _logger.LogInformation("Sending AI request to provider: {Provider}, url: {Url}", provider, requestUrl);
 
             _httpClient.Timeout = TimeSpan.FromSeconds(30);
 
             var response = provider switch
             {
-                "gemini" => await SendGeminiRequestAsync(endpoint, apiKey, messages, cancellationToken),
+                "gemini" => await SendGeminiRequestAsync(requestUrl, messages, cancellationToken),
                 "openai" => await SendOpenAiRequestAsync(endpoint, apiKey, messages, cancellationToken),
                 _ => await SendGenericRequestAsync(endpoint, apiKey, messages, cancellationToken)
             };
@@ -96,29 +97,58 @@ public class AiChatService : IAiService
         }
     }
 
-    private async Task<string?> SendGeminiRequestAsync(string endpoint, string apiKey, List<ChatMessage> messages, CancellationToken cancellationToken)
+    private async Task<string?> SendGeminiRequestAsync(string requestUrl, List<ChatMessage> messages, CancellationToken cancellationToken)
     {
-        var url = $"{endpoint}?key={apiKey}";
+        var userMessages = messages.Where(m => m.Role != "system").ToList();
+        var systemMessage = messages.FirstOrDefault(m => m.Role == "system");
 
-        var contents = messages
-            .Where(m => m.Role != "system")
-            .Select(m => new
-            {
-                role = m.Role == "assistant" ? "model" : "user",
-                parts = new[] { new { text = m.Content } }
-            })
-            .ToList();
+        var userContent = userMessages.Select(m => m.Content);
+        var fullPrompt = string.Join("\n", userContent);
 
-        var systemInstruction = messages.FirstOrDefault(m => m.Role == "system");
-        var requestBody = new
+        object payload;
+        if (systemMessage != null)
         {
-            contents,
-            systemInstruction = systemInstruction != null ? new { parts = new[] { new { text = systemInstruction.Content } } } : null
-        };
+            payload = new
+            {
+                contents = new[]
+                {
+                    new
+                    {
+                        parts = new[]
+                        {
+                            new { text = fullPrompt }
+                        }
+                    }
+                },
+                systemInstruction = new
+                {
+                    parts = new[]
+                    {
+                        new { text = systemMessage.Content }
+                    }
+                }
+            };
+        }
+        else
+        {
+            payload = new
+            {
+                contents = new[]
+                {
+                    new
+                    {
+                        parts = new[]
+                        {
+                            new { text = fullPrompt }
+                        }
+                    }
+                }
+            };
+        }
 
-        _logger.LogDebug("Gemini request body: {RequestBody}", JsonSerializer.Serialize(requestBody));
+        _logger.LogDebug("Gemini request body: {RequestBody}", JsonSerializer.Serialize(payload));
 
-        var response = await _httpClient.PostAsJsonAsync(url, requestBody, cancellationToken);
+        var response = await _httpClient.PostAsJsonAsync(requestUrl, payload, cancellationToken);
 
         if (!response.IsSuccessStatusCode)
         {
@@ -155,13 +185,13 @@ public class AiChatService : IAiService
             return null;
         }
 
-        if (!content.TryGetProperty("parts", out var parts) || parts.GetArrayLength() == 0)
+        if (!content.TryGetProperty("parts", out var responseParts) || responseParts.GetArrayLength() == 0)
         {
             _logger.LogWarning("Gemini content has no parts. Content: {Content}", content.GetRawText());
             return null;
         }
 
-        var textProperty = parts[0].GetProperty("text");
+        var textProperty = responseParts[0].GetProperty("text");
         return textProperty.GetString();
     }
 

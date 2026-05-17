@@ -78,7 +78,7 @@ export class WishlistService {
 
   private loadFromStorage(): void {
     const ids = this.getStoredIds();
-    if (ids.length === 0) {
+    if (!ids || ids.length === 0) {
       this.wishlistStateSubject.next({ items: [], loading: false });
       return;
     }
@@ -96,11 +96,11 @@ export class WishlistService {
   }
 
   private fetchProductsByIds(ids: string[]): Observable<Product[]> {
-    if (ids.length === 0) {
+    if (!ids || ids.length === 0) {
       return of([]);
     }
 
-    return this.http.post<ApiResponse<Product[]>>(`${this.baseUrl}/products/by-ids`, { ids }).pipe(
+    return this.http.post<ApiResponse<Product[]>>(`${this.baseUrl}/products/by-ids`, ids).pipe(
       map(response => response.data || []),
       catchError(() => of([] as Product[]))
     );
