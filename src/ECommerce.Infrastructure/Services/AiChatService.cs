@@ -61,7 +61,7 @@ public class AiChatService : IAiService
             {
                 endpoint = provider switch
                 {
-                    "gemini" => "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent",
+                    "gemini" => "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent",
                     "openai" => "https://api.openai.com/v1/chat/completions",
                     _ => throw new InvalidOperationException($"Unknown AI provider: {provider}")
                 };
@@ -120,7 +120,7 @@ public class AiChatService : IAiService
             }
         };
 
-        if (systemMessage != null)
+        if (systemMessage != null && !string.IsNullOrEmpty(systemMessage.Content))
         {
             payload = new
             {
