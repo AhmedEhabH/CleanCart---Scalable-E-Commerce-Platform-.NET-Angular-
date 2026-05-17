@@ -2,6 +2,7 @@ using System.Net.Http.Json;
 using System.Text;
 using System.Text.Json;
 using ECommerce.Application.Common.Interfaces;
+using ECommerce.Domain.Interfaces;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 
@@ -12,15 +13,17 @@ public class AiChatService : IAiService
     private readonly HttpClient _httpClient;
     private readonly IConfiguration _configuration;
     private readonly ILogger<AiChatService> _logger;
+    private readonly IProductRepository _productRepository;
     private readonly string _systemPrompt;
 
     private const string FallbackMessage = "I'm currently experiencing technical difficulties. Please try again in a moment, or browse our products directly.";
 
-    public AiChatService(HttpClient httpClient, IConfiguration configuration, ILogger<AiChatService> logger)
+    public AiChatService(HttpClient httpClient, IConfiguration configuration, ILogger<AiChatService> logger, IProductRepository productRepository)
     {
         _httpClient = httpClient;
         _configuration = configuration;
         _logger = logger;
+        _productRepository = productRepository;
         _systemPrompt = _configuration["Ai:SystemPrompt"] ?? GetDefaultSystemPrompt();
     }
 
@@ -66,6 +69,14 @@ public class AiChatService : IAiService
                     _ => throw new InvalidOperationException($"Unknown AI provider: {provider}")
                 };
             }
+
+            var activeProducts = await _productRepository.GetActiveProductsAsync(cancellationToken: cancellationToken);
+            var productListText = string.Join("\n", activeProducts.Select(p => $"- {p.Name} (${p.Price}{(p.Category != null ? $", {p.Category.Name}" : "")})"));
+            var dynamicSystemPrompt = $"You are an expert shopping assistant for E-Shop. You must ONLY recommend products from the following catalog. If a user asks for something not in the catalog, apologize and say we don't have it.\n\nOur Current Catalog:\n{productListText}";
+
+            messages = messages
+                .Select(m => m.Role == "system" ? new ChatMessage("system", dynamicSystemPrompt) : m)
+                .ToList();
 
             var requestUrl = $"{endpoint}?key={apiKey}";
             _logger.LogInformation("Sending AI request to provider: {Provider}, url: {Url}", provider, requestUrl);

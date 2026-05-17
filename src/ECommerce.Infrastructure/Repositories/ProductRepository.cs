@@ -113,6 +113,16 @@ public class ProductRepository : IProductRepository
             .ToListAsync(cancellationToken);
     }
 
+    public async Task<IReadOnlyList<Product>> GetActiveProductsAsync(int topCount = 50, CancellationToken cancellationToken = default)
+    {
+        return await _context.Products
+            .Include(p => p.Category)
+            .Where(p => p.IsActive)
+            .OrderBy(p => p.Name)
+            .Take(topCount)
+            .ToListAsync(cancellationToken);
+    }
+
     public async Task<IReadOnlyList<Product>> SearchAsync(string searchTerm, CancellationToken cancellationToken = default)
     {
         var term = searchTerm.ToLowerInvariant();
