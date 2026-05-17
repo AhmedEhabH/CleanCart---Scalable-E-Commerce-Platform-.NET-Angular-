@@ -1,7 +1,8 @@
-import { Component, inject, signal, ElementRef, ViewChild, AfterViewInit } from '@angular/core';
+import { Component, inject, signal, ElementRef, ViewChild, AfterViewInit, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { AiChatService, ChatHistoryItem } from '../../services/ai-chat.service';
+import { AssistantFilter } from '../../services/shopping-assistant.service';
 
 interface ChatMessage {
   role: 'user' | 'assistant';
@@ -377,6 +378,9 @@ export class ShoppingAssistantComponent implements AfterViewInit {
   private aiChatService = inject(AiChatService);
   
   @ViewChild('chatContainer') private chatContainer!: ElementRef;
+
+  @Output() filtersChange = new EventEmitter<AssistantFilter>();
+  @Output() resetFilters = new EventEmitter<void>();
 
   isOpen = signal(false);
   messages = signal<ChatMessage[]>([]);
