@@ -1,6 +1,5 @@
 import { Component, inject, OnInit, signal, ViewChild } from '@angular/core';
 import { CommonModule, CurrencyPipe, DatePipe } from '@angular/common';
-import { RouterLink } from '@angular/router';
 import { BaseChartDirective } from 'ng2-charts';
 import { Chart, ChartConfiguration, ChartData, ChartType, registerables } from 'chart.js';
 import { AdminService, DashboardSummary } from '../../../core/services/admin.service';
@@ -12,7 +11,7 @@ import { AnalyticsSummary, TopProduct, SalesTrend } from '../../../core/models/a
 @Component({
   selector: 'app-admin-dashboard',
   standalone: true,
-  imports: [CommonModule, CurrencyPipe, DatePipe, RouterLink, BaseChartDirective],
+  imports: [CommonModule, CurrencyPipe, DatePipe, BaseChartDirective],
   template: `
     <div class="dashboard">
       <h1>Analytics Dashboard</h1>
@@ -57,7 +56,7 @@ import { AnalyticsSummary, TopProduct, SalesTrend } from '../../../core/models/a
         <div class="dashboard-sections">
           <section>
             <h2>Top Selling Products</h2>
-            @if (topProducts()?.length) {
+            @if (topProducts().length) {
               <table class="data-table">
                 <thead>
                   <tr><th>Product</th><th>Sold</th><th>Revenue</th></tr>
