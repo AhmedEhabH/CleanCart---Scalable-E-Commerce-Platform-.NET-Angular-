@@ -2,8 +2,10 @@ import { Component, inject, OnInit, signal, ViewChild } from '@angular/core';
 import { CommonModule, CurrencyPipe, DatePipe } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { BaseChartDirective } from 'ng2-charts';
-import { ChartConfiguration, ChartData, ChartType } from 'chart.js';
+import { Chart, ChartConfiguration, ChartData, ChartType, registerables } from 'chart.js';
 import { AdminService, DashboardSummary } from '../../../core/services/admin.service';
+
+Chart.register(...registerables);
 import { AnalyticsService } from '../../../core/services/analytics.service';
 import { AnalyticsSummary, TopProduct, SalesTrend } from '../../../core/models/analytics.model';
 
