@@ -30,7 +30,7 @@ builder.Services.Configure<Microsoft.AspNetCore.Mvc.ApiBehaviorOptions>(options 
         var errorDict = new Dictionary<string, List<string>>();
         foreach (var error in context.ModelState.Where(e => e.Value?.Errors.Count > 0))
         {
-            errorDict[error.Key] = error.Value!.Errors.Select(e => e.ErrorMessage).ToList();
+            errorDict[error.Key] = [.. error.Value!.Errors.Select(e => e.ErrorMessage)];
         }
         
         return new BadRequestObjectResult(new
