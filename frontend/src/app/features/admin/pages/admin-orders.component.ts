@@ -169,7 +169,12 @@ export class AdminOrdersComponent implements OnInit {
         this.loadOrders();
       },
       error: (err) => {
-        this.toastService.error(err.error?.message || 'Failed to update order status');
+        if (err.status === 400) {
+          this.toastService.error('Invalid status transition. Please follow the correct order lifecycle.');
+        } else {
+          this.toastService.error(err.error?.message || 'Failed to update order status');
+        }
+        select.value = previousStatus || '';
         this.updatingOrderId.set(null);
         this.loadOrders();
       }
