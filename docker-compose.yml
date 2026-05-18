@@ -55,5 +55,13 @@ services:
       RABBITMQ_DEFAULT_PASS: guest
     restart: unless-stopped
 
+  seq:
+    image: datalust/seq:latest
+    environment:
+      - ACCEPT_EULA=Y
+    ports:
+      - "5341:80"
+    restart: unless-stopped
+
 volumes:
   sql_data:

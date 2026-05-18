@@ -21,6 +21,8 @@ using ECommerce.Application.Consumers;
 using ECommerce.Api.Hubs;
 using ECommerce.Api.Services;
 using MassTransit;
+using OpenTelemetry.Resources;
+using OpenTelemetry.Trace;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -243,6 +245,16 @@ builder.Services.AddRateLimiter(options =>
                 QueueLimit = 0
             }));
 });
+
+builder.Services.AddOpenTelemetry()
+    .ConfigureResource(resource => resource.AddService("ECommerce.Api"))
+    .WithTracing(tracing => tracing
+        .AddAspNetCoreInstrumentation()
+        .AddHttpClientInstrumentation()
+        .AddSqlClientInstrumentation()
+        .AddSource("MassTransit")
+        .AddOtlpExporter(options => options.Endpoint = new Uri("http://localhost:5341/ingest/otlp/v1/traces"))
+    );
 
 var app = builder.Build();
 
