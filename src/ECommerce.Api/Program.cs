@@ -17,6 +17,7 @@ using Microsoft.OpenApi.Models;
 using System.Text;
 using System.Threading.RateLimiting;
 using Hangfire;
+using ECommerce.Application.Consumers;
 using MassTransit;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -144,6 +145,8 @@ builder.Services.AddCors(options =>
 
 builder.Services.AddMassTransit(x =>
 {
+    x.AddConsumer<OrderStatusChangedEventConsumer>();
+
     x.UsingRabbitMq((context, cfg) =>
     {
         cfg.Host("localhost", "/", h =>
