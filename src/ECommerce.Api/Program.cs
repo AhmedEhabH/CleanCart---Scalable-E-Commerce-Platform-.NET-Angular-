@@ -143,13 +143,15 @@ builder.Services.AddCors(options =>
     });
 });
 
+var rabbitHost = builder.Configuration["RabbitMq:Host"] ?? "localhost";
+
 builder.Services.AddMassTransit(x =>
 {
     x.AddConsumer<OrderStatusChangedEventConsumer>();
 
     x.UsingRabbitMq((context, cfg) =>
     {
-        cfg.Host("localhost", "/", h =>
+        cfg.Host(rabbitHost, "/", h =>
         {
             h.Username("guest");
             h.Password("guest");

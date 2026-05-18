@@ -14,9 +14,12 @@ services:
       - Jwt__Audience=ECommerceClient
       - Jwt__AccessTokenExpirationMinutes=60
       - Jwt__RefreshTokenExpirationDays=7
+      - RabbitMq__Host=rabbitmq
     depends_on:
       db:
         condition: service_healthy
+      rabbitmq:
+        condition: service_started
     restart: unless-stopped
 
   db:
