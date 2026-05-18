@@ -1,7 +1,9 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
+import { Component, inject, OnInit, OnDestroy, signal } from '@angular/core';
 import { CommonModule, CurrencyPipe, DatePipe } from '@angular/common';
+import { Subject, takeUntil } from 'rxjs';
 import { AdminService } from '../../../core/services/admin.service';
 import { ToastService } from '../../../shared/components/toast/toast.service';
+import { NotificationService } from '../../../core/services/notification.service';
 import { OrderDto } from '../../../core/models/order.model';
 
 const STATUS_TRANSITIONS: Record<string, string[]> = {
@@ -134,9 +136,11 @@ const STATUS_TRANSITIONS: Record<string, string[]> = {
     .updating { color: var(--text-secondary); font-size: 0.8rem; font-style: italic; }
   `]
 })
-export class AdminOrdersComponent implements OnInit {
+export class AdminOrdersComponent implements OnInit, OnDestroy {
   private adminService = inject(AdminService);
   private toastService = inject(ToastService);
+  private notificationService = inject(NotificationService);
+  private destroy$ = new Subject<void>();
 
   orders = signal<OrderDto[]>([]);
   loading = signal(true);
@@ -144,6 +148,26 @@ export class AdminOrdersComponent implements OnInit {
 
   ngOnInit(): void {
     this.loadOrders();
+
+    this.notificationService.orderStatusUpdates$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(update => {
+        this.orders.update(current => {
+          const index = current.findIndex(o => o.id === update.orderId);
+          if (index !== -1) {
+            const updated = [...current];
+            updated[index] = { ...updated[index], status: update.status };
+            return updated;
+          }
+          return current;
+        });
+        this.toastService.success(`Order ${update.orderId} updated to ${update.status}`);
+      });
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 
   getValidTransitions(currentStatus: string): string[] {
