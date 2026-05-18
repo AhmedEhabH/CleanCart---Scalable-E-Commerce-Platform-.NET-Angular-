@@ -1,3 +1,4 @@
+using Hangfire;
 using MassTransit;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.AspNetCore.TestHost;
@@ -14,9 +15,10 @@ public class ObservabilityTests
     {
         using var factory = new WebApplicationFactory<Program>().WithWebHostBuilder(builder =>
         {
-            builder.ConfigureTestServices(services =>
+            builder.UseEnvironment("Testing");
+            builder.ConfigureServices(services =>
             {
-                services.AddMassTransitTestHarness();
+                services.AddHangfire(config => config.UseInMemoryStorage());
             });
         });
 
