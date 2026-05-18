@@ -1,10 +1,11 @@
 using ECommerce.Application.Admin.Interfaces;
 using ECommerce.Application.Admin.Services;
 using ECommerce.Application.Auth.Interfaces;
+using ECommerce.Application.Common.Interfaces;
+using ECommerce.Application.Services;
 using ECommerce.Application.Cart.Interfaces;
 using ECommerce.Application.Categories.Interfaces;
 using ECommerce.Application.Categories.Services;
-using ECommerce.Application.Common.Interfaces;
 using ECommerce.Application.Orders.Interfaces;
 using ECommerce.Application.Payments.Interfaces;
 using ECommerce.Application.Payments.Services;
@@ -49,6 +50,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IPaymentService, PaymentService>();
         services.AddScoped<IReviewService, ReviewService>();
         services.AddScoped<IFileService, LocalFileService>();
+        services.AddScoped<ICartCleanupService, CartCleanupService>();
         services.AddHttpClient<IAiService, AiChatService>()
             .AddStandardResilienceHandler(options =>
             {
