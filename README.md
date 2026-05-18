@@ -79,6 +79,7 @@ This project demonstrates a complete e-commerce platform featuring a robust back
 - **Database:** SQL Server (local or Docker)
 - **Message Broker:** RabbitMQ (via Docker)
 - **Event Bus:** MassTransit for decoupled domain events
+- **Real-Time:** SignalR WebSockets for instant UI updates
 - **API Communication:** RESTful JSON over HTTPS
 - **Dependency Injection:** Built-in .NET Core and Angular DI
 - **Environment Management:** Environment-specific configuration files
