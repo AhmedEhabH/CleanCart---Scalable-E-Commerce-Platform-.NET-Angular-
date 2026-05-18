@@ -66,6 +66,7 @@ ECommerce.Api → ECommerce.Infrastructure → ECommerce.Application → ECommer
 - [x] Full order lifecycle (Pending → Confirmed → Processing → Shipped → Delivered → Cancelled → Refunded)
 - [x] State machine validation on status transitions
 - [x] Order history per user
+- [x] Hangfire fire-and-forget email notification on status transitions via `IEmailService`
 
 #### Payment
 - [x] Multiple payment methods (CreditCard, DebitCard, InstaPay, VodafoneCash, CashOnDelivery)
@@ -123,6 +124,10 @@ ECommerce.Api → ECommerce.Infrastructure → ECommerce.Application → ECommer
 - [x] Docker + Docker Compose
 - [x] GitHub Actions CI
 - [x] Database seeding with sample data
+
+#### Infrastructure
+- [x] `IEmailService` interface in Application layer with simulated `MailKitEmailService` (logs to console, no SMTP credentials yet)
+- [x] Scoped DI registration: `services.AddScoped<IEmailService, MailKitEmailService>()`
 
 #### Background Jobs (Hangfire)
 - [x] Hangfire.AspNetCore + Hangfire.SqlServer installed and configured
@@ -188,6 +193,15 @@ ECommerce.Api → ECommerce.Infrastructure → ECommerce.Application → ECommer
 - [x] Monthly sales trend line chart (ng2-charts / Chart.js)
 - [x] Top selling products table
 - [x] Recent orders table
+
+#### Admin Order Management
+- [x] Dedicated `/admin/orders` page accessible via sidebar navigation
+- [x] Data table displaying all orders (Order#, Customer Email, Items, Total, Status, Date)
+- [x] Status badge with colour-coded styling for each order status
+- [x] Dropdown select with valid status transitions per backend state machine
+- [x] Confirmation dialog before applying status changes
+- [x] Loading state during table fetch; updating indicator per row during status change
+- [x] Toast notifications for success/error feedback on status updates
 
 #### Admin Product Management
 - [x] Products table with edit/delete
