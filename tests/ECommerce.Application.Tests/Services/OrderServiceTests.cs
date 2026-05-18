@@ -1,9 +1,13 @@
 using ECommerce.Application.Cart.Interfaces;
 using ECommerce.Application.Orders.DTOs;
 using ECommerce.Domain.Entities;
+using ECommerce.Domain.Enums;
 using ECommerce.Infrastructure.Data;
 using ECommerce.Infrastructure.Services;
 using FluentAssertions;
+using Hangfire;
+using Hangfire.Common;
+using Hangfire.States;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Moq;
@@ -17,6 +21,7 @@ public class OrderServiceTests : IDisposable
 {
     private readonly ApplicationDbContext _context;
     private readonly Mock<ICartService> _mockCartService;
+    private readonly Mock<IBackgroundJobClient> _mockBackgroundJobClient;
     private readonly OrderService _sut;
 
     public OrderServiceTests()
@@ -28,7 +33,8 @@ public class OrderServiceTests : IDisposable
 
         _context = new ApplicationDbContext(options);
         _mockCartService = new Mock<ICartService>();
-        _sut = new OrderService(_context, _mockCartService.Object);
+        _mockBackgroundJobClient = new Mock<IBackgroundJobClient>();
+        _sut = new OrderService(_context, _mockCartService.Object, _mockBackgroundJobClient.Object);
     }
 
     public void Dispose()
@@ -232,6 +238,79 @@ public class OrderServiceTests : IDisposable
 
         result.IsSuccess.Should().BeTrue();
         result.Value.Should().BeEmpty();
+    }
+
+    #endregion
+
+    #region UpdateOrderStatusAsync Tests
+
+    [Fact]
+    public async Task UpdateOrderStatusAsync_ShouldUpdateStatusAndEnqueueEmail_WhenTransitionIsValid()
+    {
+        var user = User.Create("test@example.com", "hash", "Test", "User");
+        _context.Users.Add(user);
+        await _context.SaveChangesAsync();
+        var userId = user.Id;
+
+        var product = CreateProduct("Test Product", 50.00m, stockQuantity: 10);
+        _context.Products.Add(product);
+        await _context.SaveChangesAsync();
+
+        var cart = CartEntity.CreateForUser(userId);
+        var cartItem = cart.AddItem(product.Id, 2);
+        cartItem.SetUnitPrice(product.Price);
+        _context.Carts.Add(cart);
+        await _context.SaveChangesAsync();
+
+        var createResult = await _sut.CreateOrderAsync(userId, CreateOrderRequest());
+        var orderId = createResult.Value!.Id;
+
+        var result = await _sut.UpdateOrderStatusAsync(orderId, userId, OrderStatus.Confirmed);
+
+        result.IsSuccess.Should().BeTrue();
+        result.Value!.Status.Should().Be("Confirmed");
+        _mockBackgroundJobClient.Verify(
+            x => x.Create(It.IsAny<Job>(), It.IsAny<IState>()),
+            Times.Once);
+    }
+
+    [Fact]
+    public async Task UpdateOrderStatusAsync_ShouldReturnFailure_WhenOrderDoesNotExist()
+    {
+        var result = await _sut.UpdateOrderStatusAsync(Guid.NewGuid(), Guid.NewGuid(), OrderStatus.Confirmed);
+
+        result.IsFailure.Should().BeTrue();
+        result.Error.Should().Contain("Order not found");
+    }
+
+    [Fact]
+    public async Task UpdateOrderStatusAsync_ShouldReturnFailure_WhenTransitionIsInvalid()
+    {
+        var user = User.Create("test@example.com", "hash", "Test", "User");
+        _context.Users.Add(user);
+        await _context.SaveChangesAsync();
+        var userId = user.Id;
+
+        var product = CreateProduct("Test Product", 50.00m, stockQuantity: 10);
+        _context.Products.Add(product);
+        await _context.SaveChangesAsync();
+
+        var cart = CartEntity.CreateForUser(userId);
+        var cartItem = cart.AddItem(product.Id, 1);
+        cartItem.SetUnitPrice(product.Price);
+        _context.Carts.Add(cart);
+        await _context.SaveChangesAsync();
+
+        var createResult = await _sut.CreateOrderAsync(userId, CreateOrderRequest());
+        var orderId = createResult.Value!.Id;
+
+        var result = await _sut.UpdateOrderStatusAsync(orderId, userId, OrderStatus.Shipped);
+
+        result.IsFailure.Should().BeTrue();
+        result.Error.Should().Contain("Cannot transition");
+        _mockBackgroundJobClient.Verify(
+            x => x.Create(It.IsAny<Job>(), It.IsAny<IState>()),
+            Times.Never);
     }
 
     #endregion

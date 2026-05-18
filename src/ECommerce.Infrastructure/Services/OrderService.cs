@@ -4,7 +4,9 @@ using ECommerce.Application.Common.Models;
 using ECommerce.Application.Orders.DTOs;
 using ECommerce.Application.Orders.Interfaces;
 using ECommerce.Domain.Entities;
+using ECommerce.Domain.Enums;
 using ECommerce.Domain.ValueObjects;
+using Hangfire;
 using Microsoft.EntityFrameworkCore;
 using VOAddress = ECommerce.Domain.ValueObjects.Address;
 
@@ -14,11 +16,13 @@ public class OrderService : IOrderService
 {
     private readonly IApplicationDbContext _context;
     private readonly ICartService _cartService;
+    private readonly IBackgroundJobClient _backgroundJobClient;
 
-    public OrderService(IApplicationDbContext context, ICartService cartService)
+    public OrderService(IApplicationDbContext context, ICartService cartService, IBackgroundJobClient backgroundJobClient)
     {
         _context = context;
         _cartService = cartService;
+        _backgroundJobClient = backgroundJobClient;
     }
 
     public async Task<Result<OrderDto>> CreateOrderAsync(Guid userId, CreateOrderRequest request, CancellationToken cancellationToken = default)
@@ -158,6 +162,36 @@ public class OrderService : IOrderService
 
         var orderDtos = orders.Select(MapToOrderDto).ToList();
         return Result<IReadOnlyCollection<OrderDto>>.Success(orderDtos);
+    }
+
+    public async Task<Result<OrderDto>> UpdateOrderStatusAsync(Guid orderId, Guid userId, OrderStatus newStatus, CancellationToken cancellationToken = default)
+    {
+        var order = await _context.Orders
+            .Include(o => o.User)
+            .Include(o => o.Items)
+            .Include(o => o.Payment)
+            .FirstOrDefaultAsync(o => o.Id == orderId && o.UserId == userId, cancellationToken);
+
+        if (order == null)
+            return Result<OrderDto>.Failure("Order not found");
+
+        try
+        {
+            var previousStatus = order.Status;
+            order.UpdateStatus(newStatus);
+            await _context.SaveChangesAsync(cancellationToken);
+
+            var userEmail = order.User!.Email;
+            _backgroundJobClient.Enqueue<IEmailService>(emailService =>
+                emailService.SendEmailAsync(userEmail, "Order Status Update",
+                    $"Your order status is now {newStatus}", CancellationToken.None));
+
+            return Result<OrderDto>.Success(MapToOrderDto(order));
+        }
+        catch (InvalidOperationException ex)
+        {
+            return Result<OrderDto>.Failure(ex.Message);
+        }
     }
 
     private static OrderDto MapToOrderDto(Order order)
