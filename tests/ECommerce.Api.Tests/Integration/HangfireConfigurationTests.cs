@@ -1,21 +1,24 @@
 using Microsoft.AspNetCore.Mvc.Testing;
+using Microsoft.AspNetCore.TestHost;
+using Microsoft.Extensions.DependencyInjection;
+using Hangfire;
 using Xunit;
 
 namespace ECommerce.Api.Tests.Integration;
 
-public class HangfireConfigurationTests : IClassFixture<WebApplicationFactory<Program>>
+public class HangfireConfigurationTests
 {
-    private readonly WebApplicationFactory<Program> _factory;
-
-    public HangfireConfigurationTests(WebApplicationFactory<Program> factory)
-    {
-        _factory = factory;
-    }
-
     [Fact]
     public async Task HangfireDashboard_ShouldReturn401_ForUnauthenticatedRequest()
     {
-        var client = _factory.CreateClient();
+        var factory = new WebApplicationFactory<Program>().WithWebHostBuilder(builder =>
+        {
+            builder.ConfigureTestServices(services =>
+            {
+                services.AddHangfire(config => config.UseInMemoryStorage());
+            });
+        });
+        var client = factory.CreateClient();
 
         var response = await client.GetAsync("/hangfire");
 
