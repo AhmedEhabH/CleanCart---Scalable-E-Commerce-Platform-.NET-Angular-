@@ -20,6 +20,7 @@
 | **Message Broker** | RabbitMQ | 4.0 (management) |
 | **Event Bus** | MassTransit | 8.3.3 |
 | **Real-Time** | SignalR | — |
+| **Observability** | OpenTelemetry + Seq | OTLP |
 
 ### Architecture Style
 
@@ -312,6 +313,7 @@ All backend routes are prefixed with `/api` (e.g., `/api/products`, `/api/auth/l
 - **Background jobs**: Hangfire with SQL Server storage, daily cart cleanup recurring job.
 - **Event-driven architecture**: RabbitMQ + MassTransit for decoupling domain events (e.g., `OrderStatusChangedEvent` consumed by a background worker).
 - **Real-time updates**: SignalR WebSockets used to push real-time order status updates to the Angular client.
+- **Observability**: OpenTelemetry is configured to trace HTTP requests, EF Core SQL queries, and MassTransit events, exporting OTLP data to a local Seq container.
 - **No localization/i18n**: English-only UI.
 - **No PWA/offline support**: No service worker or offline caching.
 - **Wishlist is client-only**: Stored in localStorage, not synced to server.

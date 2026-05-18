@@ -80,6 +80,7 @@ This project demonstrates a complete e-commerce platform featuring a robust back
 - **Message Broker:** RabbitMQ (via Docker)
 - **Event Bus:** MassTransit for decoupled domain events
 - **Real-Time:** SignalR WebSockets for instant UI updates
+- **Observability:** OpenTelemetry tracing exported to Seq (view traces at `http://localhost:5341`)
 - **API Communication:** RESTful JSON over HTTPS
 - **Dependency Injection:** Built-in .NET Core and Angular DI
 - **Environment Management:** Environment-specific configuration files
