@@ -5,8 +5,9 @@ using ECommerce.Application.Orders.DTOs;
 using ECommerce.Application.Orders.Interfaces;
 using ECommerce.Domain.Entities;
 using ECommerce.Domain.Enums;
+using ECommerce.Domain.Events;
 using ECommerce.Domain.ValueObjects;
-using Hangfire;
+using MassTransit;
 using Microsoft.EntityFrameworkCore;
 using VOAddress = ECommerce.Domain.ValueObjects.Address;
 
@@ -16,13 +17,13 @@ public class OrderService : IOrderService
 {
     private readonly IApplicationDbContext _context;
     private readonly ICartService _cartService;
-    private readonly IBackgroundJobClient _backgroundJobClient;
+    private readonly IPublishEndpoint _publishEndpoint;
 
-    public OrderService(IApplicationDbContext context, ICartService cartService, IBackgroundJobClient backgroundJobClient)
+    public OrderService(IApplicationDbContext context, ICartService cartService, IPublishEndpoint publishEndpoint)
     {
         _context = context;
         _cartService = cartService;
-        _backgroundJobClient = backgroundJobClient;
+        _publishEndpoint = publishEndpoint;
     }
 
     public async Task<Result<OrderDto>> CreateOrderAsync(Guid userId, CreateOrderRequest request, CancellationToken cancellationToken = default)
@@ -177,14 +178,17 @@ public class OrderService : IOrderService
 
         try
         {
-            var previousStatus = order.Status;
+            var oldStatus = order.Status.ToString();
             order.UpdateStatus(newStatus);
             await _context.SaveChangesAsync(cancellationToken);
 
             var userEmail = order.User!.Email;
-            _backgroundJobClient.Enqueue<IEmailService>(emailService =>
-                emailService.SendEmailAsync(userEmail, "Order Status Update",
-                    $"Your order status is now {newStatus}", CancellationToken.None));
+            await _publishEndpoint.Publish(new OrderStatusChangedEvent(
+                order.Id,
+                oldStatus,
+                newStatus.ToString(),
+                userEmail
+            ), cancellationToken);
 
             return Result<OrderDto>.Success(MapToOrderDto(order));
         }
@@ -207,13 +211,17 @@ public class OrderService : IOrderService
 
         try
         {
+            var oldStatus = order.Status.ToString();
             order.UpdateStatus(newStatus);
             await _context.SaveChangesAsync(cancellationToken);
 
             var userEmail = order.User!.Email;
-            _backgroundJobClient.Enqueue<IEmailService>(emailService =>
-                emailService.SendEmailAsync(userEmail, "Order Status Update",
-                    $"Your order status is now {newStatus}", CancellationToken.None));
+            await _publishEndpoint.Publish(new OrderStatusChangedEvent(
+                order.Id,
+                oldStatus,
+                newStatus.ToString(),
+                userEmail
+            ), cancellationToken);
 
             return Result<OrderDto>.Success(MapToOrderDto(order));
         }

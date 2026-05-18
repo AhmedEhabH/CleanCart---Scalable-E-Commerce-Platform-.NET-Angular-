@@ -2,12 +2,11 @@ using ECommerce.Application.Cart.Interfaces;
 using ECommerce.Application.Orders.DTOs;
 using ECommerce.Domain.Entities;
 using ECommerce.Domain.Enums;
+using ECommerce.Domain.Events;
 using ECommerce.Infrastructure.Data;
 using ECommerce.Infrastructure.Services;
 using FluentAssertions;
-using Hangfire;
-using Hangfire.Common;
-using Hangfire.States;
+using MassTransit;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Moq;
@@ -21,7 +20,7 @@ public class OrderServiceTests : IDisposable
 {
     private readonly ApplicationDbContext _context;
     private readonly Mock<ICartService> _mockCartService;
-    private readonly Mock<IBackgroundJobClient> _mockBackgroundJobClient;
+    private readonly Mock<IPublishEndpoint> _mockPublishEndpoint;
     private readonly OrderService _sut;
 
     public OrderServiceTests()
@@ -33,8 +32,8 @@ public class OrderServiceTests : IDisposable
 
         _context = new ApplicationDbContext(options);
         _mockCartService = new Mock<ICartService>();
-        _mockBackgroundJobClient = new Mock<IBackgroundJobClient>();
-        _sut = new OrderService(_context, _mockCartService.Object, _mockBackgroundJobClient.Object);
+        _mockPublishEndpoint = new Mock<IPublishEndpoint>();
+        _sut = new OrderService(_context, _mockCartService.Object, _mockPublishEndpoint.Object);
     }
 
     public void Dispose()
@@ -245,7 +244,7 @@ public class OrderServiceTests : IDisposable
     #region UpdateOrderStatusAsync Tests
 
     [Fact]
-    public async Task UpdateOrderStatusAsync_ShouldUpdateStatusAndEnqueueEmail_WhenTransitionIsValid()
+    public async Task UpdateOrderStatusAsync_ShouldUpdateStatusAndPublishEvent_WhenTransitionIsValid()
     {
         var user = User.Create("test@example.com", "hash", "Test", "User");
         _context.Users.Add(user);
@@ -269,8 +268,12 @@ public class OrderServiceTests : IDisposable
 
         result.IsSuccess.Should().BeTrue();
         result.Value!.Status.Should().Be("Confirmed");
-        _mockBackgroundJobClient.Verify(
-            x => x.Create(It.IsAny<Job>(), It.IsAny<IState>()),
+        _mockPublishEndpoint.Verify(
+            x => x.Publish(It.Is<OrderStatusChangedEvent>(e =>
+                e.OrderId == orderId &&
+                e.OldStatus == "Pending" &&
+                e.NewStatus == "Confirmed" &&
+                e.CustomerEmail == "test@example.com"), default),
             Times.Once);
     }
 
@@ -308,8 +311,8 @@ public class OrderServiceTests : IDisposable
 
         result.IsFailure.Should().BeTrue();
         result.Error.Should().Contain("Cannot transition");
-        _mockBackgroundJobClient.Verify(
-            x => x.Create(It.IsAny<Job>(), It.IsAny<IState>()),
+        _mockPublishEndpoint.Verify(
+            x => x.Publish(It.IsAny<OrderStatusChangedEvent>(), default),
             Times.Never);
     }
 

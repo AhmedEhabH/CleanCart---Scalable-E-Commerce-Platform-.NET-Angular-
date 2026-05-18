@@ -5,7 +5,7 @@ using ECommerce.Application.Orders.Interfaces;
 using ECommerce.Domain.Entities;
 using ECommerce.Infrastructure.Data;
 using ECommerce.Infrastructure.Services;
-using Hangfire;
+using MassTransit;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Xunit;
@@ -32,8 +32,8 @@ public class OrderIntegrationTests
     {
         using var context = CreateContext();
         var mockCartService = new Mock<ICartService>();
-        var mockBackgroundJobClient = new Mock<IBackgroundJobClient>();
-        var orderService = new OrderService(context, mockCartService.Object, mockBackgroundJobClient.Object);
+        var mockPublishEndpoint = new Mock<IPublishEndpoint>();
+        var orderService = new OrderService(context, mockCartService.Object, mockPublishEndpoint.Object);
 
         var result = await orderService.CreateOrderAsync(TestUserId, CreateValidOrderRequest());
 
@@ -45,8 +45,8 @@ public class OrderIntegrationTests
     {
         using var context = CreateContext();
         var mockCartService = new Mock<ICartService>();
-        var mockBackgroundJobClient = new Mock<IBackgroundJobClient>();
-        var orderService = new OrderService(context, mockCartService.Object, mockBackgroundJobClient.Object);
+        var mockPublishEndpoint = new Mock<IPublishEndpoint>();
+        var orderService = new OrderService(context, mockCartService.Object, mockPublishEndpoint.Object);
 
         var result = await orderService.GetUserOrdersAsync(TestUserId);
 
@@ -59,8 +59,8 @@ public class OrderIntegrationTests
     {
         using var context = CreateContext();
         var mockCartService = new Mock<ICartService>();
-        var mockBackgroundJobClient = new Mock<IBackgroundJobClient>();
-        var orderService = new OrderService(context, mockCartService.Object, mockBackgroundJobClient.Object);
+        var mockPublishEndpoint = new Mock<IPublishEndpoint>();
+        var orderService = new OrderService(context, mockCartService.Object, mockPublishEndpoint.Object);
 
         var result = await orderService.GetOrderByIdAsync(Guid.NewGuid(), TestUserId);
 
