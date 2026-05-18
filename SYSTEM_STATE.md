@@ -19,6 +19,7 @@
 | **Containerization** | Docker / Docker Compose | — |
 | **Message Broker** | RabbitMQ | 4.0 (management) |
 | **Event Bus** | MassTransit | 8.3.3 |
+| **Real-Time** | SignalR | — |
 
 ### Architecture Style
 
@@ -310,7 +311,7 @@ All backend routes are prefixed with `/api` (e.g., `/api/products`, `/api/auth/l
 - **Single cache tier**: Redis is used for caching but not for session state or real-time features.
 - **Background jobs**: Hangfire with SQL Server storage, daily cart cleanup recurring job.
 - **Event-driven architecture**: RabbitMQ + MassTransit for decoupling domain events (e.g., `OrderStatusChangedEvent` consumed by a background worker).
-- **No WebSocket/SignalR**: No real-time updates (e.g., order status push).
+- **Real-time updates**: SignalR WebSockets used to push real-time order status updates to the Angular client.
 - **No localization/i18n**: English-only UI.
 - **No PWA/offline support**: No service worker or offline caching.
 - **Wishlist is client-only**: Stored in localStorage, not synced to server.
