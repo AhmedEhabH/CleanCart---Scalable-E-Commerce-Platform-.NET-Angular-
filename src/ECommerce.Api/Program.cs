@@ -104,8 +104,15 @@ builder.Services.AddDatabaseContext(builder.Configuration);
 
 builder.Services.AddApplicationServices(builder.Configuration);
 
-builder.Services.AddHangfire(config =>
-    config.UseSqlServerStorage(builder.Configuration.GetConnectionString("DefaultConnection")));
+if (builder.Environment.IsEnvironment("Testing"))
+{
+    builder.Services.AddHangfire(config => config.UseInMemoryStorage());
+}
+else
+{
+    builder.Services.AddHangfire(config =>
+        config.UseSqlServerStorage(builder.Configuration.GetConnectionString("DefaultConnection")));
+}
 
 builder.Services.AddHangfireServer();
 
@@ -265,8 +272,9 @@ builder.Services.AddOpenTelemetry()
 
 var app = builder.Build();
 
-using (var scope = app.Services.CreateScope())
+if (!app.Environment.IsEnvironment("Testing"))
 {
+    using var scope = app.Services.CreateScope();
     var recurringJobManager = scope.ServiceProvider.GetRequiredService<IRecurringJobManager>();
     recurringJobManager.AddOrUpdate<ICartCleanupService>(
         "cart-cleanup",
@@ -314,8 +322,9 @@ app.MapHealthChecks("/health/ready", new Microsoft.AspNetCore.Diagnostics.Health
 
 app.MapHub<NotificationHub>("/hubs/notifications");
 
-using (var scope = app.Services.CreateScope())
+if (!app.Environment.IsEnvironment("Testing"))
 {
+    using var scope = app.Services.CreateScope();
     var logger = scope.ServiceProvider.GetRequiredService<ILogger<Program>>();
     var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
 
