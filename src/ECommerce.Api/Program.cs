@@ -253,7 +253,14 @@ builder.Services.AddOpenTelemetry()
         .AddHttpClientInstrumentation()
         .AddSqlClientInstrumentation()
         .AddSource("MassTransit")
-        .AddOtlpExporter(options => options.Endpoint = new Uri("http://localhost:5341/ingest/otlp/v1/traces"))
+        .AddOtlpExporter(options => 
+   {
+       var isDocker = Environment.GetEnvironmentVariable("DOTNET_RUNNING_IN_CONTAINER") == "true";
+       var seqHost = isDocker ? "seq" : "localhost";
+       
+       options.Endpoint = new Uri($"http://{seqHost}:5341/ingest/otlp/v1/traces");
+       options.Protocol = OpenTelemetry.Exporter.OtlpExportProtocol.HttpProtobuf;
+   })
     );
 
 var app = builder.Build();

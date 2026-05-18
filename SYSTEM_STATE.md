@@ -20,7 +20,7 @@
 | **Message Broker** | RabbitMQ | 4.0 (management) |
 | **Event Bus** | MassTransit | 8.3.3 |
 | **Real-Time** | SignalR | — |
-| **Observability** | OpenTelemetry + Seq | OTLP |
+| **Observability** | OpenTelemetry + Seq | OTLP | (Note: OTLP exporter dynamically routes to the seq Docker hostname using HttpProtobuf). |
 
 ### Architecture Style
 
