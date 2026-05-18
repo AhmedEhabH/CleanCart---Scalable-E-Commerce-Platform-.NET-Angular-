@@ -17,6 +17,8 @@
 | **Testing** | Vitest (frontend) / xUnit (backend) | — |
 | **CI/CD** | GitHub Actions | — |
 | **Containerization** | Docker / Docker Compose | — |
+| **Message Broker** | RabbitMQ | 4.0 (management) |
+| **Event Bus** | MassTransit | 8.3.3 |
 
 ### Architecture Style
 
@@ -307,7 +309,7 @@ All backend routes are prefixed with `/api` (e.g., `/api/products`, `/api/auth/l
 - **No API Gateway**: The frontend communicates directly with the backend API. No BFF or gateway layer.
 - **Single cache tier**: Redis is used for caching but not for session state or real-time features.
 - **Background jobs**: Hangfire with SQL Server storage, daily cart cleanup recurring job.
-- **No event bus**: No message queue (RabbitMQ, Azure Service Bus) for domain events.
+- **Event-driven architecture**: RabbitMQ + MassTransit for decoupling domain events (e.g., `OrderStatusChangedEvent` consumed by a background worker).
 - **No WebSocket/SignalR**: No real-time updates (e.g., order status push).
 - **No localization/i18n**: English-only UI.
 - **No PWA/offline support**: No service worker or offline caching.
