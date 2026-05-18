@@ -26,5 +26,7 @@ public sealed class OrderStatusChangedEventConsumer(
         await notificationService.SendUserNotificationAsync(
             @event.CustomerEmail,
             $"Your order {@event.OrderId} status is now {@event.NewStatus}!");
+
+        await notificationService.BroadcastOrderStatusAsync(@event.OrderId, @event.NewStatus);
     }
 }

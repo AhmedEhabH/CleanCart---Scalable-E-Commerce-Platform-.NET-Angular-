@@ -11,4 +11,9 @@ public sealed class SignalRNotificationService(IHubContext<NotificationHub> hubC
     {
         await hubContext.Clients.User(userEmail).SendAsync("ReceiveNotification", message);
     }
+
+    public async Task BroadcastOrderStatusAsync(Guid orderId, string newStatus)
+    {
+        await hubContext.Clients.All.SendAsync("OrderStatusUpdated", orderId, newStatus);
+    }
 }
