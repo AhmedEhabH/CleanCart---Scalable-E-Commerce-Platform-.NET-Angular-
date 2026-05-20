@@ -1,3 +1,5 @@
+using ECommerce.Application.Wishlist.Interfaces;
+using ECommerce.Application.Wishlist.Services;
 using ECommerce.Application.Admin.Interfaces;
 using ECommerce.Application.Admin.Services;
 using ECommerce.Application.Auth.Interfaces;
@@ -52,6 +54,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IFileService, LocalFileService>();
         services.AddScoped<IEmailService, MailKitEmailService>();
         services.AddScoped<ICartCleanupService, CartCleanupService>();
+        services.AddScoped<IWishlistService, WishlistService>();
         services.AddHttpClient<IAiService, AiChatService>()
             .AddStandardResilienceHandler(options =>
             {
