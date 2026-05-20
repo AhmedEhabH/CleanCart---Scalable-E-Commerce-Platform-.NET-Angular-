@@ -7,5 +7,5 @@ public interface IWishlistService
 {
     Task<Result<List<WishlistItemDto>>> GetUserWishlistAsync(Guid userId, CancellationToken cancellationToken = default);
     Task<Result<bool>> ToggleWishlistItemAsync(Guid userId, Guid productId, CancellationToken cancellationToken = default);
-    Task<Result<List<WishlistItemDto>>> SyncWishlistAsync(Guid userId, List<Guid> localProductIds, CancellationToken cancellationToken = default);
+    Task<Result<List<WishlistItemDto>>> SyncWishlistAsync(Guid userId, List<Guid>? localProductIds, CancellationToken cancellationToken = default);
 }
