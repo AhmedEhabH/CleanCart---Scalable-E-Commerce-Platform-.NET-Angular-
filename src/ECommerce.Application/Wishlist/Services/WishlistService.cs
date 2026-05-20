@@ -2,6 +2,7 @@ using ECommerce.Application.Common.Interfaces;
 using ECommerce.Application.Common.Models;
 using ECommerce.Application.Wishlist.DTOs;
 using ECommerce.Application.Wishlist.Interfaces;
+using Microsoft.Extensions.Logging;
 using Microsoft.EntityFrameworkCore;
 
 namespace ECommerce.Application.Wishlist.Services;
@@ -9,108 +10,168 @@ namespace ECommerce.Application.Wishlist.Services;
 public class WishlistService : IWishlistService
 {
     private readonly IApplicationDbContext _context;
+    private readonly ILogger<WishlistService> _logger;
 
-    public WishlistService(IApplicationDbContext context)
+    public WishlistService(IApplicationDbContext context, ILogger<WishlistService> logger)
     {
         _context = context;
+        _logger = logger;
     }
 
     public async Task<Result<List<WishlistItemDto>>> GetUserWishlistAsync(Guid userId, CancellationToken cancellationToken = default)
     {
-        var wishlist = await _context.Wishlists
-            .Include(w => w.Items)
-                .ThenInclude(i => i.Product)
-                    .ThenInclude(p => p!.Images)
-            .FirstOrDefaultAsync(w => w.UserId == userId, cancellationToken);
-
-        if (wishlist == null)
+        try
         {
-            wishlist = Domain.Entities.Wishlist.Create(userId);
-            _context.Wishlists.Add(wishlist);
-            await _context.SaveChangesAsync(cancellationToken);
+            var wishlist = await _context.Wishlists
+                .Include(w => w.Items)
+                    .ThenInclude(i => i.Product)
+                        .ThenInclude(p => p!.Images)
+                .FirstOrDefaultAsync(w => w.UserId == userId, cancellationToken);
+
+            if (wishlist == null)
+            {
+                wishlist = Domain.Entities.Wishlist.Create(userId);
+                _context.Wishlists.Add(wishlist);
+                await _context.SaveChangesAsync(cancellationToken);
+            }
+
+            var items = wishlist.Items.Select(i => new WishlistItemDto(
+                i.Id,
+                i.ProductId,
+                i.Product?.Name ?? string.Empty,
+                i.Product?.Price ?? 0,
+                i.Product?.MainImageUrl,
+                i.AddedAt
+            )).ToList();
+
+            return Result<List<WishlistItemDto>>.Success(items);
         }
-
-        var items = wishlist.Items.Select(i => new WishlistItemDto(
-            i.Id,
-            i.ProductId,
-            i.Product?.Name ?? string.Empty,
-            i.Product?.Price ?? 0,
-            i.Product?.MainImageUrl,
-            i.AddedAt
-        )).ToList();
-
-        return Result<List<WishlistItemDto>>.Success(items);
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error retrieving wishlist for user {UserId}", userId);
+            return Result<List<WishlistItemDto>>.Failure("Failed to retrieve wishlist", "WISHLIST_GET_ERROR");
+        }
     }
 
     public async Task<Result<bool>> ToggleWishlistItemAsync(Guid userId, Guid productId, CancellationToken cancellationToken = default)
     {
-        var wishlist = await _context.Wishlists
-            .Include(w => w.Items)
-            .FirstOrDefaultAsync(w => w.UserId == userId, cancellationToken);
-
-        if (wishlist == null)
+        try
         {
-            wishlist = Domain.Entities.Wishlist.Create(userId);
-            _context.Wishlists.Add(wishlist);
-        }
+            var wishlist = await _context.Wishlists
+                .Include(w => w.Items)
+                .FirstOrDefaultAsync(w => w.UserId == userId, cancellationToken);
 
-        if (wishlist.HasProduct(productId))
+            if (wishlist == null)
+            {
+                wishlist = Domain.Entities.Wishlist.Create(userId);
+                _context.Wishlists.Add(wishlist);
+                await _context.SaveChangesAsync(cancellationToken);
+                _logger.LogInformation("Created new wishlist for user {UserId}", userId);
+            }
+
+            if (wishlist.HasProduct(productId))
+            {
+                wishlist.RemoveItemByProduct(productId);
+                _logger.LogInformation("Removed product {ProductId} from wishlist for user {UserId}", productId, userId);
+            }
+            else
+            {
+                var product = await _context.Products.FindAsync(new object[] { productId }, cancellationToken);
+                if (product == null)
+                {
+                    _logger.LogWarning("Product {ProductId} not found when toggling wishlist for user {UserId}", productId, userId);
+                    return Result<bool>.Failure($"Product with ID '{productId}' was not found", "PRODUCT_NOT_FOUND");
+                }
+
+                try
+                {
+                    wishlist.AddItem(productId);
+                    _logger.LogInformation("Added product {ProductId} to wishlist for user {UserId}", productId, userId);
+                }
+                catch (InvalidOperationException ex)
+                {
+                    _logger.LogWarning(ex, "Product {ProductId} already in wishlist for user {UserId}", productId, userId);
+                    return Result<bool>.Failure("Product is already in wishlist", "PRODUCT_ALREADY_IN_WISHLIST");
+                }
+            }
+
+            await _context.SaveChangesAsync(cancellationToken);
+            return Result<bool>.Success(!wishlist.HasProduct(productId));
+        }
+        catch (Exception ex)
         {
-            wishlist.RemoveItemByProduct(productId);
+            _logger.LogError(ex, "Error toggling wishlist item for user {UserId}, product {ProductId}. Error: {Message}", userId, productId, ex.Message);
+            return Result<bool>.Failure($"Failed to toggle wishlist item: {ex.Message}", "WISHLIST_TOGGLE_ERROR");
         }
-        else
-        {
-            var productExists = await _context.Products.AnyAsync(p => p.Id == productId, cancellationToken);
-            if (!productExists)
-                return Result<bool>.Failure("Product not found", "PRODUCT_NOT_FOUND");
-
-            wishlist.AddItem(productId);
-        }
-
-        await _context.SaveChangesAsync(cancellationToken);
-        return Result<bool>.Success(!wishlist.HasProduct(productId));
     }
 
-    public async Task<Result<List<WishlistItemDto>>> SyncWishlistAsync(Guid userId, List<Guid> localProductIds, CancellationToken cancellationToken = default)
+    public async Task<Result<List<WishlistItemDto>>> SyncWishlistAsync(Guid userId, List<Guid>? localProductIds, CancellationToken cancellationToken = default)
     {
-        var wishlist = await _context.Wishlists
-            .Include(w => w.Items)
-            .FirstOrDefaultAsync(w => w.UserId == userId, cancellationToken);
-
-        if (wishlist == null)
+        try
         {
-            wishlist = Domain.Entities.Wishlist.Create(userId);
-            _context.Wishlists.Add(wishlist);
-        }
-
-        var existingProductIds = wishlist.Items.Select(i => i.ProductId).ToHashSet();
-
-        foreach (var productId in localProductIds.Except(existingProductIds))
-        {
-            var productExists = await _context.Products.AnyAsync(p => p.Id == productId, cancellationToken);
-            if (productExists)
+            if (localProductIds == null || localProductIds.Count == 0)
             {
-                wishlist.AddItem(productId);
+                _logger.LogInformation("No local product IDs provided for wishlist sync for user {UserId}", userId);
+                return Result<List<WishlistItemDto>>.Success(new List<WishlistItemDto>());
             }
+
+            var wishlist = await _context.Wishlists
+                .Include(w => w.Items)
+                .FirstOrDefaultAsync(w => w.UserId == userId, cancellationToken);
+
+            if (wishlist == null)
+            {
+                wishlist = Domain.Entities.Wishlist.Create(userId);
+                _context.Wishlists.Add(wishlist);
+                await _context.SaveChangesAsync(cancellationToken);
+            }
+
+            var existingProductIds = wishlist.Items.Select(i => i.ProductId).ToHashSet();
+            var validProductIds = localProductIds.Except(existingProductIds).ToList();
+
+            if (validProductIds.Count > 0)
+            {
+                var existingProducts = await _context.Products
+                    .Where(p => validProductIds.Contains(p.Id))
+                    .Select(p => p.Id)
+                    .ToListAsync(cancellationToken);
+
+                foreach (var productId in existingProducts)
+                {
+                    try
+                    {
+                        wishlist.AddItem(productId);
+                    }
+                    catch (InvalidOperationException)
+                    {
+                        _logger.LogWarning("Product {ProductId} already exists in wishlist for user {UserId}", productId, userId);
+                    }
+                }
+
+                await _context.SaveChangesAsync(cancellationToken);
+            }
+
+            var updatedWishlist = await _context.Wishlists
+                .Include(w => w.Items)
+                    .ThenInclude(i => i.Product)
+                        .ThenInclude(p => p!.Images)
+                .FirstOrDefaultAsync(w => w.UserId == userId, cancellationToken);
+
+            var items = updatedWishlist!.Items.Select(i => new WishlistItemDto(
+                i.Id,
+                i.ProductId,
+                i.Product?.Name ?? string.Empty,
+                i.Product?.Price ?? 0,
+                i.Product?.MainImageUrl,
+                i.AddedAt
+            )).ToList();
+
+            return Result<List<WishlistItemDto>>.Success(items);
         }
-
-        await _context.SaveChangesAsync(cancellationToken);
-
-        var updatedWishlist = await _context.Wishlists
-            .Include(w => w.Items)
-                .ThenInclude(i => i.Product)
-                    .ThenInclude(p => p!.Images)
-            .FirstOrDefaultAsync(w => w.UserId == userId, cancellationToken);
-
-        var items = updatedWishlist!.Items.Select(i => new WishlistItemDto(
-            i.Id,
-            i.ProductId,
-            i.Product?.Name ?? string.Empty,
-            i.Product?.Price ?? 0,
-            i.Product?.MainImageUrl,
-            i.AddedAt
-        )).ToList();
-
-        return Result<List<WishlistItemDto>>.Success(items);
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error syncing wishlist for user {UserId}", userId);
+            return Result<List<WishlistItemDto>>.Failure("Failed to sync wishlist", "WISHLIST_SYNC_ERROR");
+        }
     }
 }
