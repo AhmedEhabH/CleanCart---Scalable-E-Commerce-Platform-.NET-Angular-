@@ -4,6 +4,7 @@ import { BehaviorSubject, Observable, tap, map } from 'rxjs';
 import { isPlatformBrowser } from '@angular/common';
 import { environment } from '../../../environments/environment';
 import { LoginRequest, RegisterRequest, AuthResponse, AuthUser, ApiResponse } from '../models';
+import { WishlistService } from './wishlist.service';
 
 interface StorageInterface {
   getItem(key: string): string | null;
@@ -18,6 +19,7 @@ export class AuthService {
   private readonly http = inject(HttpClient);
   private readonly baseUrl = environment.apiBaseUrl;
   private readonly platformId = inject(PLATFORM_ID);
+  private readonly wishlistService = inject(WishlistService);
 
   private readonly TOKEN_KEY = 'access_token';
   private readonly REFRESH_TOKEN_KEY = 'refresh_token';
@@ -139,6 +141,7 @@ export class AuthService {
     };
     storage.setItem(this.USER_KEY, JSON.stringify(user));
     this.authUserSubject.next(user);
+    this.wishlistService.syncWithServer();
   }
 
   private extractUserIdFromToken(token: string): string | null {

@@ -1,16 +1,26 @@
 import { Injectable, inject, PLATFORM_ID } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
-import { BehaviorSubject, Observable, tap, map, catchError, of } from 'rxjs';
+import { BehaviorSubject, Observable, tap, map, catchError, of, firstValueFrom } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { Product } from '../../features/products/models/product.model';
 import { ApiResponse } from '../models';
+import { AuthService } from './auth.service';
 
 const STORAGE_KEY = 'wishlist_items';
 
 interface WishlistState {
   items: Product[];
   loading: boolean;
+}
+
+interface WishlistItemDto {
+  id: string;
+  productId: string;
+  productName: string;
+  price: number;
+  mainImageUrl: string | null;
+  addedAt: string;
 }
 
 @Injectable({
@@ -20,6 +30,7 @@ export class WishlistService {
   private readonly http = inject(HttpClient);
   private readonly baseUrl = environment.apiBaseUrl;
   private readonly platformId = inject(PLATFORM_ID);
+  private readonly authService = inject(AuthService);
 
   private wishlistStateSubject = new BehaviorSubject<WishlistState>({
     items: [],
@@ -76,6 +87,12 @@ export class WishlistService {
     }
   }
 
+  private clearLocalStorage(): void {
+    if (isPlatformBrowser(this.platformId)) {
+      localStorage.removeItem(STORAGE_KEY);
+    }
+  }
+
   private loadFromStorage(): void {
     const ids = this.getStoredIds();
     if (!ids || ids.length === 0) {
@@ -110,23 +127,74 @@ export class WishlistService {
     return this.wishlistStateSubject.value.items.some(p => p.id === productId);
   }
 
-  toggleWishlist(product: Product): void {
-    const current = this.wishlistStateSubject.value;
-    const exists = current.items.some(p => p.id === product.id);
-
-    let newItems: Product[];
-    let newIds: string[];
-
-    if (exists) {
-      newItems = current.items.filter(p => p.id !== product.id);
-      newIds = newItems.map(p => p.id);
-    } else {
-      newItems = [...current.items, product];
-      newIds = newItems.map(p => p.id);
+  async syncWithServer(): Promise<void> {
+    if (!this.authService.isAuthenticated) {
+      return;
     }
 
-    this.persistIds(newIds);
-    this.wishlistStateSubject.next({ ...current, items: newItems });
+    const localIds = this.getStoredIds();
+    if (localIds.length === 0) {
+      return;
+    }
+
+    try {
+      const response = await firstValueFrom(
+        this.http.post<ApiResponse<WishlistItemDto[]>>(`${this.baseUrl}/wishlist/sync`, localIds)
+      );
+
+      if (response.data && response.data.length > 0) {
+        const products: Product[] = response.data.map(item => ({
+          id: item.productId,
+          name: item.productName,
+          price: item.price,
+          mainImageUrl: item.mainImageUrl
+        } as Product));
+
+        this.clearLocalStorage();
+        this.wishlistStateSubject.next({ items: products, loading: false });
+      } else {
+        this.clearLocalStorage();
+        this.wishlistStateSubject.next({ items: [], loading: false });
+      }
+    } catch (error) {
+      console.error('Failed to sync wishlist with server:', error);
+    }
+  }
+
+  toggleWishlist(product: Product): void {
+    if (this.authService.isAuthenticated) {
+      this.http.post<ApiResponse<boolean>>(`${this.baseUrl}/wishlist/toggle/${product.id}`, {}).subscribe({
+        next: (response) => {
+          if (response.data !== undefined) {
+            const current = this.wishlistStateSubject.value;
+            const newItems = response.data
+              ? [...current.items, product]
+              : current.items.filter(p => p.id !== product.id);
+            this.wishlistStateSubject.next({ ...current, items: newItems });
+          }
+        },
+        error: (err) => {
+          console.error('Failed to toggle wishlist item:', err);
+        }
+      });
+    } else {
+      const current = this.wishlistStateSubject.value;
+      const exists = current.items.some(p => p.id === product.id);
+
+      let newItems: Product[];
+      let newIds: string[];
+
+      if (exists) {
+        newItems = current.items.filter(p => p.id !== product.id);
+        newIds = newItems.map(p => p.id);
+      } else {
+        newItems = [...current.items, product];
+        newIds = newItems.map(p => p.id);
+      }
+
+      this.persistIds(newIds);
+      this.wishlistStateSubject.next({ ...current, items: newItems });
+    }
   }
 
   removeFromWishlist(productId: string): void {
