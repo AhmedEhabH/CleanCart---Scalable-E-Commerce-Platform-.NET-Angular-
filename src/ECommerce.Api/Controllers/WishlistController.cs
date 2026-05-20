@@ -13,7 +13,10 @@ namespace ECommerce.Api.Controllers;
 [ApiController]
 [Route("api/[controller]")]
 [EnableRateLimiting("global")]
+<<<<<<< HEAD
 
+=======
+>>>>>>> feat/backend-wishlist
 public class WishlistController : BaseApiController
 {
     private readonly IWishlistService _wishlistService;
