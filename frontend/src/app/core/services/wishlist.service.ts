@@ -1,10 +1,11 @@
-import { Injectable, inject, PLATFORM_ID } from '@angular/core';
+import { Injectable, inject, PLATFORM_ID, Injector } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
-import { BehaviorSubject, Observable, tap, map, catchError, of } from 'rxjs';
+import { BehaviorSubject, Observable, tap, map, catchError, of, firstValueFrom } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { Product } from '../../features/products/models/product.model';
 import { ApiResponse } from '../models';
+import { AuthService } from './auth.service';
 
 const STORAGE_KEY = 'wishlist_items';
 
@@ -20,6 +21,7 @@ export class WishlistService {
   private readonly http = inject(HttpClient);
   private readonly baseUrl = environment.apiBaseUrl;
   private readonly platformId = inject(PLATFORM_ID);
+  private readonly injector = inject(Injector);
 
   private wishlistStateSubject = new BehaviorSubject<WishlistState>({
     items: [],
@@ -34,6 +36,10 @@ export class WishlistService {
   wishlistCount$: Observable<number> = this.wishlistState$.pipe(
     map(state => state.items.length)
   );
+
+  private get authService(): AuthService {
+    return this.injector.get(AuthService);
+  }
 
   constructor() {
     if (isPlatformBrowser(this.platformId)) {
@@ -110,23 +116,96 @@ export class WishlistService {
     return this.wishlistStateSubject.value.items.some(p => p.id === productId);
   }
 
-  toggleWishlist(product: Product): void {
-    const current = this.wishlistStateSubject.value;
-    const exists = current.items.some(p => p.id === product.id);
+  private getStoredIdsForSync(): string[] {
+    if (!isPlatformBrowser(this.platformId)) {
+      return [];
+    }
+    const stored = localStorage.getItem(STORAGE_KEY);
+    if (stored) {
+      try {
+        const ids: string[] = JSON.parse(stored);
+        return this.filterValidGuids(ids);
+      } catch {
+        return [];
+      }
+    }
+    return [];
+  }
 
-    let newItems: Product[];
-    let newIds: string[];
+  private clearLocalStorage(): void {
+    if (isPlatformBrowser(this.platformId)) {
+      localStorage.removeItem(STORAGE_KEY);
+    }
+  }
 
-    if (exists) {
-      newItems = current.items.filter(p => p.id !== product.id);
-      newIds = newItems.map(p => p.id);
-    } else {
-      newItems = [...current.items, product];
-      newIds = newItems.map(p => p.id);
+  async syncWithServer(): Promise<void> {
+    if (!this.authService.isAuthenticated) {
+      return;
     }
 
-    this.persistIds(newIds);
-    this.wishlistStateSubject.next({ ...current, items: newItems });
+    const localIds = this.getStoredIdsForSync();
+    if (localIds.length === 0) {
+      return;
+    }
+
+    try {
+      const response = await firstValueFrom(
+        this.http.post<ApiResponse<any[]>>(`${this.baseUrl}/wishlist/sync`, localIds)
+      );
+
+      if (response.data && response.data.length > 0) {
+        const products: Product[] = response.data.map((item: any) => ({
+          id: item.productId,
+          name: item.productName,
+          price: item.price,
+          mainImageUrl: item.mainImageUrl
+        } as Product));
+
+        this.clearLocalStorage();
+        this.wishlistStateSubject.next({ items: products, loading: false });
+      } else {
+        this.clearLocalStorage();
+        this.wishlistStateSubject.next({ items: [], loading: false });
+      }
+    } catch (error) {
+      console.error('Failed to sync wishlist with server:', error);
+    }
+  }
+
+  toggleWishlist(product: Product): void {
+    if (this.authService.isAuthenticated) {
+      this.http.post<ApiResponse<boolean>>(`${this.baseUrl}/wishlist/toggle/${product.id}`, {}).subscribe({
+        next: (response) => {
+          if (response.data !== undefined) {
+            const current = this.wishlistStateSubject.value;
+            const newItems = response.data
+              ? [...current.items, product]
+              : current.items.filter(p => p.id !== product.id);
+            this.wishlistStateSubject.next({ ...current, items: newItems });
+          }
+        },
+        error: (err) => {
+          console.error('Failed to toggle wishlist item:', err);
+        }
+      });
+    } else {
+      const current = this.wishlistStateSubject.value;
+      const exists = current.items.some(p => p.id === product.id);
+
+      let newItems: Product[];
+      let newIds: string[];
+
+      if (exists) {
+        newItems = current.items.filter(p => p.id !== product.id);
+        newIds = newItems.map(p => p.id);
+      } else {
+        newItems = [...current.items, product];
+        newIds = newItems.map(p => p.id);
+      }
+
+      this.persistIds(newIds);
+      this.wishlistStateSubject.next({ ...current, items: newItems });
+    }
   }
 
   removeFromWishlist(productId: string): void {
