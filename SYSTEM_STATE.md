@@ -316,4 +316,4 @@ All backend routes are prefixed with `/api` (e.g., `/api/products`, `/api/auth/l
 - **Observability**: OpenTelemetry is configured to trace HTTP requests, EF Core SQL queries, and MassTransit events, exporting OTLP data to a local Seq container.
 - **No localization/i18n**: English-only UI.
 - **No PWA/offline support**: No service worker or offline caching.
-- **Wishlist is client-only**: Stored in localStorage, not synced to server.
+- **Wishlist Persistence**: Implemented DB-backed wishlist syncing to replace client-side localStorage.

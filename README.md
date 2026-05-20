@@ -16,7 +16,7 @@ This project demonstrates a complete e-commerce platform featuring a robust back
 - Secure checkout process
 - Order history and tracking
 - User authentication (login/register)
-- Wishlist functionality
+- Wishlist functionality (synced to user profile upon login)
 - Responsive design for mobile and desktop
 
 ### Admin & Business Features
