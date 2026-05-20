@@ -57,9 +57,14 @@ public class WishlistService : IWishlistService
     {
         try
         {
+            _logger.LogInformation("Attempting to toggle product {ProductId} for user {UserId}", productId, userId);
+
             var productExists = await _context.Products.AnyAsync(p => p.Id == productId, cancellationToken);
             if (!productExists)
-                return Result<bool>.Failure($"Product with ID '{productId}' was not found", "PRODUCT_NOT_FOUND");
+            {
+                _logger.LogWarning("Toggle failed: Product {ProductId} not found.", productId);
+                return Result<bool>.Failure("Product not found.");
+            }
 
             var wishlist = await _context.Wishlists
                 .Include(w => w.Items)
