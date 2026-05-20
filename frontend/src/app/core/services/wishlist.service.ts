@@ -165,6 +165,39 @@ export class WishlistService {
     }
   }
 
+  syncWishlistWithServer(): void {
+    if (!this.authService.isAuthenticated) {
+      return;
+    }
+
+    const localIds = this.getStoredIds();
+    if (localIds.length === 0) {
+      return;
+    }
+
+    this.http.post<ApiResponse<WishlistItemDto[]>>(`${this.baseUrl}/wishlist/sync`, localIds).subscribe({
+      next: (response) => {
+        if (response.data && response.data.length > 0) {
+          const products: Product[] = response.data.map(item => ({
+            id: item.productId,
+            name: item.productName,
+            price: item.price,
+            mainImageUrl: item.mainImageUrl
+          } as Product));
+
+          this.clearLocalStorage();
+          this.wishlistStateSubject.next({ items: products, loading: false });
+        } else {
+          this.clearLocalStorage();
+          this.wishlistStateSubject.next({ items: [], loading: false });
+        }
+      },
+      error: (err) => {
+        console.error('Failed to sync wishlist with server:', err);
+      }
+    });
+  }
+
   toggleWishlist(product: Product): void {
     if (this.authService.isAuthenticated) {
       this.http.post<ApiResponse<boolean>>(`${this.baseUrl}/wishlist/toggle/${product.id}`, {}).subscribe({
@@ -198,6 +231,45 @@ export class WishlistService {
 
       this.persistIds(newIds);
       this.wishlistStateSubject.next({ ...current, items: newItems });
+    }
+  }
+
+  toggleItem(productId: string): void {
+    if (this.authService.isAuthenticated) {
+      this.http.post<ApiResponse<boolean>>(`${this.baseUrl}/wishlist/toggle/${productId}`, {}).subscribe({
+        next: (response) => {
+          if (response.data !== undefined) {
+            const current = this.wishlistStateSubject.value;
+            if (response.data) {
+              this.fetchProductsByIds([productId]).subscribe(products => {
+                const newItems = products.length > 0
+                  ? [...current.items, products[0]]
+                  : current.items;
+                this.wishlistStateSubject.next({ ...current, items: newItems });
+              });
+            } else {
+              this.wishlistStateSubject.next({ ...current, items: current.items.filter(p => p.id !== productId) });
+            }
+          }
+        },
+        error: (err) => {
+          console.error('Failed to toggle wishlist item:', err);
+        }
+      });
+    } else {
+      const current = this.wishlistStateSubject.value;
+      const exists = current.items.some(p => p.id === productId);
+      const storedIds = this.getStoredIds();
+
+      if (exists) {
+        const newItems = current.items.filter(p => p.id !== productId);
+        const newIds = storedIds.filter(id => id !== productId);
+        this.persistIds(newIds);
+        this.wishlistStateSubject.next({ ...current, items: newItems });
+      } else {
+        const newIds = [...storedIds, productId];
+        this.persistIds(newIds);
+      }
     }
   }
 

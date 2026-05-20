@@ -141,7 +141,7 @@ export class AuthService {
     };
     storage.setItem(this.USER_KEY, JSON.stringify(user));
     this.authUserSubject.next(user);
-    this.wishlistService.syncWithServer();
+    this.wishlistService.syncWishlistWithServer();
   }
 
   private extractUserIdFromToken(token: string): string | null {
