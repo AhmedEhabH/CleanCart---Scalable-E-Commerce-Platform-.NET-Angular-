@@ -10,7 +10,7 @@ using Microsoft.AspNetCore.RateLimiting;
 namespace ECommerce.Api.Controllers;
 
 [Authorize]
-[EnableRateLimiting("default")]
+[EnableRateLimiting("global")]
 public class WishlistController : BaseApiController
 {
     private readonly IWishlistService _wishlistService;
