@@ -1,28 +1,30 @@
-using Microsoft.EntityFrameworkCore;
-using Microsoft.AspNetCore.Mvc;
-using ECommerce.Api.Middleware;
 using ECommerce.Api.Extensions;
 using ECommerce.Api.Filters;
-using ECommerce.Infrastructure.Data;
-using ECommerce.Infrastructure.Services;
-using ECommerce.Infrastructure.Seeding;
+using ECommerce.Api.Hubs;
+using ECommerce.Api.Middleware;
+using ECommerce.Api.Services;
 using ECommerce.Application.Common.Interfaces;
 using ECommerce.Application.Common.Models;
+using ECommerce.Application.Consumers;
+using ECommerce.Application.Wishlist.Interfaces;
+using ECommerce.Application.Wishlist.Services;
+using ECommerce.Infrastructure.Data;
+using ECommerce.Infrastructure.Seeding;
+using ECommerce.Infrastructure.Services;
 using FluentValidation;
+using Hangfire;
+using MassTransit;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
-using System.Text;
-using System.Threading.RateLimiting;
-using Hangfire;
-using ECommerce.Application.Consumers;
-using ECommerce.Api.Hubs;
-using ECommerce.Api.Services;
-using MassTransit;
 using OpenTelemetry.Resources;
 using OpenTelemetry.Trace;
+using System.Text;
+using System.Threading.RateLimiting;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -187,6 +189,7 @@ builder.Services.AddMassTransit(x =>
 builder.Services.AddSignalR();
 
 builder.Services.AddScoped<INotificationService, SignalRNotificationService>();
+builder.Services.AddScoped<IWishlistService, WishlistService>();
 
 builder.Services.AddHealthChecks()
     .AddDbContextCheck<ApplicationDbContext>(
