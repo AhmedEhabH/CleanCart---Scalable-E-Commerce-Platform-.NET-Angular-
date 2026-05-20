@@ -1,4 +1,4 @@
-import { Injectable, inject, PLATFORM_ID } from '@angular/core';
+import { Injectable, inject, PLATFORM_ID, Injector } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { BehaviorSubject, Observable, tap, map, catchError, of, firstValueFrom } from 'rxjs';
@@ -30,7 +30,7 @@ export class WishlistService {
   private readonly http = inject(HttpClient);
   private readonly baseUrl = environment.apiBaseUrl;
   private readonly platformId = inject(PLATFORM_ID);
-  private readonly authService = inject(AuthService);
+  private readonly injector = inject(Injector);
 
   private wishlistStateSubject = new BehaviorSubject<WishlistState>({
     items: [],
@@ -45,6 +45,10 @@ export class WishlistService {
   wishlistCount$: Observable<number> = this.wishlistState$.pipe(
     map(state => state.items.length)
   );
+
+  private get authService(): AuthService {
+    return this.injector.get(AuthService);
+  }
 
   constructor() {
     if (isPlatformBrowser(this.platformId)) {
