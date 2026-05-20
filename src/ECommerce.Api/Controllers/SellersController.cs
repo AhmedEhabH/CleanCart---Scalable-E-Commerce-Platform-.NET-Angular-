@@ -89,7 +89,7 @@ public class SellersController : ControllerBase
                 p.StockQuantity <= p.LowStockThreshold,
                 p.CompareAtPrice.HasValue && p.CompareAtPrice > p.Price,
                 0,
-                p.Images.OrderBy(i => i.DisplayOrder).FirstOrDefault().ImageUrl ?? string.Empty,
+                p.Images.OrderBy(i => i.DisplayOrder).FirstOrDefault()!.ImageUrl! ?? string.Empty,
                 p.Images.Select(i => new ProductImageDto(i.Id, i.ImageUrl, i.AltText, i.DisplayOrder)).ToList(),
                 p.CreatedAt,
                 p.UpdatedAt ?? DateTime.UtcNow))
